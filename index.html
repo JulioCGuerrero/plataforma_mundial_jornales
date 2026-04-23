@@ -1,0 +1,873 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Estadio Banorte · Control de Jornales · Mundial 2026</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;600;700;800;900&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --red:#CC0000;--red2:#E60000;--red-dark:#8B0000;
+  --white:#FFFFFF;--dark:#111111;
+  --gray:#F5F5F5;--gray2:#EBEBEB;
+  --border:#E0E0E0;--border-red:#F5C0C0;
+  --text:#111111;--muted:#666;
+  --gold:#C8A84B;--gold2:#F0C842;
+}
+html,body{min-height:100vh;background:#E5DCDC;font-family:'Barlow',sans-serif;color:var(--text)}
+
+/* â”€â”€ HEADER â”€â”€ */
+.header{background:var(--dark);position:sticky;top:0;z-index:100;box-shadow:0 2px 20px rgba(0,0,0,.5)}
+.topbar{height:5px;background:linear-gradient(90deg,var(--red-dark),var(--red),#fff,var(--red),var(--red-dark))}
+.hinner{display:flex;align-items:center;gap:14px;padding:8px 28px;max-width:1440px;margin:0 auto}
+
+.sep{width:1px;height:38px;background:rgba(255,255,255,.15);flex-shrink:0}
+
+.htxt{flex:1}
+.htitle{font-family:'Bebas Neue',sans-serif;color:white;font-size:22px;letter-spacing:3px;line-height:1}
+.hsub{font-size:9px;color:rgba(255,255,255,.4);letter-spacing:2px;font-weight:600;text-transform:uppercase;margin-top:2px}
+
+.nav{display:flex;gap:6px;margin-left:auto}
+.nav-btn{background:transparent;border:1.5px solid rgba(255,255,255,.18);color:rgba(255,255,255,.7);font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:13px;letter-spacing:1px;padding:8px 18px;border-radius:6px;cursor:pointer;transition:.15s;text-transform:uppercase}
+.nav-btn:hover,.nav-btn.active{background:var(--red);border-color:var(--red);color:white}
+
+/* â”€â”€ MASCOTS BAR â”€â”€ */
+.mascots-bar{background:linear-gradient(135deg,#1a0000,#2a0000,#1a0000);border-bottom:2px solid var(--red);padding:8px 28px;display:flex;align-items:center;justify-content:center;gap:32px}
+.mascot-item{display:flex;align-items:center;gap:8px}
+.mascot-item svg{width:36px;height:36px;flex-shrink:0}
+.mascot-txt{color:white}
+.mascot-name{font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:1.5px;color:var(--gold2);line-height:1}
+.mascot-desc{font-size:9px;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:.8px}
+.mascots-title{font-family:'Bebas Neue',sans-serif;font-size:11px;letter-spacing:2px;color:rgba(255,255,255,.3);text-transform:uppercase;align-self:center}
+
+/* â”€â”€ LAYOUT â”€â”€ */
+.wrap{max-width:1440px;margin:0 auto;padding:26px 28px 60px}
+.view{display:none}.view.active{display:block}
+.sec-head{display:flex;align-items:center;gap:10px;margin-bottom:20px}
+.sec-head h2{font-family:'Bebas Neue',sans-serif;font-size:28px;color:var(--red);letter-spacing:2px}
+.badge{background:var(--red);color:white;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;font-family:'Barlow Condensed',sans-serif}
+
+/* â”€â”€ CARD â”€â”€ */
+.card{background:white;border-radius:12px;border:1px solid var(--border);padding:20px;margin-bottom:16px}
+.card-title{font-family:'Bebas Neue',sans-serif;font-size:17px;letter-spacing:1.5px;color:var(--red);margin-bottom:14px}
+
+/* â”€â”€ FORM â”€â”€ */
+.form-row{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:13px}
+.fg{display:flex;flex-direction:column;gap:5px;flex:1;min-width:175px}
+.fg label{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px}
+.fg input,.fg select{border:1.5px solid var(--border);border-radius:8px;padding:9px 12px;font-family:'Barlow',sans-serif;font-size:14px;color:var(--text);background:white;outline:none;transition:.12s}
+.fg input:focus,.fg select:focus{border-color:var(--red);box-shadow:0 0 0 3px rgba(204,0,0,.08)}
+
+/* â”€â”€ BUTTONS â”€â”€ */
+.btn{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:14px;letter-spacing:.8px;text-transform:uppercase;padding:10px 22px;border-radius:8px;border:none;cursor:pointer;transition:.12s;display:inline-flex;align-items:center;gap:6px}
+.btn:active{transform:scale(.98)}
+.btn-red{background:var(--red);color:white}.btn-red:hover{background:var(--red2)}
+.btn-gold{background:var(--gold);color:var(--dark)}.btn-gold:hover{background:var(--gold2)}
+.btn-outline{background:transparent;color:var(--red);border:1.5px solid var(--red)}.btn-outline:hover{background:#FFF5F5}
+.btn-danger{background:transparent;color:var(--red);border:1.5px solid var(--border-red);border-radius:6px;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:11px;padding:3px 10px;cursor:pointer;transition:.12s}
+.btn-danger:hover{background:#FEF0F0}
+.btn-sm{padding:7px 15px;font-size:13px}
+.btn-xs{padding:4px 10px;font-size:11px}
+
+/* â”€â”€ EVENTS GRID â”€â”€ */
+.ev-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(275px,1fr));gap:14px;margin-bottom:24px}
+.ev-card{background:white;border-radius:12px;border:2px solid var(--border);overflow:hidden;cursor:pointer;transition:.15s}
+.ev-card:hover{border-color:var(--red);transform:translateY(-2px);box-shadow:0 6px 20px rgba(204,0,0,.12)}
+.ev-card.sel{border-color:var(--red);box-shadow:0 0 0 4px rgba(204,0,0,.15)}
+.ev-top{background:var(--red);padding:14px 16px;position:relative;overflow:hidden}
+.ev-top::after{content:'';position:absolute;bottom:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--gold),white,var(--gold))}
+.ev-top::before{content:'';position:absolute;top:-30px;right:-30px;width:100px;height:100px;border-radius:50%;background:rgba(255,255,255,.05)}
+.ev-tipo{display:inline-block;background:rgba(255,255,255,.15);color:rgba(255,255,255,.9);font-size:10px;font-weight:700;padding:2px 9px;border-radius:4px;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px}
+.ev-nombre{font-family:'Bebas Neue',sans-serif;font-size:21px;color:white;letter-spacing:1.5px;line-height:1.1}
+.ev-meta{font-size:11px;color:rgba(255,255,255,.6);margin-top:4px}
+.ev-extra{margin-top:10px;display:flex;flex-wrap:wrap;gap:6px}
+.ev-pill{font-size:9px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;padding:4px 8px;border-radius:999px;background:rgba(255,255,255,.14);color:white}
+.ev-body{padding:12px 16px}
+.ev-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.ev-stat{background:var(--gray);border-radius:7px;padding:7px 4px;text-align:center}
+.ev-stat .n{font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--red);line-height:1}
+.ev-stat .l{font-size:9px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.3px}
+
+/* â”€â”€ TURNOS â”€â”€ */
+.turnos-head{display:flex;align-items:center;gap:10px;margin:26px 0 14px}
+.ev-label{font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--red);letter-spacing:1.5px}
+.turnos-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.turno-card{background:white;border-radius:12px;overflow:hidden;border:1.5px solid var(--border);display:flex;flex-direction:column}
+.t-head{padding:12px 16px;display:flex;align-items:center;gap:10px}
+.t-antes .t-head{background:linear-gradient(135deg,#FFEAEA,#FFD5D5);border-bottom:2px solid #FFAAAA}
+.t-durante .t-head{background:var(--red);border-bottom:3px solid var(--gold)}
+.t-despues .t-head{background:var(--dark);border-bottom:2px solid var(--red)}
+.t-ico{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
+.t-antes .t-ico{background:var(--red);color:white}
+.t-durante .t-ico{background:var(--gold);color:var(--dark)}
+.t-despues .t-ico{background:var(--red);color:white}
+.t-lbl{font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:1px}
+.t-antes .t-lbl{color:var(--red)}
+.t-durante .t-lbl,.t-despues .t-lbl{color:white}
+.t-salary{margin-left:auto;font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:1px}
+.t-antes .t-salary{color:var(--red)}
+.t-durante .t-salary,.t-despues .t-salary{color:white}
+.t-body{padding:13px;flex:1}
+.add-row{display:flex;gap:7px;margin-bottom:10px}
+.add-row select{flex:1;border:1.5px solid var(--border);border-radius:7px;padding:8px 10px;font-family:'Barlow',sans-serif;font-size:13px;outline:none;background:white;color:var(--text)}
+.add-row select:focus{border-color:var(--red)}
+.emp-list{display:flex;flex-direction:column;gap:5px;max-height:230px;overflow-y:auto;padding-right:2px}
+.emp-list::-webkit-scrollbar{width:4px}
+.emp-list::-webkit-scrollbar-thumb{background:var(--gray2);border-radius:4px}
+.emp-item{display:flex;align-items:center;gap:9px;padding:8px 10px;background:var(--gray);border-radius:8px;transition:.1s}
+.emp-item:hover{background:var(--gray2)}
+.emp-av{width:32px;height:32px;border-radius:50%;background:var(--red);color:white;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;flex-shrink:0;font-family:'Barlow Condensed',sans-serif}
+.emp-info{flex:1}
+.emp-nm{font-size:13px;font-weight:600;color:var(--text)}
+.emp-ar{font-size:10px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.3px}
+.emp-pay{font-family:'Bebas Neue',sans-serif;font-size:16px;color:var(--red);margin-right:4px}
+.t-foot{padding:9px 14px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;background:var(--gray)}
+.t-total{font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;color:var(--muted)}
+.t-total strong{font-family:'Bebas Neue',sans-serif;font-size:16px;color:var(--red)}
+.empty{text-align:center;padding:20px;color:var(--muted);font-size:13px;font-style:italic}
+
+/* â”€â”€ TABLES â”€â”€ */
+.tbl-wrap{background:white;border-radius:12px;border:1px solid var(--border);overflow:auto}
+table{width:100%;border-collapse:collapse;font-size:13px;min-width:1240px}
+thead th{text-align:left;padding:11px 16px;background:var(--red);color:white;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:13px;letter-spacing:.8px;text-transform:uppercase}
+tbody td{padding:10px 16px;border-bottom:1px solid var(--border);color:var(--text)}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover td{background:var(--gray)}
+.tag{display:inline-block;font-size:10px;font-weight:700;padding:2px 9px;border-radius:4px;text-transform:uppercase;letter-spacing:.3px;background:#FFEAEA;color:var(--red)}
+.cell-stack{display:flex;flex-direction:column;gap:3px}
+.cell-muted{font-size:11px;color:var(--muted);line-height:1.2}
+.cell-badge{display:inline-flex;align-items:center;gap:4px;width:max-content;font-size:10px;font-weight:700;padding:2px 8px;border-radius:999px;background:#EEF8EE;color:#1E7A3A;text-transform:uppercase;letter-spacing:.3px}
+.cell-badge.off{background:#FFF3F3;color:var(--red)}
+.contact-line{font-size:11px;line-height:1.25;color:var(--text)}
+.contact-line strong{color:var(--muted);text-transform:uppercase;font-size:9px;letter-spacing:.4px}
+.file-input{border:1.5px dashed var(--border);border-radius:8px;padding:9px 12px;background:#FCFCFC;font-size:13px}
+.file-preview{font-size:11px;color:var(--muted);margin-top:4px}
+
+/* â”€â”€ RESUMEN â”€â”€ */
+.res-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:22px}
+.res-card{background:white;border-radius:12px;border:1.5px solid var(--border);padding:16px 18px}
+.res-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:4px}
+.res-val{font-family:'Bebas Neue',sans-serif;font-size:32px;color:var(--red);line-height:1}
+.res-sub{font-size:11px;color:var(--muted);margin-top:3px}
+.res-card.hl{border-color:var(--gold);background:linear-gradient(135deg,#FFFCE8,#FFF5CC)}
+.res-card.hl .res-val{color:var(--dark)}
+.dl-area{background:white;border:1px solid var(--border);border-radius:12px;padding:18px;margin-top:16px}
+.dl-title{font-family:'Bebas Neue',sans-serif;font-size:17px;letter-spacing:1.5px;color:var(--red);margin-bottom:12px}
+.dl-btns{display:flex;gap:9px;flex-wrap:wrap}
+
+/* â”€â”€ TOAST â”€â”€ */
+.toast{position:fixed;bottom:26px;right:26px;background:var(--dark);color:white;padding:12px 22px;border-radius:10px;font-size:14px;font-weight:600;font-family:'Barlow Condensed',sans-serif;letter-spacing:.5px;z-index:999;opacity:0;transform:translateY(8px);transition:all .22s;pointer-events:none;border-left:4px solid var(--gold)}
+.toast.show{opacity:1;transform:translateY(0)}
+
+@media(max-width:1000px){.turnos-grid{grid-template-columns:1fr}}
+@media(max-width:800px){.res-grid{grid-template-columns:repeat(2,1fr)}.wrap{padding:18px 16px 60px}.ev-grid{grid-template-columns:1fr}.mascots-bar{gap:16px}}
+@media(max-width:600px){.nav-btn{padding:7px 10px;font-size:11px}.hinner{padding:8px 14px}.mascot-desc{display:none}}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="topbar"></div>
+  <div class="hinner">
+
+    <!-- LOGO ESTADIO BANORTE: Silueta del Azteca + nombre -->
+    <svg width="180" height="46" viewBox="0 0 180 46" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <!-- Silueta estadio Azteca (techo caracol icónico) -->
+      <g transform="translate(0,2)">
+        <!-- Base/gradas -->
+        <ellipse cx="30" cy="34" rx="28" ry="7" fill="#CC0000" opacity=".9"/>
+        <!-- Cuerpo estadio -->
+        <rect x="5" y="18" width="50" height="16" rx="2" fill="#CC0000" opacity=".85"/>
+        <!-- Techo volado izquierdo -->
+        <path d="M2 18 Q6 8 14 10 L14 18Z" fill="#CC0000"/>
+        <!-- Techo volado derecho -->
+        <path d="M58 18 Q54 8 46 10 L46 18Z" fill="#CC0000"/>
+        <!-- Techo central caracol -->
+        <path d="M10 18 Q12 6 20 5 Q30 3 30 3 Q40 3 40 5 Q48 6 50 18Z" fill="#E60000"/>
+        <!-- Apertura cancha -->
+        <ellipse cx="30" cy="22" rx="14" ry="5" fill="#006400" opacity=".7"/>
+        <!-- Lineas cancha -->
+        <line x1="30" y1="17" x2="30" y2="27" stroke="white" stroke-width=".5" opacity=".5"/>
+        <ellipse cx="30" cy="22" rx="5" ry="2" fill="none" stroke="white" stroke-width=".5" opacity=".5"/>
+      </g>
+      <!-- Texto -->
+      <text x="68" y="22" font-family="'Bebas Neue',sans-serif" font-size="16" fill="#CC0000" letter-spacing="2">ESTADIO</text>
+      <text x="68" y="38" font-family="'Bebas Neue',sans-serif" font-size="20" fill="white" letter-spacing="2">BANORTE</text>
+    </svg>
+
+    <div class="sep"></div>
+    <div class="htxt">
+      <div class="htitle">CONTROL DE JORNALES</div>
+      <div class="hsub">Sistema de Asistencia · Operaciones de Evento</div>
+    </div>
+    <div class="sep"></div>
+
+    <!-- FIFA WC 2026 logo -->
+    <svg width="160" height="46" viewBox="0 0 160 46" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <!-- Trofeo -->
+      <path d="M20 4 C20 4 12 9 10 16 C8 22 12 27 17 29 L17 34 L13 36 L27 36 L23 34 L23 29 C28 27 32 22 30 16 C28 9 20 4 20 4Z" fill="#C8A84B"/>
+      <rect x="15" y="34" width="10" height="2.5" rx="1.2" fill="#C8A84B"/>
+      <rect x="12" y="36.5" width="16" height="2.5" rx="1.2" fill="#C8A84B"/>
+      <polygon points="20,1 21.2,4.5 25,4.5 22,6.5 23.2,10 20,8 16.8,10 18,6.5 15,4.5 18.8,4.5" fill="white" opacity=".9"/>
+      <!-- Texto -->
+      <text x="36" y="17" font-family="'Barlow Condensed',sans-serif" font-weight="800" font-size="11" fill="white" letter-spacing="1">FIFA WORLD CUP</text>
+      <text x="36" y="30" font-family="'Bebas Neue',sans-serif" font-size="14" fill="#C8A84B" letter-spacing="2">MEXICO 2026</text>
+      <text x="36" y="42" font-family="'Barlow Condensed',sans-serif" font-weight="700" font-size="9" fill="rgba(255,255,255,0.4)" letter-spacing="1">11 JUN - 19 JUL</text>
+    </svg>
+
+    <nav class="nav">
+      <button class="nav-btn active" onclick="gotoView('eventos',this)">⚡ Eventos</button>
+      <button class="nav-btn" onclick="gotoView('empleados',this)">👷 Jornales</button>
+      <button class="nav-btn" onclick="gotoView('resumen',this)">📊 Resumen</button>
+    </nav>
+  </div>
+</div>
+
+<!-- MASCOTS BAR: Zayu (jaguar MX), Maple (alce CA), Clutch (águila USA) -->
+<div class="mascots-bar">
+  <div class="mascots-title">Mascotas Oficiales</div>
+
+  <!-- ZAYU - Jaguar México -->
+  <div class="mascot-item">
+    <svg width="36" height="36" viewBox="0 0 36 36" fill="none">
+      <!-- Cuerpo jaguar verde México -->
+      <circle cx="18" cy="18" r="16" fill="#006847" opacity=".15"/>
+      <!-- Cabeza -->
+      <ellipse cx="18" cy="16" rx="9" ry="8" fill="#D4860A"/>
+      <!-- Orejas -->
+      <polygon points="10,10 8,4 14,8" fill="#D4860A"/>
+      <polygon points="26,10 28,4 22,8" fill="#D4860A"/>
+      <polygon points="10,10 9,6 13,9" fill="#8B4513"/>
+      <polygon points="26,10 27,6 23,9" fill="#8B4513"/>
+      <!-- Cara -->
+      <ellipse cx="18" cy="18" rx="6" ry="5" fill="#E8A020"/>
+      <!-- Manchas jaguar -->
+      <circle cx="13" cy="13" r="2" fill="#8B4513" opacity=".6"/>
+      <circle cx="23" cy="13" r="2" fill="#8B4513" opacity=".6"/>
+      <circle cx="15" cy="10" r="1.5" fill="#8B4513" opacity=".5"/>
+      <circle cx="21" cy="10" r="1.5" fill="#8B4513" opacity=".5"/>
+      <!-- Ojos -->
+      <circle cx="15" cy="15" r="2" fill="white"/>
+      <circle cx="21" cy="15" r="2" fill="white"/>
+      <circle cx="15.5" cy="15" r="1.2" fill="#1A1A00"/>
+      <circle cx="21.5" cy="15" r="1.2" fill="#1A1A00"/>
+      <!-- Nariz -->
+      <ellipse cx="18" cy="18.5" rx="1.5" ry="1" fill="#8B4513"/>
+      <!-- Boca -->
+      <path d="M15 20 Q18 22 21 20" stroke="#8B4513" stroke-width="1" fill="none"/>
+      <!-- Bigotes -->
+      <line x1="10" y1="19" x2="15" y2="18.5" stroke="#D4860A" stroke-width=".8"/>
+      <line x1="10" y1="21" x2="15" y2="20" stroke="#D4860A" stroke-width=".8"/>
+      <line x1="26" y1="19" x2="21" y2="18.5" stroke="#D4860A" stroke-width=".8"/>
+      <line x1="26" y1="21" x2="21" y2="20" stroke="#D4860A" stroke-width=".8"/>
+      <!-- Jersey verde México -->
+      <path d="M10 24 Q18 22 26 24 L28 36 Q18 38 8 36Z" fill="#006847"/>
+      <path d="M13 24 L13 34" stroke="white" stroke-width="1.5"/>
+      <text x="14" y="32" font-size="6" fill="white" font-weight="bold" font-family="sans-serif">9</text>
+    </svg>
+    <div class="mascot-txt">
+      <div class="mascot-name">ZAYU</div>
+      <div class="mascot-desc">Jaguar · México · Delantero</div>
+    </div>
+  </div>
+
+  <div style="width:1px;height:32px;background:rgba(255,255,255,.1)"></div>
+
+  <!-- MAPLE - Alce Canadá -->
+  <div class="mascot-item">
+    <svg width="36" height="36" viewBox="0 0 36 36" fill="none">
+      <circle cx="18" cy="18" r="16" fill="#FF0000" opacity=".1"/>
+      <!-- Cornamenta -->
+      <path d="M12 12 Q8 6 6 4 Q8 5 10 8 Q9 5 10 3 Q11 5 10 8 Q12 7 13 5 Q12 8 12 12" fill="#8B5E3C"/>
+      <path d="M24 12 Q28 6 30 4 Q28 5 26 8 Q27 5 26 3 Q25 5 26 8 Q24 7 23 5 Q24 8 24 12" fill="#8B5E3C"/>
+      <!-- Cabeza alce grande -->
+      <ellipse cx="18" cy="17" rx="8" ry="7" fill="#8B5E3C"/>
+      <!-- Hocico largo característico -->
+      <path d="M12 19 Q18 16 24 19 Q24 24 18 25 Q12 24 12 19Z" fill="#6B3F1C"/>
+      <!-- Ojos -->
+      <circle cx="14" cy="15" r="2" fill="white"/>
+      <circle cx="22" cy="15" r="2" fill="white"/>
+      <circle cx="14.5" cy="15" r="1.2" fill="#1A1A00"/>
+      <circle cx="22.5" cy="15" r="1.2" fill="#1A1A00"/>
+      <!-- Nariz grande -->
+      <ellipse cx="18" cy="22" rx="3" ry="2" fill="#4A2010"/>
+      <!-- Orejas -->
+      <ellipse cx="10" cy="13" rx="3" ry="4" fill="#8B5E3C" transform="rotate(-20,10,13)"/>
+      <ellipse cx="26" cy="13" rx="3" ry="4" fill="#8B5E3C" transform="rotate(20,26,13)"/>
+      <!-- Jersey rojo Canadá -->
+      <path d="M10 24 Q18 22 26 24 L28 36 Q18 38 8 36Z" fill="#FF0000"/>
+      <text x="14" y="33" font-size="6" fill="white" font-weight="bold" font-family="sans-serif">GK</text>
+    </svg>
+    <div class="mascot-txt">
+      <div class="mascot-name">MAPLE</div>
+      <div class="mascot-desc">Alce · Canadá · Portero</div>
+    </div>
+  </div>
+
+  <div style="width:1px;height:32px;background:rgba(255,255,255,.1)"></div>
+
+  <!-- CLUTCH - Águila USA -->
+  <div class="mascot-item">
+    <svg width="36" height="36" viewBox="0 0 36 36" fill="none">
+      <circle cx="18" cy="18" r="16" fill="#002868" opacity=".15"/>
+      <!-- Alas -->
+      <path d="M18 18 Q8 12 2 16 Q6 18 10 17 Q6 20 8 22 Q14 20 18 18Z" fill="#8B7355"/>
+      <path d="M18 18 Q28 12 34 16 Q30 18 26 17 Q30 20 28 22 Q22 20 18 18Z" fill="#8B7355"/>
+      <!-- Cabeza blanca águila calva -->
+      <ellipse cx="18" cy="14" rx="7" ry="7" fill="white"/>
+      <!-- Cuerpo -->
+      <ellipse cx="18" cy="22" rx="6" ry="7" fill="#8B7355"/>
+      <!-- Pico amarillo curvo -->
+      <path d="M13 15 Q11 17 13 19 Q16 20 18 18 Q16 17 13 15Z" fill="#FFB300"/>
+      <!-- Ojos -->
+      <circle cx="15" cy="13" r="2.2" fill="#FFB300"/>
+      <circle cx="15" cy="13" r="1.3" fill="#1A1A00"/>
+      <circle cx="21" cy="13" r="2.2" fill="#FFB300"/>
+      <circle cx="21" cy="13" r="1.3" fill="#1A1A00"/>
+      <!-- Jersey azul USA -->
+      <path d="M12 27 Q18 25 24 27 L25 36 Q18 38 11 36Z" fill="#002868"/>
+      <text x="14" y="34" font-size="6" fill="white" font-weight="bold" font-family="sans-serif">10</text>
+    </svg>
+    <div class="mascot-txt">
+      <div class="mascot-name">CLUTCH</div>
+      <div class="mascot-desc">Águila · USA · Mediocampista</div>
+    </div>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <!-- ══ VIEW: EVENTOS ══ -->
+  <div class="view active" id="view-eventos">
+    <div class="sec-head">
+      <h2>EVENTOS</h2>
+      <span class="badge" id="ev-count">0</span>
+      <button class="btn btn-red" style="margin-left:auto" onclick="toggle('form-ev')">⚡ Detonar Evento</button>
+    </div>
+    <div class="card" id="form-ev" style="display:none">
+      <div class="card-title">NUEVO EVENTO</div>
+      <div class="form-row">
+        <div class="fg"><label>Nombre del Evento</label><input id="ev-nom" placeholder="Ej: México vs Sudáfrica — Partido Inaugural"></div>
+        <div class="fg" style="max-width:185px"><label>Fecha</label><input id="ev-fecha" type="date"></div>
+        <div class="fg" style="max-width:200px"><label>Tipo</label>
+          <select id="ev-tipo">
+            <option>Partido Mundial</option><option>Amistoso</option>
+            <option>Inauguración</option><option>Clausura</option>
+            <option>Concierto</option><option>Ensayo General</option><option>Otro</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="fg" style="max-width:210px"><label>Pago por Turno ($)</label><input id="ev-pago" type="number" value="380" min="1"></div>
+        <div class="fg"><label>Notas / Descripción</label><input id="ev-desc" placeholder="Información adicional del evento..."></div>
+      </div>
+      <div class="form-row">
+        <div class="fg" style="max-width:170px"><label>Salario Antes ($)</label><input id="ev-sal-antes" type="number" value="320" min="1"></div>
+        <div class="fg" style="max-width:170px"><label>Salario Durante ($)</label><input id="ev-sal-durante" type="number" value="480" min="1"></div>
+        <div class="fg" style="max-width:170px"><label>Salario Después ($)</label><input id="ev-sal-despues" type="number" value="360" min="1"></div>
+        <div class="fg" style="max-width:170px"><label>Operario (cant.)</label><input id="ev-op" type="number" value="20" min="0"></div>
+        <div class="fg" style="max-width:170px"><label>Supervisión (cant.)</label><input id="ev-sup" type="number" value="4" min="0"></div>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn btn-red" onclick="crearEvento()">⚡ Detonar Evento</button>
+        <button class="btn btn-outline" onclick="toggle('form-ev')">Cancelar</button>
+      </div>
+    </div>
+    <div class="ev-grid" id="ev-grid">
+      <p style="color:var(--muted);font-size:14px;grid-column:1/-1;padding:8px 0">Sin eventos. Detona el primero.</p>
+    </div>
+    <div id="turnos-sec" style="display:none">
+      <div class="turnos-head">
+        <div style="width:4px;height:28px;background:var(--gold);border-radius:2px"></div>
+        <div class="ev-label" id="t-ev-title">EVENTO</div>
+        <div style="margin-left:auto;display:flex;gap:8px">
+          <button class="btn btn-gold btn-sm" onclick="dlEvento()">⬇ Lista Completa</button>
+        </div>
+      </div>
+      <div class="turnos-grid" id="turnos-grid"></div>
+    </div>
+  </div>
+
+  <!-- ══ VIEW: EMPLEADOS ══ -->
+  <div class="view" id="view-empleados">
+    <div class="sec-head">
+      <h2>BASE DE JORNALES</h2>
+      <span class="badge" id="emp-count">0</span>
+      <button class="btn btn-red" style="margin-left:auto" onclick="openEmpForm()">+ Agregar Jornal</button>
+    </div>
+    <div class="card" id="form-emp" style="display:none">
+      <div class="card-title">NUEVO JORNAL</div>
+      <div class="form-row">
+        <div class="fg"><label>Nombre Completo</label><input id="emp-nom" placeholder="Nombre completo"></div>
+        <div class="fg" style="max-width:170px"><label>N° Empleado</label><input id="emp-num" placeholder="001"></div>
+        <div class="fg" style="max-width:210px"><label>Área</label>
+          <select id="emp-area">
+            <option>Seguridad</option><option>Limpieza</option><option>Taquillas</option>
+            <option>Acomodadores</option><option>Logística</option><option>Estacionamiento</option>
+            <option>Médico</option><option>Prensa / Acreditaciones</option>
+            <option>Protocolo VIP</option><option>Transmisiones</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="fg"><label>Teléfono</label><input id="emp-tel" placeholder="55 1234 5678"></div>
+        <div class="fg"><label>Celular</label><input id="emp-cel" placeholder="55 9876 5432"></div>
+        <div class="fg"><label>Redes Sociales</label><input id="emp-redes" placeholder="@jornal.demo"></div>
+      </div>
+      <div class="form-row">
+        <div class="fg"><label>Banco</label><input id="emp-banco" placeholder="BBVA"></div>
+        <div class="fg"><label>Cuenta / Tarjeta</label><input id="emp-cuenta" placeholder="1234567890"></div>
+        <div class="fg"><label>CLABE</label><input id="emp-clabe" placeholder="012345678901234567"></div>
+      </div>
+      <div class="form-row">
+        <div class="fg">
+          <label>Subir INE</label>
+          <input id="emp-ine" class="file-input" type="file" accept="image/*,application/pdf" onchange="handleEmpIneChange(this)">
+          <div class="file-preview" id="emp-ine-preview">Sin archivo cargado</div>
+          <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap">
+            <button class="btn btn-outline btn-xs" type="button" onclick="clearEmpIne()">Eliminar INE</button>
+            <button class="btn btn-outline btn-xs" type="button" onclick="resetEmpForm()">Limpiar Formulario</button>
+          </div>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-red" id="emp-save-btn" onclick="agregarEmp()">Guardar</button>
+        <button class="btn btn-outline" onclick="cancelEmpForm()">Cancelar</button>
+      </div>
+    </div>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>N°</th><th>Nombre</th><th>Área</th><th>Contacto</th><th>Banco</th><th>INE</th><th style="text-align:center">Eventos</th><th style="text-align:center">Turnos</th><th style="text-align:right">Total Ganado</th><th>Acciones</th></tr></thead>
+        <tbody id="emp-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ══ VIEW: RESUMEN ══ -->
+  <div class="view" id="view-resumen">
+    <div class="sec-head"><h2>RESUMEN GENERAL</h2></div>
+    <div class="res-grid" id="res-stats"></div>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Jornal</th><th>Área</th><th style="text-align:center">Antes</th><th style="text-align:center">Durante</th><th style="text-align:center">Después</th><th style="text-align:center">Turnos</th><th style="text-align:right">A Pagar</th></tr></thead>
+        <tbody id="res-tbody"></tbody>
+      </table>
+    </div>
+    <div class="dl-area">
+      <div class="dl-title">DESCARGAR REPORTES</div>
+      <div class="dl-btns">
+        <button class="btn btn-red btn-sm" onclick="dlResumen()">⬇ Resumen General (CSV)</button>
+        <button class="btn btn-outline btn-sm" onclick="dlPorEvento()">⬇ Desglose por Evento (CSV)</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+var emps=[
+  {id:1,num:'001',nombre:'Carlos Ramírez',area:'Seguridad',telefono:'55 1000 1001',celular:'55 2000 1001',redes:'@jr001',banco:'BBVA',cuenta:'1234567890',clabe:'012345678901234567',ine:{name:'INE_Carlos_Ramirez.pdf'}},
+  {id:2,num:'002',nombre:'Miguel Flores',area:'Acomodadores',telefono:'55 1000 1002',celular:'55 2000 1002',redes:'@jr002',banco:'Banorte',cuenta:'1234567891',clabe:'012345678901234568',ine:{name:'INE_Miguel_Flores.jpg'}},
+  {id:3,num:'003',nombre:'Ana González',area:'Limpieza',telefono:'55 1000 1003',celular:'55 2000 1003',redes:'@jr003',banco:'Santander',cuenta:'1234567892',clabe:'012345678901234569',ine:{name:'INE_Ana_Gonzalez.pdf'}},
+  {id:4,num:'004',nombre:'Luis Hernández',area:'Taquillas',telefono:'55 1000 1004',celular:'55 2000 1004',redes:'@jr004',banco:'BBVA',cuenta:'1234567893',clabe:'012345678901234570',ine:{name:'INE_Luis_Hernandez.jpg'}},
+  {id:5,num:'005',nombre:'Diana Morales',area:'Logística',telefono:'55 1000 1005',celular:'55 2000 1005',redes:'@jr005',banco:'Banamex',cuenta:'1234567894',clabe:'012345678901234571',ine:{name:'INE_Diana_Morales.pdf'}},
+  {id:6,num:'006',nombre:'Roberto Soto',area:'Estacionamiento',telefono:'55 1000 1006',celular:'55 2000 1006',redes:'@jr006',banco:'BBVA',cuenta:'1234567895',clabe:'012345678901234572',ine:{name:'INE_Roberto_Soto.jpg'}},
+  {id:7,num:'007',nombre:'Patricia Vega',area:'Médico',telefono:'55 1000 1007',celular:'55 2000 1007',redes:'@jr007',banco:'Santander',cuenta:'1234567896',clabe:'012345678901234573',ine:{name:'INE_Patricia_Vega.pdf'}},
+  {id:8,num:'008',nombre:'Jorge Mendoza',area:'Seguridad',telefono:'55 1000 1008',celular:'55 2000 1008',redes:'@jr008',banco:'Banorte',cuenta:'1234567897',clabe:'012345678901234574',ine:{name:'INE_Jorge_Mendoza.jpg'}},
+  {id:9,num:'009',nombre:'Sofía Reyes',area:'Prensa / Acreditaciones',telefono:'55 1000 1009',celular:'55 2000 1009',redes:'@jr009',banco:'BBVA',cuenta:'1234567898',clabe:'012345678901234575',ine:{name:'INE_Sofia_Reyes.pdf'}},
+  {id:10,num:'010',nombre:'Eduardo Castillo',area:'Protocolo VIP',telefono:'55 1000 1010',celular:'55 2000 1010',redes:'@jr010',banco:'Santander',cuenta:'1234567899',clabe:'012345678901234576',ine:{name:'INE_Eduardo_Castillo.jpg'}},
+  {id:11,num:'011',nombre:'Fernanda López',area:'Taquillas',telefono:'55 1000 1011',celular:'55 2000 1011',redes:'@jr011',banco:'Banamex',cuenta:'1234567900',clabe:'012345678901234577',ine:{name:'INE_Fernanda_Lopez.pdf'}},
+  {id:12,num:'012',nombre:'Héctor Guzmán',area:'Seguridad',telefono:'55 1000 1012',celular:'55 2000 1012',redes:'@jr012',banco:'BBVA',cuenta:'1234567901',clabe:'012345678901234578',ine:{name:'INE_Hector_Guzman.jpg'}},
+  {id:13,num:'013',nombre:'Verónica Salinas',area:'Transmisiones',telefono:'55 1000 1013',celular:'55 2000 1013',redes:'@jr013',banco:'Banorte',cuenta:'1234567902',clabe:'012345678901234579',ine:{name:'INE_Veronica_Salinas.pdf'}},
+  {id:14,num:'014',nombre:'Ramón Torres',area:'Estacionamiento',telefono:'55 1000 1014',celular:'55 2000 1014',redes:'@jr014',banco:'Santander',cuenta:'1234567903',clabe:'012345678901234580',ine:{name:'INE_Ramon_Torres.jpg'}},
+];var eventos=[],selEv=null,nextEvId=1,nextEmpId=15,empEditId=null,empIneCleared=false;
+var TURNOS=[
+  {key:'antes',lbl:'Antes del Evento',ico:'▷',cls:'t-antes'},
+  {key:'durante',lbl:'Durante el Evento',ico:'▶',cls:'t-durante'},
+  {key:'despues',lbl:'Después del Evento',ico:'◀',cls:'t-despues'},
+];
+
+function toast(m){var t=document.getElementById('toast');t.textContent=m;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(function(){t.classList.remove('show');},2600);}
+function toggle(id){var e=document.getElementById(id);e.style.display=e.style.display==='none'?'block':'none';}
+function fdate(d){return d?new Date(d+'T12:00').toLocaleDateString('es-MX',{day:'2-digit',month:'short',year:'numeric'}):'—';}
+function ini(n){return n.split(' ').map(function(w){return w[0];}).slice(0,2).join('');}
+function moneda(v){return '$'+Number(v||0).toLocaleString('es-MX');}
+function salarioTurno(ev,turno){return Number(ev&&ev.salarios&&ev.salarios[turno]!=null?ev.salarios[turno]:ev&&ev.pago)||0;}
+function safeTxt(v){return String(v||'').replace(/[&<>"]/g,function(ch){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[ch];});}
+function getEmpById(id){return emps.find(function(e){return e.id===id;});}
+function fillEmpForm(emp){
+  document.getElementById('emp-nom').value=emp.nombre||'';
+  document.getElementById('emp-num').value=emp.num||'';
+  document.getElementById('emp-area').value=emp.area||'Seguridad';
+  document.getElementById('emp-tel').value=emp.telefono||'';
+  document.getElementById('emp-cel').value=emp.celular||'';
+  document.getElementById('emp-redes').value=emp.redes||'';
+  document.getElementById('emp-banco').value=emp.banco||'';
+  document.getElementById('emp-cuenta').value=emp.cuenta||'';
+  document.getElementById('emp-clabe').value=emp.clabe||'';
+  document.getElementById('emp-ine').value='';
+  empIneCleared=false;
+  document.getElementById('emp-ine-preview').textContent=emp.ine&&emp.ine.name?emp.ine.name:'Sin archivo cargado';
+  document.getElementById('emp-save-btn').textContent='Guardar Cambios';
+  document.querySelector('#form-emp .card-title').textContent='EDITAR JORNAL';
+}
+function resetEmpForm(){
+  empEditId=null;
+  empIneCleared=false;
+  document.getElementById('emp-nom').value='';
+  document.getElementById('emp-num').value='';
+  document.getElementById('emp-area').value='Seguridad';
+  document.getElementById('emp-tel').value='';
+  document.getElementById('emp-cel').value='';
+  document.getElementById('emp-redes').value='';
+  document.getElementById('emp-banco').value='';
+  document.getElementById('emp-cuenta').value='';
+  document.getElementById('emp-clabe').value='';
+  document.getElementById('emp-ine').value='';
+  document.getElementById('emp-ine-preview').textContent='Sin archivo cargado';
+  document.getElementById('emp-save-btn').textContent='Guardar';
+  document.querySelector('#form-emp .card-title').textContent='NUEVO JORNAL';
+}
+function openEmpForm(id){
+  resetEmpForm();
+  if(id!=null){
+    var emp=getEmpById(id);
+    if(emp){
+      empEditId=id;
+      fillEmpForm(emp);
+    }
+  }
+  document.getElementById('form-emp').style.display='block';
+}
+function cancelEmpForm(){
+  resetEmpForm();
+  document.getElementById('form-emp').style.display='none';
+}
+function clearEmpIne(){
+  document.getElementById('emp-ine').value='';
+  document.getElementById('emp-ine-preview').textContent='INE eliminada';
+  empIneCleared=true;
+}
+function handleEmpIneChange(input){
+  empIneCleared=false;
+  document.getElementById('emp-ine-preview').textContent=input.files&&input.files[0]?input.files[0].name:'Sin archivo cargado';
+}
+
+function gotoView(v,btn){
+  document.querySelectorAll('.view').forEach(function(e){e.classList.remove('active');});
+  document.getElementById('view-'+v).classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(function(b){b.classList.remove('active');});
+  if(btn)btn.classList.add('active');
+  if(v==='resumen')renderResumen();
+  if(v==='empleados')renderEmps();
+}
+
+function crearEvento(){
+  var n=document.getElementById('ev-nom').value.trim();
+  var f=document.getElementById('ev-fecha').value;
+  var t=document.getElementById('ev-tipo').value;
+  var salarios={
+    antes:parseFloat(document.getElementById('ev-sal-antes').value)||320,
+    durante:parseFloat(document.getElementById('ev-sal-durante').value)||480,
+    despues:parseFloat(document.getElementById('ev-sal-despues').value)||360
+  };
+  var posiciones={
+    operario:parseInt(document.getElementById('ev-op').value,10)||0,
+    supervision:parseInt(document.getElementById('ev-sup').value,10)||0
+  };
+  if(!n){toast('⚠ Ingresa el nombre del evento');return;}
+  if(!f){toast('⚠ Selecciona la fecha');return;}
+  eventos.push({id:nextEvId++,nombre:n,fecha:f,tipo:t,pago:salarios.durante,salarios:salarios,posiciones:posiciones,desc:document.getElementById('ev-desc').value.trim(),turnos:{antes:[],durante:[],despues:[]}});
+  renderEventos();toggle('form-ev');
+  document.getElementById('ev-nom').value='';
+  document.getElementById('ev-fecha').value='';
+  document.getElementById('ev-desc').value='';
+  document.getElementById('ev-pago').value='380';
+  var salAntes=document.getElementById('ev-sal-antes'); if(salAntes)salAntes.value='320';
+  var salDurante=document.getElementById('ev-sal-durante'); if(salDurante)salDurante.value='480';
+  var salDespues=document.getElementById('ev-sal-despues'); if(salDespues)salDespues.value='360';
+  var op=document.getElementById('ev-op'); if(op)op.value='20';
+  var sup=document.getElementById('ev-sup'); if(sup)sup.value='4';
+  toast('⚡ Evento detonado · salarios y posiciones definidos');
+}
+
+function renderEventos(){
+  document.getElementById('ev-count').textContent=eventos.length;
+  var g=document.getElementById('ev-grid');
+  if(!eventos.length){g.innerHTML='<p style="color:var(--muted);font-size:14px;grid-column:1/-1;padding:8px 0">Sin eventos. Detona el primero.</p>';return;}
+  g.innerHTML=eventos.map(function(ev){
+    var tot=ev.turnos.antes.length+ev.turnos.durante.length+ev.turnos.despues.length;
+    var s=selEv&&selEv.id===ev.id;
+    return'<div class="ev-card'+(s?' sel':'')+'" onclick="selectEv('+ev.id+')">'
+      +'<div class="ev-top"><div class="ev-tipo">'+ev.tipo+'</div>'
+      +'<div class="ev-nombre">'+ev.nombre+'</div>'
+      +'<div class="ev-meta">'+fdate(ev.fecha)+' &nbsp;·&nbsp; Salarios por turno</div>'
+      +'<div class="ev-extra">'
+      +'<span class="ev-pill">Antes '+moneda(salarioTurno(ev,'antes'))+'</span>'
+      +'<span class="ev-pill">Durante '+moneda(salarioTurno(ev,'durante'))+'</span>'
+      +'<span class="ev-pill">Después '+moneda(salarioTurno(ev,'despues'))+'</span>'
+      +'</div></div>'
+      +'<div class="ev-body"><div class="ev-stats">'
+      +'<div class="ev-stat"><div class="n">'+ev.turnos.antes.length+'</div><div class="l">Antes</div></div>'
+      +'<div class="ev-stat"><div class="n">'+ev.turnos.durante.length+'</div><div class="l">Durante</div></div>'
+      +'<div class="ev-stat"><div class="n">'+ev.turnos.despues.length+'</div><div class="l">Después</div></div>'
+      +'<div class="ev-stat"><div class="n">'+tot+'</div><div class="l">Total</div></div>'
+      +'</div>'
+      +'<div class="ev-extra">'
+      +'<span class="ev-pill">Operario '+(ev.posiciones&&ev.posiciones.operario||0)+'</span>'
+      +'<span class="ev-pill">Supervisión '+(ev.posiciones&&ev.posiciones.supervision||0)+'</span>'
+      +'</div></div></div>';
+  }).join('');
+}
+
+function selectEv(id){
+  selEv=eventos.find(function(e){return e.id===id;});
+  renderEventos();renderTurnos();
+  var s=document.getElementById('turnos-sec');
+  s.style.display='block';
+  document.getElementById('t-ev-title').textContent=selEv.nombre.toUpperCase();
+  setTimeout(function(){s.scrollIntoView({behavior:'smooth',block:'start'});},80);
+}
+
+function renderTurnos(){
+  if(!selEv)return;
+  var ev=selEv;
+  document.getElementById('turnos-grid').innerHTML=TURNOS.map(function(t){
+    var list=ev.turnos[t.key];
+    var disp=emps.filter(function(e){return!list.find(function(a){return a.id===e.id;});});
+    var opts=disp.map(function(e){return'<option value="'+e.id+'">'+e.nombre+' · '+e.area+'</option>';}).join('');
+    var sal=salarioTurno(ev,t.key);
+    var items=list.length?list.map(function(e){
+      return'<div class="emp-item">'
+        +'<div class="emp-av">'+ini(e.nombre)+'</div>'
+        +'<div class="emp-info"><div class="emp-nm">'+e.nombre+'</div><div class="emp-ar">'+e.area+'</div></div>'
+        +'<div class="emp-pay">'+moneda(sal)+'</div>'
+        +'<button class="btn-danger" onclick="removeEmp('+ev.id+',\''+t.key+'\','+e.id+')">✕</button>'
+        +'</div>';
+    }).join(''):'<div class="empty">Sin jornales asignados</div>';
+    return'<div class="turno-card '+t.cls+'">'
+      +'<div class="t-head"><div class="t-ico">'+t.ico+'</div><div class="t-lbl">'+t.lbl+'</div><div class="t-salary">'+moneda(sal)+'</div></div>'
+      +'<div class="t-body">'
+      +'<div class="add-row"><select id="sel-'+t.key+'"><option value="">— Seleccionar jornal —</option>'+opts+'</select>'
+      +'<button class="btn btn-red btn-sm" onclick="addEmp('+ev.id+',\''+t.key+'\')">+ Agregar</button></div>'
+      +'<div class="emp-list">'+items+'</div>'
+      +'</div>'
+      +'<div class="t-foot">'
+      +'<div class="t-total">'+list.length+' jornales &nbsp;·&nbsp; <strong>'+moneda(list.length*sal)+'</strong></div>'
+      +'<button class="btn btn-outline btn-xs" onclick="dlTurno('+ev.id+',\''+t.key+'\')">⬇ Lista</button>'
+      +'</div></div>';
+  }).join('');
+}
+
+function addEmp(evId,turno){
+  var ev=eventos.find(function(e){return e.id===evId;});
+  var val=parseInt(document.getElementById('sel-'+turno).value);
+  if(!val){toast('⚠ Selecciona un jornal');return;}
+  var emp=emps.find(function(e){return e.id===val;});
+  ev.turnos[turno].push(emp);
+  renderEventos();renderTurnos();
+  toast('✓ '+emp.nombre+' agregado al turno');
+}
+
+function removeEmp(evId,turno,empId){
+  var ev=eventos.find(function(e){return e.id===evId;});
+  ev.turnos[turno]=ev.turnos[turno].filter(function(e){return e.id!==empId;});
+  renderEventos();renderTurnos();
+  toast('Jornal removido del turno');
+}
+
+function agregarEmp(){
+  var n=document.getElementById('emp-nom').value.trim();
+  var num=document.getElementById('emp-num').value.trim();
+  var area=document.getElementById('emp-area').value;
+  var tel=document.getElementById('emp-tel').value.trim();
+  var cel=document.getElementById('emp-cel').value.trim();
+  var redes=document.getElementById('emp-redes').value.trim();
+  var banco=document.getElementById('emp-banco').value.trim();
+  var cuenta=document.getElementById('emp-cuenta').value.trim();
+  var clabe=document.getElementById('emp-clabe').value.trim();
+  var file=document.getElementById('emp-ine').files[0];
+  if(!n){toast('⚠ Ingresa el nombre');return;}
+  function saveEmp(ine){
+    var payload={num:num,nombre:n,area:area,telefono:tel,celular:cel,redes:redes,banco:banco,cuenta:cuenta,clabe:clabe};
+    if(empEditId!=null){
+      var emp=getEmpById(empEditId);
+      if(!emp){toast('⚠ El jornal ya no existe');return;}
+      payload.num=payload.num||emp.num||String(nextEmpId).padStart(3,'0');
+      emp.num=payload.num;emp.nombre=payload.nombre;emp.area=payload.area;
+      emp.telefono=payload.telefono;emp.celular=payload.celular;emp.redes=payload.redes;
+      emp.banco=payload.banco;emp.cuenta=payload.cuenta;emp.clabe=payload.clabe;
+      if(file){emp.ine=ine;}else if(empIneCleared){emp.ine=null;}
+      renderEmps();if(selEv)renderTurnos();
+      cancelEmpForm();
+      toast('✓ Jornal actualizado');
+      return;
+    }
+    payload.num=payload.num||String(nextEmpId).padStart(3,'0');
+    emps.push({id:nextEmpId++,num:payload.num,nombre:payload.nombre,area:payload.area,telefono:payload.telefono,celular:payload.celular,redes:payload.redes,banco:payload.banco,cuenta:payload.cuenta,clabe:payload.clabe,ine:ine});
+    renderEmps();
+    cancelEmpForm();
+    toast('✓ Jornal registrado');
+  }
+  if(file){
+    var reader=new FileReader();
+    reader.onload=function(){saveEmp({name:file.name,type:file.type,data:reader.result});};
+    reader.readAsDataURL(file);
+    document.getElementById('emp-ine-preview').textContent=file.name;
+    empIneCleared=false;
+    return;
+  }
+  saveEmp(null);
+}
+
+function renderEmps(){
+  document.getElementById('emp-count').textContent=emps.length;
+  var tb=document.getElementById('emp-tbody');
+  if(!emps.length){tb.innerHTML='<tr><td colspan="10" style="text-align:center;color:var(--muted);padding:24px">Sin empleados registrados</td></tr>';return;}
+  tb.innerHTML=emps.map(function(e){
+    var turnos=0,evCount=0,pago=0;
+    eventos.forEach(function(ev){
+      var en=false;
+      ['antes','durante','despues'].forEach(function(t){
+        if(ev.turnos[t].find(function(a){return a.id===e.id;})){turnos++;pago+=salarioTurno(ev,t);en=true;}
+      });
+      if(en)evCount++;
+    });
+    var contacto='<div class="contact-line"><strong>Tel.</strong> '+safeTxt(e.telefono||'--')+'</div>'
+      +'<div class="contact-line"><strong>Cel.</strong> '+safeTxt(e.celular||'--')+'</div>'
+      +'<div class="contact-line"><strong>Red.</strong> '+safeTxt(e.redes||'--')+'</div>';
+    var banco='<div class="contact-line"><strong>Banco</strong> '+safeTxt(e.banco||'--')+'</div>'
+      +'<div class="contact-line"><strong>Cuenta</strong> '+safeTxt(e.cuenta||'--')+'</div>'
+      +'<div class="contact-line"><strong>CLABE</strong> '+safeTxt(e.clabe||'--')+'</div>';
+    var ine=e.ine&&e.ine.name?'<span class="cell-badge">INE cargada</span><div class="cell-muted">'+safeTxt(e.ine.name)+'</div>':'<span class="cell-badge off">Sin INE</span>';
+    return'<tr>'
+      +'<td><span class="tag">'+e.num+'</span></td>'
+      +'<td style="font-weight:600">'+e.nombre+'</td>'
+      +'<td>'+safeTxt(e.area||'--')+'</td>'
+      +'<td>'+contacto+'</td>'
+      +'<td>'+banco+'</td>'
+      +'<td>'+ine+'</td>'
+      +'<td style="text-align:center">'+evCount+'</td>'
+      +'<td style="text-align:center">'+turnos+'</td>'
+      +'<td style="text-align:right;font-family:\'Bebas Neue\',sans-serif;font-size:16px;color:var(--red)">'+moneda(pago)+'</td>'
+      +'<td><div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end"><button class="btn-danger" onclick="openEmpForm('+e.id+')">Editar</button><button class="btn-danger" onclick="eliminarEmp('+e.id+')">Eliminar</button></div></td>'
+      +'</tr>';
+  }).join('');
+}
+
+function eliminarEmp(id){
+  if(!confirm('¿Eliminar este jornal?'))return;
+  emps=emps.filter(function(e){return e.id!==id;});
+  if(empEditId===id)cancelEmpForm();
+  eventos.forEach(function(ev){
+    ['antes','durante','despues'].forEach(function(t){
+      ev.turnos[t]=ev.turnos[t].filter(function(e){return e.id!==id;});
+    });
+  });
+  renderEmps();if(selEv)renderTurnos();
+  toast('Jornal eliminado');
+}
+
+function renderResumen(){
+  var totT=0,totP=0;
+  var rows=emps.map(function(e){
+    var a=0,d=0,ds=0,p=0;
+    eventos.forEach(function(ev){
+      if(ev.turnos.antes.find(function(x){return x.id===e.id;})){a++;p+=salarioTurno(ev,'antes');}
+      if(ev.turnos.durante.find(function(x){return x.id===e.id;})){d++;p+=salarioTurno(ev,'durante');}
+      if(ev.turnos.despues.find(function(x){return x.id===e.id;})){ds++;p+=salarioTurno(ev,'despues');}
+    });
+    var t=a+d+ds;totT+=t;totP+=p;
+    return{e:e,a:a,d:d,ds:ds,t:t,p:p};
+  }).filter(function(r){return r.t>0;}).sort(function(a,b){return b.p-a.p;});
+
+  document.getElementById('res-stats').innerHTML=[
+    {l:'Eventos',v:eventos.length,s:'registrados',hl:false},
+    {l:'Jornales Activos',v:rows.length,s:'con al menos 1 turno',hl:false},
+    {l:'Total Turnos',v:totT,s:'asignados',hl:false},
+    {l:'Total a Pagar',v:moneda(totP),s:'suma total nómina',hl:true},
+  ].map(function(r){
+    return'<div class="res-card'+(r.hl?' hl':'')+'"><div class="res-lbl">'+r.l+'</div><div class="res-val">'+r.v+'</div><div class="res-sub">'+r.s+'</div></div>';
+  }).join('');
+
+  var tb=document.getElementById('res-tbody');
+  if(!rows.length){tb.innerHTML='<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:24px">Sin datos. Asigna jornales a los eventos.</td></tr>';return;}
+  tb.innerHTML=rows.map(function(r){
+    return'<tr>'
+      +'<td style="font-weight:600">'+r.e.nombre+'</td>'
+      +'<td>'+r.e.area+'</td>'
+      +'<td style="text-align:center">'+r.a+'</td>'
+      +'<td style="text-align:center">'+r.d+'</td>'
+      +'<td style="text-align:center">'+r.ds+'</td>'
+      +'<td style="text-align:center;font-weight:700">'+r.t+'</td>'
+      +'<td style="text-align:right;font-family:\'Bebas Neue\',sans-serif;font-size:17px;color:var(--red)">'+moneda(r.p)+'</td>'
+      +'</tr>';
+  }).join('');
+}
+
+function csv(filename,rows){
+  var c=rows.map(function(r){return r.map(function(c){return'"'+String(c).replace(/"/g,'""')+'"';}).join(',');}).join('\n');
+  var a=document.createElement('a');
+  a.href='data:text/csv;charset=utf-8,\uFEFF'+encodeURIComponent(c);
+  a.download=filename;a.click();
+}
+function dlTurno(evId,turno){
+  var ev=eventos.find(function(e){return e.id===evId;});
+  var lbl={antes:'Antes',durante:'Durante',despues:'Después'}[turno];
+  var rows=[['#','Nombre','Área','Turno','Evento','Fecha','Pago']];
+  ev.turnos[turno].forEach(function(e,i){rows.push([i+1,e.nombre,e.area,lbl,ev.nombre,ev.fecha,moneda(salarioTurno(ev,turno))]);});
+  csv('Lista_'+lbl+'_'+ev.nombre.replace(/\s+/g,'_')+'.csv',rows);
+  toast('⬇ Lista '+lbl+' descargada');
+}
+function dlEvento(){
+  if(!selEv){toast('Selecciona un evento primero');return;}
+  var ev=selEv,rows=[['#','Nombre','Área','Turno','Pago']],i=1;
+  ['antes','durante','despues'].forEach(function(t){
+    var lbl={antes:'Antes',durante:'Durante',despues:'Después'}[t];
+    ev.turnos[t].forEach(function(e){rows.push([i++,e.nombre,e.area,lbl,moneda(salarioTurno(ev,t))]);});
+  });
+  csv('Evento_'+ev.nombre.replace(/\s+/g,'_')+'.csv',rows);
+  toast('⬇ Lista completa descargada');
+}
+function dlResumen(){
+  var rows=[['Empleado','Área','N°','Banco','CLABE','INE','Antes','Durante','Después','Total Turnos','Total a Pagar']];
+  emps.forEach(function(e){
+    var a=0,d=0,ds=0,p=0;
+    eventos.forEach(function(ev){
+      if(ev.turnos.antes.find(function(x){return x.id===e.id;})){a++;p+=salarioTurno(ev,'antes');}
+      if(ev.turnos.durante.find(function(x){return x.id===e.id;})){d++;p+=salarioTurno(ev,'durante');}
+      if(ev.turnos.despues.find(function(x){return x.id===e.id;})){ds++;p+=salarioTurno(ev,'despues');}
+    });
+    if(a+d+ds>0)rows.push([e.nombre,e.area,e.num,e.banco||'',e.cuenta||'',e.ine&&e.ine.name?e.ine.name:'',a,d,ds,a+d+ds,moneda(p)]);
+  });
+  csv('Resumen_Banorte_'+new Date().toISOString().slice(0,10)+'.csv',rows);
+  toast('⬇ Resumen general descargado');
+}
+function dlPorEvento(){
+  var rows=[['Evento','Tipo','Fecha','Turno','N°','Nombre','Área','Banco','INE','Pago']];
+  eventos.forEach(function(ev){
+    ['antes','durante','despues'].forEach(function(t){
+      var lbl={antes:'Antes',durante:'Durante',despues:'Después'}[t];
+      ev.turnos[t].forEach(function(e){rows.push([ev.nombre,ev.tipo,ev.fecha,lbl,e.num,e.nombre,e.area,e.banco||'',e.ine&&e.ine.name?e.ine.name:'',moneda(salarioTurno(ev,t))]);});
+    });
+  });
+  csv('Desglose_Por_Evento_Banorte.csv',rows);
+  toast('⬇ Desglose por evento descargado');
+}
+
+renderEventos();renderEmps();
+</script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
