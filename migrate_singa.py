@@ -131,18 +131,20 @@ def upsert_workers(workers: list[SingaWorker]) -> None:
                         display_code,
                         source,
                         external_id,
+                        worker_type,
                         full_name,
                         area,
                         bank,
                         account_number,
                         active
                     )
-                    VALUES (%s, %s, %s, 'singa', %s, %s, 'SINGA', %s, %s, true)
+                    VALUES (%s, %s, %s, 'singa', %s, 'jornal', %s, 'SINGA', %s, %s, true)
                     ON CONFLICT (client_id, employee_number)
                     DO UPDATE SET
                         display_code = EXCLUDED.display_code,
                         source = 'singa',
                         external_id = EXCLUDED.external_id,
+                        worker_type = 'jornal',
                         full_name = EXCLUDED.full_name,
                         area = EXCLUDED.area,
                         bank = EXCLUDED.bank,

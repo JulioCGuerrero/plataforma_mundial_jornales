@@ -74,7 +74,7 @@ header,.mascots-bar,.wrap{display:none}
 }
 .landing-copy{font-size:16px;line-height:1.65;color:rgba(255,255,255,.45);max-width:580px;margin:16px auto 0;font-weight:300;letter-spacing:.2px}
 
-.landing-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:0}
+.landing-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px;margin-top:0}
 .client-card{
   border:none;border-radius:28px;padding:0;cursor:pointer;
   text-align:left;position:relative;overflow:hidden;
@@ -90,9 +90,11 @@ header,.mascots-bar,.wrap{display:none}
 .client-card:active{transform:translateY(-4px) scale(1.005)}
 
 .client-card-bg{position:absolute;inset:0;border-radius:inherit}
-.client-card.ollamani .client-card-bg{background:linear-gradient(145deg,#0e0b14 0%,#1d1629 40%,#2e1f0a 100%)}
+.client-card.ollamani .client-card-bg{background:linear-gradient(145deg,#0d0b10 0%,#241319 42%,#3a2309 100%)}
 .client-card.parque .client-card-bg{background:linear-gradient(145deg,#04140f 0%,#082e22 40%,#0d5040 100%)}
 .client-card.plaza .client-card-bg{background:linear-gradient(145deg,#160507 0%,#3e0d14 40%,#6a1522 100%)}
+.client-card.estadio-azul .client-card-bg{background:linear-gradient(145deg,#051127 0%,#082b5c 42%,#0f6f9a 100%)}
+.client-card.arena-cdmx .client-card-bg{background:linear-gradient(145deg,#13081f 0%,#35165d 42%,#8a2145 100%)}
 
 .client-card-noise{position:absolute;inset:0;border-radius:inherit;opacity:.04;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
 
@@ -101,6 +103,8 @@ header,.mascots-bar,.wrap{display:none}
 .client-card.ollamani .client-card-glow{background:radial-gradient(circle at 50% 0%,rgba(204,0,0,.18),transparent 60%)}
 .client-card.parque .client-card-glow{background:radial-gradient(circle at 50% 0%,rgba(14,124,104,.2),transparent 60%)}
 .client-card.plaza .client-card-glow{background:radial-gradient(circle at 50% 0%,rgba(224,180,79,.15),transparent 60%)}
+.client-card.estadio-azul .client-card-glow{background:radial-gradient(circle at 50% 0%,rgba(91,184,245,.22),transparent 60%)}
+.client-card.arena-cdmx .client-card-glow{background:radial-gradient(circle at 50% 0%,rgba(240,200,66,.18),transparent 60%)}
 
 .client-card-inner{position:relative;z-index:1;padding:30px 28px 26px;display:flex;flex-direction:column;flex:1}
 
@@ -136,9 +140,16 @@ header,.mascots-bar,.wrap{display:none}
   font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase
 }
 .client-tag-dot{width:5px;height:5px;border-radius:50%}
+.client-card.ollamani .client-tag{background:rgba(204,0,0,.14);border-color:rgba(204,0,0,.28);color:rgba(255,255,255,.82)}
+.client-card.parque .client-tag{background:rgba(110,212,154,.14);border-color:rgba(110,212,154,.25);color:rgba(225,255,239,.82)}
+.client-card.plaza .client-tag{background:rgba(224,180,79,.14);border-color:rgba(224,180,79,.28);color:rgba(255,239,196,.86)}
+.client-card.estadio-azul .client-tag{background:rgba(91,184,245,.15);border-color:rgba(91,184,245,.3);color:rgba(219,243,255,.86)}
+.client-card.arena-cdmx .client-tag{background:rgba(240,200,66,.15);border-color:rgba(240,200,66,.28);color:rgba(255,238,182,.86)}
 .client-card.ollamani .client-tag-dot{background:#CC0000}
 .client-card.parque .client-tag-dot{background:#6ED49A}
 .client-card.plaza .client-tag-dot{background:#E0B44F}
+.client-card.estadio-azul .client-tag-dot{background:#5BB8F5}
+.client-card.arena-cdmx .client-tag-dot{background:#F0C842}
 
 .client-arrow{
   width:32px;height:32px;border-radius:50%;
@@ -154,6 +165,8 @@ header,.mascots-bar,.wrap{display:none}
 .client-card.ollamani::before{background:linear-gradient(90deg,transparent,#CC0000,transparent)}
 .client-card.parque::before{background:linear-gradient(90deg,transparent,#6ED49A,transparent)}
 .client-card.plaza::before{background:linear-gradient(90deg,transparent,#E0B44F,transparent)}
+.client-card.estadio-azul::before{background:linear-gradient(90deg,transparent,#5BB8F5,transparent)}
+.client-card.arena-cdmx::before{background:linear-gradient(90deg,transparent,#F0C842,transparent)}
 
 /* ── THEMES ── */
 body.theme-ollamani{background:linear-gradient(180deg,#e0e0e0,#f2f2f2 50%,#dcdcdc)}
@@ -875,9 +888,9 @@ tbody tr:hover td{background:#FAFAFA}
             </svg>
           </div>
           <div class="client-name">Estadio Banorte</div>
-          <div class="client-desc">Control de jornales, asistencia y reportes operativos para eventos en el Estadio Banorte. Gestión de turnos antes, durante y después.</div>
+          <div class="client-desc">Operación de eventos con horarios, palcos, gradas, jornales y supervisores. Control de asistencia, pagos y reportes por jornada.</div>
           <div class="client-footer">
-            <div class="client-tag"><span class="client-tag-dot"></span>Operación Activa</div>
+            <div class="client-tag"><span class="client-tag-dot"></span>Palcos y Gradas</div>
             <div class="client-arrow">→</div>
           </div>
         </div>
@@ -945,9 +958,9 @@ tbody tr:hover td{background:#FAFAFA}
             </svg>
           </div>
           <div class="client-name">Parque Bicentenario</div>
-          <div class="client-desc">Administración y control operativo diario. Asignación de jornales, seguimiento de eventos y gestión de turnos.</div>
+          <div class="client-desc">Administración diaria de servicios, jornales y supervisores. Planeación por horarios, seguimiento operativo y control de listas.</div>
           <div class="client-footer">
-            <div class="client-tag"><span class="client-tag-dot"></span>Gestión Diaria</div>
+            <div class="client-tag"><span class="client-tag-dot"></span>Servicios Diarios</div>
             <div class="client-arrow">→</div>
           </div>
         </div>
@@ -1016,11 +1029,31 @@ tbody tr:hover td{background:#FAFAFA}
             </svg>
           </div>
           <div class="client-name">Plaza de Toros México</div>
-          <div class="client-desc">Coordinación de corridas y espectáculos. Programación de eventos, jornales y reportes operativos de la plaza.</div>
+          <div class="client-desc">Coordinación de corridas y espectáculos con listas de jornales, supervisión, horarios y reportes operativos por evento.</div>
           <div class="client-footer">
-            <div class="client-tag"><span class="client-tag-dot"></span>Seguimiento Operativo</div>
+            <div class="client-tag"><span class="client-tag-dot"></span>Plaza y Eventos</div>
             <div class="client-arrow">→</div>
           </div>
+        </div>
+      </button>
+
+      <button class="client-card estadio-azul" onclick="enterClient('estadioazul')">
+        <div class="client-card-bg"></div><div class="client-card-noise"></div><div class="client-card-glow"></div>
+        <div class="client-card-inner">
+          <div class="client-mark"><svg viewBox="0 0 92 92" fill="none"><rect x="10" y="10" width="72" height="72" rx="20" fill="#08214A"/><path d="M20 62 Q46 20 72 62" stroke="#5BB8F5" stroke-width="8" fill="none" stroke-linecap="round"/><rect x="25" y="57" width="42" height="10" rx="3" fill="#FFFFFF" opacity=".9"/></svg></div>
+          <div class="client-name">Estadio Azul</div>
+          <div class="client-desc">Eventos de estadio con subeventos de palcos y gradas. Asignación de jornales y supervisores por horario operativo.</div>
+          <div class="client-footer"><div class="client-tag"><span class="client-tag-dot"></span>Palcos y Gradas</div><div class="client-arrow">→</div></div>
+        </div>
+      </button>
+
+      <button class="client-card arena-cdmx" onclick="enterClient('arenacdmx')">
+        <div class="client-card-bg"></div><div class="client-card-noise"></div><div class="client-card-glow"></div>
+        <div class="client-card-inner">
+          <div class="client-mark"><svg viewBox="0 0 92 92" fill="none"><rect x="10" y="10" width="72" height="72" rx="24" fill="#20122D"/><ellipse cx="46" cy="50" rx="28" ry="18" fill="#A855F7" opacity=".45"/><path d="M20 50 Q46 24 72 50" stroke="#F0C842" stroke-width="7" fill="none" stroke-linecap="round"/><circle cx="46" cy="49" r="8" fill="#fff"/></svg></div>
+          <div class="client-name">Arena CDMX</div>
+          <div class="client-desc">Conciertos y eventos masivos con listas separadas de jornales y supervisores, horarios de servicio y reportes de operación.</div>
+          <div class="client-footer"><div class="client-tag"><span class="client-tag-dot"></span>Eventos Masivos</div><div class="client-arrow">→</div></div>
         </div>
       </button>
 
@@ -1205,25 +1238,30 @@ tbody tr:hover td{background:#FAFAFA}
         </div>
       </div>
       <div class="form-row">
+        <div class="fg" style="max-width:220px"><label>Horario 1</label><input id="ev-horario-antes" placeholder="Ej: 08:00 - 12:00"></div>
+        <div class="fg" style="max-width:220px"><label>Horario 2</label><input id="ev-horario-durante" placeholder="Ej: 12:00 - 18:00"></div>
+        <div class="fg" style="max-width:220px"><label>Horario 3</label><input id="ev-horario-despues" placeholder="Ej: 18:00 - 22:00"></div>
+      </div>
+      <div class="form-row">
         <div class="fg"><label>Notas / Descripción</label><input id="ev-desc" placeholder="Información adicional del evento..."></div>
       </div>
       <div class="form-row">
-        <div class="fg" style="max-width:170px"><label>Salario Antes ($)</label><input id="ev-sal-antes" type="number" value="320" min="1"></div>
-        <div class="fg" style="max-width:170px"><label>Salario Durante ($)</label><input id="ev-sal-durante" type="number" value="480" min="1"></div>
-        <div class="fg" style="max-width:170px"><label>Salario Después ($)</label><input id="ev-sal-despues" type="number" value="360" min="1"></div>
+        <div class="fg" style="max-width:170px"><label>Salario Horario 1 ($)</label><input id="ev-sal-antes" type="number" value="320" min="1"></div>
+        <div class="fg" style="max-width:170px"><label>Salario Horario 2 ($)</label><input id="ev-sal-durante" type="number" value="480" min="1"></div>
+        <div class="fg" style="max-width:170px"><label>Salario Horario 3 ($)</label><input id="ev-sal-despues" type="number" value="360" min="1"></div>
         <div class="fg" style="max-width:170px"><label>Operario (cant.)</label><input id="ev-op" type="number" value="20" min="0"></div>
         <div class="fg" style="max-width:170px"><label>Supervisión (cant.)</label><input id="ev-sup" type="number" value="4" min="0"></div>
       </div>
       <div class="form-row">
-        <div class="fg" style="max-width:190px"><label>Supervisor Antes ($)</label><input id="ev-sup-sal-antes" type="number" value="450" min="1"></div>
-        <div class="fg" style="max-width:190px"><label>Supervisor Durante ($)</label><input id="ev-sup-sal-durante" type="number" value="650" min="1"></div>
-        <div class="fg" style="max-width:190px"><label>Supervisor Después ($)</label><input id="ev-sup-sal-despues" type="number" value="500" min="1"></div>
+        <div class="fg" style="max-width:190px"><label>Supervisor Horario 1 ($)</label><input id="ev-sup-sal-antes" type="number" value="450" min="1"></div>
+        <div class="fg" style="max-width:190px"><label>Supervisor Horario 2 ($)</label><input id="ev-sup-sal-durante" type="number" value="650" min="1"></div>
+        <div class="fg" style="max-width:190px"><label>Supervisor Horario 3 ($)</label><input id="ev-sup-sal-despues" type="number" value="500" min="1"></div>
         <div class="fg" style="max-width:420px">
-          <label>Turnos con Supervisión</label>
+          <label>Horarios con Supervisión</label>
           <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center;min-height:42px">
-            <label style="display:flex;align-items:center;gap:6px;letter-spacing:.5px"><input id="ev-sup-turno-antes" type="checkbox" checked style="width:auto;min-height:auto">Antes</label>
-            <label style="display:flex;align-items:center;gap:6px;letter-spacing:.5px"><input id="ev-sup-turno-durante" type="checkbox" checked style="width:auto;min-height:auto">Durante</label>
-            <label style="display:flex;align-items:center;gap:6px;letter-spacing:.5px"><input id="ev-sup-turno-despues" type="checkbox" style="width:auto;min-height:auto">Después</label>
+            <label style="display:flex;align-items:center;gap:6px;letter-spacing:.5px"><input id="ev-sup-turno-antes" type="checkbox" checked style="width:auto;min-height:auto">Horario 1</label>
+            <label style="display:flex;align-items:center;gap:6px;letter-spacing:.5px"><input id="ev-sup-turno-durante" type="checkbox" checked style="width:auto;min-height:auto">Horario 2</label>
+            <label style="display:flex;align-items:center;gap:6px;letter-spacing:.5px"><input id="ev-sup-turno-despues" type="checkbox" style="width:auto;min-height:auto">Horario 3</label>
           </div>
         </div>
       </div>
@@ -1264,13 +1302,17 @@ tbody tr:hover td{background:#FAFAFA}
         <svg width="13" height="13" viewBox="0 0 13 13" fill="currentColor"><path d="M6 1v11M1 6h11"/></svg>
         Agregar Jornal
       </button>
+      <button class="btn btn-outline" onclick="openSupervisorForm()">
+        <svg width="13" height="13" viewBox="0 0 13 13" fill="currentColor"><path d="M6 1v11M1 6h11"/></svg>
+        Agregar Supervisor
+      </button>
     </div>
 
     <div class="card" id="form-emp" style="display:none">
       <div class="card-title">NUEVO JORNAL</div>
       <div class="form-row">
         <div class="fg"><label>Nombre Completo</label><input id="emp-nom" placeholder="Nombre completo"></div>
-        <div class="fg" style="max-width:170px"><label>ID Jornal</label><input id="emp-num" placeholder="fp-001 automático"></div>
+        <div class="fg" style="max-width:170px"><label id="emp-num-label">ID Jornal</label><input id="emp-num" placeholder="fp-001 automático"></div>
         <div class="fg" style="max-width:210px"><label>Área</label>
           <select id="emp-area">
             <option>Seguridad</option><option>Limpieza</option><option>Taquillas</option>
@@ -1321,7 +1363,7 @@ tbody tr:hover td{background:#FAFAFA}
     <div class="res-grid" id="res-stats"></div>
     <div class="tbl-wrap">
       <table>
-        <thead><tr><th>Jornal</th><th>Área</th><th style="text-align:center">Antes</th><th style="text-align:center">Durante</th><th style="text-align:center">Después</th><th style="text-align:center">Turnos</th><th style="text-align:right">A Pagar</th></tr></thead>
+        <thead><tr><th>Jornal</th><th>Área</th><th style="text-align:center">Horario 1</th><th style="text-align:center">Horario 2</th><th style="text-align:center">Horario 3</th><th style="text-align:center">Turnos</th><th style="text-align:right">A Pagar</th></tr></thead>
         <tbody id="res-tbody"></tbody>
       </table>
     </div>
@@ -1362,9 +1404,9 @@ var emps=[
 ];
 var eventos=[],selEv=null,nextEvId=1,nextEmpId=15,empEditId=null,empIneCleared=false;
 var TURNOS=[
-  {key:'antes',lbl:'Antes del Evento',ico:'▷',sub:'Pre-evento',cls:'t-antes'},
-  {key:'durante',lbl:'Durante el Evento',ico:'▶',sub:'En curso',cls:'t-durante'},
-  {key:'despues',lbl:'Después del Evento',ico:'◀',sub:'Cierre',cls:'t-despues'},
+  {key:'antes',lbl:'Horario 1',ico:'▷',sub:'Primer bloque',cls:'t-antes'},
+  {key:'durante',lbl:'Horario 2',ico:'▶',sub:'Segundo bloque',cls:'t-durante'},
+  {key:'despues',lbl:'Horario 3',ico:'◀',sub:'Tercer bloque',cls:'t-despues'},
 ];
 
 function doLogin(){
@@ -1488,6 +1530,27 @@ var CLIENTS={
       +'<span class="banner-pill bp-white">Patrimonio Cultural</span>'
       +'</div>'
       +'</div>'
+  }
+,
+  estadioazul:{
+    slug:'estadio-azul',name:'Estadio Azul',subtitle:'Operación de estadio',
+    titleColor:'#7EC8E3',primary:'#1558B0',primary2:'#5BB8F5',dark:'#061A3D',
+    header:'#061A3D',page:'#DDE8F7',page2:'#F7FBFF',
+    topbar:'linear-gradient(90deg,#061A3D,#1558B0,#7EC8E3,#1558B0,#061A3D)',
+    eventTypes:['Partido de Fútbol','Concierto','Evento Deportivo','Espectáculo','Corporativo','Otro'],
+    logo:'<svg viewBox="0 0 92 92" fill="none"><rect x="10" y="10" width="72" height="72" rx="20" fill="#08214A"/><path d="M20 62 Q46 20 72 62" stroke="#5BB8F5" stroke-width="8" fill="none" stroke-linecap="round"/><rect x="25" y="57" width="42" height="10" rx="3" fill="#FFFFFF" opacity=".9"/></svg>',
+    bannerClass:'banner-parque',
+    bannerHTML:'<div class="banner-inner"><div class="banner-icon"><svg width="46" height="44" viewBox="0 0 46 44" fill="none"><rect x="5" y="8" width="36" height="28" rx="8" fill="#08214A"/><path d="M10 28 Q23 9 36 28" stroke="#5BB8F5" stroke-width="5" fill="none" stroke-linecap="round"/></svg></div><div class="banner-text" style="color:white"><div class="banner-pretitle" style="color:rgba(126,200,227,.7)">Estadio · Ciudad de México</div><div class="banner-title" style="color:#7EC8E3">Estadio Azul</div><div class="banner-sub">Control operativo por horarios, palcos y gradas</div></div><div class="banner-pills"><span class="banner-pill bp-teal">Estadio</span><span class="banner-pill bp-white">Palcos</span><span class="banner-pill bp-white">Gradas</span></div></div>'
+  },
+  arenacdmx:{
+    slug:'arena-cdmx',name:'Arena CDMX',subtitle:'Eventos masivos y espectáculos',
+    titleColor:'#F0C842',primary:'#6D28D9',primary2:'#F0C842',dark:'#20122D',
+    header:'#20122D',page:'#ECE5F7',page2:'#FFF8E8',
+    topbar:'linear-gradient(90deg,#20122D,#6D28D9,#F0C842,#6D28D9,#20122D)',
+    eventTypes:['Concierto','Espectáculo','Festival','Corporativo','Evento Deportivo','Otro'],
+    logo:'<svg viewBox="0 0 92 92" fill="none"><rect x="10" y="10" width="72" height="72" rx="24" fill="#20122D"/><ellipse cx="46" cy="50" rx="28" ry="18" fill="#A855F7" opacity=".45"/><path d="M20 50 Q46 24 72 50" stroke="#F0C842" stroke-width="7" fill="none" stroke-linecap="round"/><circle cx="46" cy="49" r="8" fill="#fff"/></svg>',
+    bannerClass:'banner-plaza',
+    bannerHTML:'<div class="banner-inner"><div class="banner-icon"><svg width="46" height="44" viewBox="0 0 46 44" fill="none"><rect x="7" y="10" width="32" height="24" rx="10" fill="#20122D"/><path d="M11 24 Q23 8 35 24" stroke="#F0C842" stroke-width="5" fill="none" stroke-linecap="round"/></svg></div><div class="banner-text" style="color:white"><div class="banner-pretitle" style="color:rgba(240,200,66,.7)">Arena · Ciudad de México</div><div class="banner-title" style="color:#F0C842">Arena CDMX</div><div class="banner-sub">Conciertos, espectáculos y eventos masivos</div></div><div class="banner-pills"><span class="banner-pill bp-amber">Arena</span><span class="banner-pill bp-white">Conciertos</span><span class="banner-pill bp-white">Espectáculos</span></div></div>'
   }
 };
 var DEFAULT_THEME={
@@ -1674,14 +1737,14 @@ function renderEventos(){
       +'<div class="ev-nombre">'+ev.nombre+'</div>'
       +'<div class="ev-meta">'+fdate(ev.fecha)+'</div>'
       +'<div class="ev-extra">'
-      +'<span class="ev-pill">Antes '+moneda(salarioTurno(ev,'antes'))+'</span>'
-      +'<span class="ev-pill">Durante '+moneda(salarioTurno(ev,'durante'))+'</span>'
-      +'<span class="ev-pill">Después '+moneda(salarioTurno(ev,'despues'))+'</span>'
+      +'<span class="ev-pill">Horario 1 '+moneda(salarioTurno(ev,'antes'))+'</span>'
+      +'<span class="ev-pill">Horario 2 '+moneda(salarioTurno(ev,'durante'))+'</span>'
+      +'<span class="ev-pill">Horario 3 '+moneda(salarioTurno(ev,'despues'))+'</span>'
       +'</div></div>'
       +'<div class="ev-body"><div class="ev-stats">'
-      +'<div class="ev-stat"><div class="n">'+ev.turnos.antes.length+'</div><div class="l">Antes</div></div>'
-      +'<div class="ev-stat"><div class="n">'+ev.turnos.durante.length+'</div><div class="l">Durante</div></div>'
-      +'<div class="ev-stat"><div class="n">'+ev.turnos.despues.length+'</div><div class="l">Después</div></div>'
+      +'<div class="ev-stat"><div class="n">'+ev.turnos.antes.length+'</div><div class="l">H1</div></div>'
+      +'<div class="ev-stat"><div class="n">'+ev.turnos.durante.length+'</div><div class="l">H2</div></div>'
+      +'<div class="ev-stat"><div class="n">'+ev.turnos.despues.length+'</div><div class="l">H3</div></div>'
       +'<div class="ev-stat"><div class="n">'+tot+'</div><div class="l">Total</div></div>'
       +'</div></div>'
       +'<div class="ev-footer">'
@@ -1876,7 +1939,7 @@ function csv(filename,rows){
 }
 function dlTurno(evId,turno){
   var ev=eventos.find(function(e){return e.id===evId;});
-  var lbl={antes:'Antes',durante:'Durante',despues:'Después'}[turno];
+  var lbl={antes:'Horario 1',durante:'Horario 2',despues:'Horario 3'}[turno];
   var rows=[['#','Nombre','Área','Turno','Evento','Fecha','Pago']];
   ev.turnos[turno].forEach(function(e,i){rows.push([i+1,e.nombre,e.area,lbl,ev.nombre,ev.fecha,moneda(salarioTurno(ev,turno))]);});
   var prefix=currentClientKey?CLIENTS[currentClientKey].slug:'demo';
@@ -1887,7 +1950,7 @@ function dlEvento(){
   if(!selEv){toast('Selecciona un evento primero');return;}
   var ev=selEv,rows=[['#','Nombre','Área','Turno','Pago']],i=1;
   ['antes','durante','despues'].forEach(function(t){
-    var lbl={antes:'Antes',durante:'Durante',despues:'Después'}[t];
+    var lbl={antes:'Horario 1',durante:'Horario 2',despues:'Horario 3'}[t];
     ev.turnos[t].forEach(function(e){rows.push([i++,e.nombre,e.area,lbl,moneda(salarioTurno(ev,t))]);});
   });
   var prefix=currentClientKey?CLIENTS[currentClientKey].slug:'demo';
@@ -1895,7 +1958,7 @@ function dlEvento(){
   toast('⬇ Lista completa descargada');
 }
 function dlResumen(){
-  var rows=[['Empleado','Área','N°','Banco','CLABE','INE','Antes','Durante','Después','Total Turnos','Total a Pagar']];
+  var rows=[['Empleado','Área','N°','Banco','CLABE','INE','Horario 1','Horario 2','Horario 3','Total Turnos','Total a Pagar']];
   emps.forEach(function(e){
     var a=0,d=0,ds=0,p=0;
     eventos.forEach(function(ev){
@@ -1913,7 +1976,7 @@ function dlPorEvento(){
   var rows=[['Evento','Tipo','Fecha','Turno','N°','Nombre','Área','Banco','INE','Pago']];
   eventos.forEach(function(ev){
     ['antes','durante','despues'].forEach(function(t){
-      var lbl={antes:'Antes',durante:'Durante',despues:'Después'}[t];
+      var lbl={antes:'Horario 1',durante:'Horario 2',despues:'Horario 3'}[t];
       ev.turnos[t].forEach(function(e){rows.push([ev.nombre,ev.tipo,ev.fecha,lbl,e.num,e.nombre,e.area,e.banco||'',e.ine&&e.ine.name?e.ine.name:'',moneda(salarioTurno(ev,t))]);});
     });
   });
@@ -1930,16 +1993,24 @@ renderEventos();renderEmps();
   var clientSlugByKey={
     ollamani:'ollamani',
     parque:'parque-bicentenario',
-    plaza:'plaza-de-toros-mexico'
+    plaza:'plaza-de-toros-mexico',
+    estadioazul:'estadio-azul',
+    arenacdmx:'arena-cdmx'
   };
   var keyByClientSlug={
     'ollamani':'ollamani',
     'parque-bicentenario':'parque',
-    'plaza-de-toros-mexico':'plaza'
+    'plaza-de-toros-mexico':'plaza',
+    'estadio-azul':'estadioazul',
+    'arena-cdmx':'arenacdmx'
   };
   var shiftToApi={antes:'before',durante:'during',despues:'after'};
   var shiftFromApi={before:'antes',during:'durante',after:'despues'};
   var originalEnterClient=window.enterClient;
+  var evEditId=null;
+  var currentPersonType='jornal';
+  var empSearch='', empSortKey='nombre', empSortDir=1;
+  var stadiumKeys={ollamani:true,estadioazul:true};
 
   function api(path,opts){
     opts=opts||{};
@@ -1969,6 +2040,7 @@ renderEventos();renderEmps();
       employeeNumber:w.employee_number,
       source:w.source||'platform',
       externalId:w.external_id||'',
+      workerType:w.worker_type||'jornal',
       nombre:w.full_name,
       area:w.area,
       telefono:w.phone||'',
@@ -2007,6 +2079,12 @@ renderEventos();renderEmps();
         durante:ev.supervisor_during!==false,
         despues:ev.supervisor_after===true
       },
+      horarios:{
+        antes:ev.schedule_before||'Horario 1',
+        durante:ev.schedule_during||'Horario 2',
+        despues:ev.schedule_after||'Horario 3'
+      },
+      subEvento:ev.sub_event_name||'',
       turnos:{antes:[],durante:[],despues:[]}
     };
     (assignments||[]).forEach(function(a){
@@ -2027,8 +2105,24 @@ renderEventos();renderEmps();
   function roleLabel(role){
     return role==='supervisor'?'Supervisor':'Jornal';
   }
+  function originLabel(item){
+    return item&&item.source==='singa'?'SINGA':'Agregado';
+  }
   function roleBadge(role){
     return '<span class="cell-badge'+(role==='supervisor'?'':' off')+'" style="display:inline-flex;margin-top:4px">'+roleLabel(role)+'</span>';
+  }
+  function shiftLabel(ev,turno){
+    return ev&&ev.horarios&&ev.horarios[turno]?ev.horarios[turno]:({antes:'Horario 1',durante:'Horario 2',despues:'Horario 3'}[turno]||turno);
+  }
+  function updatePersonFormCopy(){
+    var isSupervisor=currentPersonType==='supervisor';
+    var label=document.getElementById('emp-num-label');
+    var input=document.getElementById('emp-num');
+    if(label)label.textContent=isSupervisor?'Folio SINGA':'ID Jornal';
+    if(input){
+      input.placeholder=isSupervisor?'Folio SINGA obligatorio':'fp-001 automático';
+      input.required=isSupervisor;
+    }
   }
   function workerPayload(){
     var file=document.getElementById('emp-ine').files[0];
@@ -2037,6 +2131,7 @@ renderEventos();renderEmps();
     return {
       employee_number:document.getElementById('emp-num').value.trim()||null,
       display_code:document.getElementById('emp-num').value.trim()||null,
+      worker_type:currentPersonType,
       full_name:document.getElementById('emp-nom').value.trim(),
       area:document.getElementById('emp-area').value,
       phone:document.getElementById('emp-tel').value.trim(),
@@ -2123,13 +2218,14 @@ renderEventos();renderEmps();
     var f=document.getElementById('ev-fecha').value;
     if(!n){toast('Ingresa el nombre del evento');return;}
     if(!f){toast('Selecciona la fecha');return;}
-    api('/api/clients/'+slug()+'/events',{
-      method:'POST',
-      body:JSON.stringify({
+    var basePayload={
         name:n,
         event_date:f,
         event_type:document.getElementById('ev-tipo').value,
         description:document.getElementById('ev-desc').value.trim(),
+        schedule_before:document.getElementById('ev-horario-antes').value.trim()||'Horario 1',
+        schedule_during:document.getElementById('ev-horario-durante').value.trim()||'Horario 2',
+        schedule_after:document.getElementById('ev-horario-despues').value.trim()||'Horario 3',
         salary_before:Number(document.getElementById('ev-sal-antes').value||320),
         salary_during:Number(document.getElementById('ev-sal-durante').value||480),
         salary_after:Number(document.getElementById('ev-sal-despues').value||360),
@@ -2141,19 +2237,35 @@ renderEventos();renderEmps();
         supervisor_before:document.getElementById('ev-sup-turno-antes').checked,
         supervisor_during:document.getElementById('ev-sup-turno-durante').checked,
         supervisor_after:document.getElementById('ev-sup-turno-despues').checked
-      })
-    }).then(function(){
+      };
+    var requests;
+    if(evEditId){
+      requests=[api('/api/clients/'+slug()+'/events/'+evEditId,{method:'PUT',body:JSON.stringify(basePayload)})];
+    }else if(stadiumKeys[currentClientKey]){
+      requests=['Palcos','Gradas'].map(function(zone){
+        var payload=Object.assign({},basePayload,{name:n+' · '+zone,sub_event_name:zone});
+        return api('/api/clients/'+slug()+'/events',{method:'POST',body:JSON.stringify(payload)});
+      });
+    }else{
+      requests=[api('/api/clients/'+slug()+'/events',{method:'POST',body:JSON.stringify(basePayload)})];
+    }
+    Promise.all(requests).then(function(){
       toggle('form-ev');
+      evEditId=null;
+      document.querySelector('#form-ev .card-title').textContent='NUEVO EVENTO';
       document.getElementById('ev-nom').value='';
       document.getElementById('ev-fecha').value='';
       document.getElementById('ev-desc').value='';
+      document.getElementById('ev-horario-antes').value='';
+      document.getElementById('ev-horario-durante').value='';
+      document.getElementById('ev-horario-despues').value='';
       document.getElementById('ev-sup-sal-antes').value='450';
       document.getElementById('ev-sup-sal-durante').value='650';
       document.getElementById('ev-sup-sal-despues').value='500';
       document.getElementById('ev-sup-turno-antes').checked=true;
       document.getElementById('ev-sup-turno-durante').checked=true;
       document.getElementById('ev-sup-turno-despues').checked=false;
-      toast('Evento creado');
+      toast(evEditId?'Evento actualizado':'Evento guardado');
       return loadClientData();
     }).catch(function(e){toast('Error API: '+e.message);});
   };
@@ -2161,6 +2273,7 @@ renderEventos();renderEmps();
   window.agregarEmp=function(){
     var payload=workerPayload();
     if(!payload.full_name){toast('Ingresa el nombre');return;}
+    if(payload.worker_type==='supervisor'&&!payload.employee_number){toast('Ingresa el folio SINGA del supervisor');return;}
     var id=empEditId;
     var url='/api/clients/'+slug()+'/workers'+(id!=null?'/'+id:'');
     api(url,{method:id!=null?'PUT':'POST',body:JSON.stringify(payload)})
@@ -2181,6 +2294,74 @@ renderEventos();renderEmps();
       .catch(function(e){toast('Error API: '+e.message);});
   };
 
+  window.editarEvento=function(id){
+    var ev=eventos.find(function(e){return e.id===id;});
+    if(!ev)return;
+    evEditId=id;
+    document.querySelector('#form-ev .card-title').textContent='EDITAR EVENTO';
+    document.getElementById('ev-nom').value=ev.subEvento?ev.nombre.replace(' · '+ev.subEvento,''):ev.nombre;
+    document.getElementById('ev-fecha').value=ev.fecha||'';
+    document.getElementById('ev-tipo').value=ev.tipo||document.getElementById('ev-tipo').value;
+    document.getElementById('ev-desc').value=ev.desc||'';
+    document.getElementById('ev-horario-antes').value=ev.horarios&&ev.horarios.antes||'';
+    document.getElementById('ev-horario-durante').value=ev.horarios&&ev.horarios.durante||'';
+    document.getElementById('ev-horario-despues').value=ev.horarios&&ev.horarios.despues||'';
+    document.getElementById('ev-sal-antes').value=ev.salarios.antes||320;
+    document.getElementById('ev-sal-durante').value=ev.salarios.durante||480;
+    document.getElementById('ev-sal-despues').value=ev.salarios.despues||360;
+    document.getElementById('ev-sup-sal-antes').value=ev.salariosSupervisor.antes||450;
+    document.getElementById('ev-sup-sal-durante').value=ev.salariosSupervisor.durante||650;
+    document.getElementById('ev-sup-sal-despues').value=ev.salariosSupervisor.despues||500;
+    document.getElementById('ev-op').value=ev.posiciones.operario||0;
+    document.getElementById('ev-sup').value=ev.posiciones.supervision||0;
+    document.getElementById('ev-sup-turno-antes').checked=!!(ev.supervisorTurnos&&ev.supervisorTurnos.antes);
+    document.getElementById('ev-sup-turno-durante').checked=!!(ev.supervisorTurnos&&ev.supervisorTurnos.durante);
+    document.getElementById('ev-sup-turno-despues').checked=!!(ev.supervisorTurnos&&ev.supervisorTurnos.despues);
+    document.getElementById('form-ev').style.display='block';
+    document.getElementById('form-ev').scrollIntoView({behavior:'smooth',block:'start'});
+  };
+
+  window.eliminarEvento=function(id){
+    var ev=eventos.find(function(e){return e.id===id;});
+    if(!ev||!confirm('Eliminar este evento y sus listas?'))return;
+    api('/api/clients/'+slug()+'/events/'+id,{method:'DELETE'})
+      .then(function(){toast('Evento eliminado');selEv=null;return loadClientData();})
+      .catch(function(e){toast('Error API: '+e.message);});
+  };
+
+  window.renderEventos=function(){
+    document.getElementById('ev-count').textContent=eventos.length;
+    var g=document.getElementById('ev-grid');
+    if(!eventos.length){g.innerHTML='<p style="color:var(--muted);font-size:14px;grid-column:1/-1;padding:12px 0;opacity:.6">Sin eventos registrados. Crea el primero.</p>';return;}
+    g.innerHTML=eventos.map(function(ev){
+      var tot=(ev.turnos.antes||[]).length+(ev.turnos.durante||[]).length+(ev.turnos.despues||[]).length;
+      var s=selEv&&selEv.id===ev.id;
+      return'<div class="ev-card'+(s?' sel':'')+'" onclick="selectEv('+ev.id+')">'
+        +'<div class="ev-top">'
+        +'<div class="ev-tipo">'+safeTxt(ev.tipo)+(ev.subEvento?' · '+safeTxt(ev.subEvento):'')+'</div>'
+        +'<div class="ev-nombre">'+safeTxt(ev.nombre)+'</div>'
+        +'<div class="ev-meta">'+fdate(ev.fecha)+'</div>'
+        +'<div class="ev-extra">'
+        +'<span class="ev-pill">'+safeTxt(shiftLabel(ev,'antes'))+' '+moneda(salarioTurno(ev,'antes'))+'</span>'
+        +'<span class="ev-pill">'+safeTxt(shiftLabel(ev,'durante'))+' '+moneda(salarioTurno(ev,'durante'))+'</span>'
+        +'<span class="ev-pill">'+safeTxt(shiftLabel(ev,'despues'))+' '+moneda(salarioTurno(ev,'despues'))+'</span>'
+        +'</div></div>'
+        +'<div class="ev-body"><div class="ev-stats">'
+        +'<div class="ev-stat"><div class="n">'+(ev.turnos.antes||[]).length+'</div><div class="l">H1</div></div>'
+        +'<div class="ev-stat"><div class="n">'+(ev.turnos.durante||[]).length+'</div><div class="l">H2</div></div>'
+        +'<div class="ev-stat"><div class="n">'+(ev.turnos.despues||[]).length+'</div><div class="l">H3</div></div>'
+        +'<div class="ev-stat"><div class="n">'+tot+'</div><div class="l">Total</div></div>'
+        +'</div></div>'
+        +'<div class="ev-footer">'
+        +'<span class="ev-pill" style="background:var(--gray);color:var(--muted);border:1px solid var(--border)">Operario '+(ev.posiciones&&ev.posiciones.operario||0)+'</span>'
+        +'<span class="ev-pill" style="background:var(--gray);color:var(--muted);border:1px solid var(--border)">Supervisión '+(ev.posiciones&&ev.posiciones.supervision||0)+'</span>'
+        +'<button class="btn btn-outline btn-xs" type="button" onclick="event.stopPropagation();editarEvento('+ev.id+')">Editar</button>'
+        +'<button class="btn-danger" type="button" onclick="event.stopPropagation();eliminarEvento('+ev.id+')">Eliminar</button>'
+        +'</div>'
+        +'</div>';
+    }).join('');
+  };
+
   window.renderTurnos=function(){
     if(!selEv)return;
     var ev=selEv;
@@ -2188,9 +2369,11 @@ renderEventos();renderEmps();
       var list=ev.turnos[t.key]||[];
       var jornales=list.filter(function(e){return (e.rol||'jornal')==='jornal';});
       var supervisores=list.filter(function(e){return e.rol==='supervisor';});
-      var assignedIds=list.map(function(e){return e.id;});
+      var assignedIds=[].concat(ev.turnos.antes||[],ev.turnos.durante||[],ev.turnos.despues||[]).map(function(e){return e.id;});
       var disp=emps.filter(function(e){return assignedIds.indexOf(e.id)===-1;});
       var opts=disp.map(function(e){return'<option value="'+e.id+'">'+safeTxt(e.num)+' · '+safeTxt(e.nombre)+' · '+safeTxt(e.area)+'</option>';}).join('');
+      opts=emps.filter(function(e){return assignedIds.indexOf(e.id)===-1&&e.workerType!=='supervisor';}).map(function(e){return'<option value="'+e.id+'">'+safeTxt(e.num)+' - '+safeTxt(e.nombre)+' - '+safeTxt(e.area)+'</option>';}).join('');
+      var optsSup=emps.filter(function(e){return assignedIds.indexOf(e.id)===-1&&e.workerType==='supervisor';}).map(function(e){return'<option value="'+e.id+'">'+safeTxt(e.num)+' - '+safeTxt(e.nombre)+' - '+safeTxt(e.area)+'</option>';}).join('');
       var salJornal=payForRole(ev,t.key,'jornal');
       var salSupervisor=payForRole(ev,t.key,'supervisor');
       var supervisorEnabled=ev.supervisorTurnos&&ev.supervisorTurnos[t.key];
@@ -2209,12 +2392,13 @@ renderEventos();renderEmps();
         ? '<div class="add-row" style="margin-top:10px"><select id="sel-sup-'+t.key+'"><option value="">— Seleccionar supervisor —</option>'+opts+'</select>'
           +'<button class="btn btn-gold btn-sm" onclick="addEmp('+ev.id+',\''+t.key+'\',\'supervisor\')">+ Supervisor</button></div>'
         : '<div class="empty" style="margin-top:10px">Supervisión no programada en este turno</div>';
+      supervisorAdd=supervisorAdd.replace(opts+'</select>',optsSup+'</select>');
       var supervisorTotal=supervisores.reduce(function(sum,e){return sum+Number(e.pago||salSupervisor);},0);
       var jornalTotal=jornales.reduce(function(sum,e){return sum+Number(e.pago||salJornal);},0);
       return'<div class="turno-card '+t.cls+'">'
         +'<div class="t-head">'
         +'<div class="t-ico">'+t.ico+'</div>'
-        +'<div class="t-lbl-wrap"><div class="t-lbl">'+t.lbl+'</div><div class="t-sub">'+t.sub+'</div></div>'
+        +'<div class="t-lbl-wrap"><div class="t-lbl">'+safeTxt(shiftLabel(ev,t.key))+'</div><div class="t-sub">Horario operativo</div></div>'
         +'<div class="t-salary">'+moneda(salJornal)+'<div style="font-size:10px;color:var(--muted);font-family:Barlow,sans-serif">Supervisor '+moneda(salSupervisor)+'</div></div>'
         +'</div>'
         +'<div class="t-body">'
@@ -2277,6 +2461,16 @@ renderEventos();renderEmps();
 
   window.renderEmps=function(){
     document.getElementById('emp-count').textContent=emps.length;
+    var tableWrap=document.querySelector('#view-empleados .tbl-wrap');
+    if(tableWrap&&!document.getElementById('emp-search')){
+      tableWrap.insertAdjacentHTML('beforebegin','<div class="card" style="padding:12px;margin-bottom:12px"><div class="form-row" style="margin:0"><div class="fg"><label>Buscar</label><input id="emp-search" placeholder="Buscar por ID, nombre, area, banco o cuenta"></div></div></div>');
+      document.getElementById('emp-search').addEventListener('input',function(){empSearch=this.value.toLowerCase();renderEmps();});
+      document.querySelectorAll('#view-empleados th').forEach(function(th,idx){
+        var keys=['num','nombre','area','contacto','banco','ine','eventos','turnos','pago','acciones'];
+        th.style.cursor='pointer';
+        th.onclick=function(){if(keys[idx]==='acciones'||keys[idx]==='ine')return;empSortDir=empSortKey===keys[idx]?-empSortDir:1;empSortKey=keys[idx];renderEmps();};
+      });
+    }
     var tb=document.getElementById('emp-tbody');
     if(!emps.length){tb.innerHTML='<tr><td colspan="10" style="text-align:center;color:var(--muted);padding:28px;font-size:14px">Sin empleados registrados</td></tr>';return;}
     tb.innerHTML=emps.map(function(e){
@@ -2338,6 +2532,7 @@ renderEventos();renderEmps();
         if(en)evCount++;
       });
       var isSinga=e.source==='singa';
+      var isSupervisor=e.workerType==='supervisor';
       var contacto='<div class="contact-line"><strong>Tel.</strong> '+safeTxt(e.telefono||'--')+'</div>'
         +'<div class="contact-line"><strong>Cel.</strong> '+safeTxt(e.celular||'--')+'</div>'
         +'<div class="contact-line"><strong>Red.</strong> '+safeTxt(e.redes||'--')+'</div>';
@@ -2348,7 +2543,7 @@ renderEventos();renderEmps();
       var acciones=isSinga?'<span class="cell-muted">Solo lectura</span>':'<div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end"><button class="btn-danger" onclick="openEmpForm('+e.id+')">Editar</button><button class="btn-danger" onclick="eliminarEmp('+e.id+')">Eliminar</button></div>';
       return'<tr>'
         +'<td><span class="tag">'+safeTxt(e.num)+'</span></td>'
-        +'<td style="font-weight:600">'+safeTxt(e.nombre)+(isSinga?'<div class="cell-muted">SINGA ID '+safeTxt(e.externalId||e.num)+'</div>':'<div class="cell-muted">Plataforma</div>')+'</td>'
+        +'<td style="font-weight:600">'+safeTxt(e.nombre)+(isSinga?'<div class="cell-muted">SINGA ID '+safeTxt(e.externalId||e.num)+'</div>':(isSupervisor?'<div class="cell-muted">Supervisor plataforma</div>':'<div class="cell-muted">Jornal plataforma</div>'))+'</td>'
         +'<td>'+safeTxt(e.area||'--')+'</td>'
         +'<td>'+contacto+'</td>'
         +'<td>'+banco+'</td>'
@@ -2363,26 +2558,42 @@ renderEventos();renderEmps();
       if(!items.length)return '';
       return '<tr><td colspan="10" style="background:var(--gray);font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--muted)">'+title+' · '+items.length+'</td></tr>'+items.map(rowHtml).join('');
     }
-    var platform=emps.filter(function(e){return e.source!=='singa';});
-    var singa=emps.filter(function(e){return e.source==='singa';});
-    tb.innerHTML=section('Jornales plataforma',platform)+section('Jornales SINGA',singa);
+    function matches(e){var q=empSearch||'';return !q||[e.num,e.nombre,e.area,e.banco,e.cuenta,e.clabe,e.telefono,e.celular].join(' ').toLowerCase().indexOf(q)!==-1;}
+    function sortItems(items){return items.filter(matches).sort(function(a,b){var av=(a[empSortKey]||'').toString().toLowerCase(),bv=(b[empSortKey]||'').toString().toLowerCase();return av>bv?empSortDir:av<bv?-empSortDir:0;});}
+    var platform=sortItems(emps.filter(function(e){return e.source!=='singa'&&e.workerType!=='supervisor';}));
+    var supervisors=sortItems(emps.filter(function(e){return e.source!=='singa'&&e.workerType==='supervisor';}));
+    var singa=sortItems(emps.filter(function(e){return e.source==='singa';}));
+    tb.innerHTML=section('Jornales plataforma',platform)+section('Supervisores',supervisors)+section('Jornales SINGA',singa);
   };
 
   window.openEmpForm=(function(original){
     return function(id){
+      currentPersonType='jornal';
       if(id!=null){
         var emp=emps.find(function(e){return e.id===id;});
         if(emp&&emp.source==='singa'){toast('Los jornales SINGA son solo lectura');return;}
+        if(emp&&emp.workerType==='supervisor')currentPersonType='supervisor';
       }
       original(id);
+      document.querySelector('#form-emp .card-title').textContent=currentPersonType==='supervisor'?(id!=null?'EDITAR SUPERVISOR':'NUEVO SUPERVISOR'):(id!=null?'EDITAR JORNAL':'NUEVO JORNAL');
+      updatePersonFormCopy();
     };
   })(window.openEmpForm);
 
+  window.openSupervisorForm=function(){
+    currentPersonType='supervisor';
+    resetEmpForm();
+    document.querySelector('#form-emp .card-title').textContent='NUEVO SUPERVISOR';
+    document.getElementById('emp-area').value='Supervisión';
+    updatePersonFormCopy();
+    document.getElementById('form-emp').style.display='block';
+  };
+
   window.dlTurno=function(evId,turno){
     var ev=eventos.find(function(e){return e.id===evId;});
-    var lbl={antes:'Antes',durante:'Durante',despues:'Después'}[turno];
-    var rows=[['#','Nombre','Área','Rol','Turno','Evento','Fecha','Pago']];
-    (ev.turnos[turno]||[]).forEach(function(e,i){rows.push([i+1,e.nombre,e.area,roleLabel(e.rol||'jornal'),lbl,ev.nombre,ev.fecha,moneda(e.pago||payForRole(ev,turno,e.rol||'jornal'))]);});
+    var lbl={antes:'Horario 1',durante:'Horario 2',despues:'Horario 3'}[turno];
+    var rows=[['#','N°','Nombre','Área','Tipo','Origen','Horario','Evento','Fecha','Banco','Cuenta','Pago']];
+    (ev.turnos[turno]||[]).forEach(function(e,i){rows.push([i+1,e.num,e.nombre,e.area,roleLabel(e.rol||e.workerType||'jornal'),originLabel(e),lbl,ev.nombre,ev.fecha,e.banco||'',e.cuenta||'',moneda(e.pago||payForRole(ev,turno,e.rol||'jornal'))]);});
     var prefix=currentClientKey?CLIENTS[currentClientKey].slug:'demo';
     csv(prefix+'_lista_'+lbl+'_'+ev.nombre.replace(/\s+/g,'_')+'.csv',rows);
     toast('Lista '+lbl+' descargada');
@@ -2390,10 +2601,10 @@ renderEventos();renderEmps();
 
   window.dlEvento=function(){
     if(!selEv){toast('Selecciona un evento primero');return;}
-    var ev=selEv,rows=[['#','Nombre','Área','Rol','Turno','Pago']],i=1;
+    var ev=selEv,rows=[['#','N°','Nombre','Área','Tipo','Origen','Horario','Banco','Cuenta','Pago']],i=1;
     ['antes','durante','despues'].forEach(function(t){
-      var lbl={antes:'Antes',durante:'Durante',despues:'Después'}[t];
-      (ev.turnos[t]||[]).forEach(function(e){rows.push([i++,e.nombre,e.area,roleLabel(e.rol||'jornal'),lbl,moneda(e.pago||payForRole(ev,t,e.rol||'jornal'))]);});
+      var lbl={antes:'Horario 1',durante:'Horario 2',despues:'Horario 3'}[t];
+      (ev.turnos[t]||[]).forEach(function(e){rows.push([i++,e.num,e.nombre,e.area,roleLabel(e.rol||e.workerType||'jornal'),originLabel(e),lbl,e.banco||'',e.cuenta||'',moneda(e.pago||payForRole(ev,t,e.rol||'jornal'))]);});
     });
     var prefix=currentClientKey?CLIENTS[currentClientKey].slug:'demo';
     csv(prefix+'_evento_'+ev.nombre.replace(/\s+/g,'_')+'.csv',rows);
@@ -2401,7 +2612,7 @@ renderEventos();renderEmps();
   };
 
   window.dlResumen=function(){
-    var rows=[['Empleado','Área','N°','Banco','CLABE','INE','Antes','Durante','Después','Supervisión','Total Turnos','Total a Pagar']];
+    var rows=[['Empleado','Área','N°','Tipo','Origen','Banco','Cuenta','CLABE','INE','Horario 1','Horario 2','Horario 3','Supervisión','Total Turnos','Total a Pagar']];
     emps.forEach(function(e){
       var a=0,d=0,ds=0,sup=0,p=0;
       eventos.forEach(function(ev){
@@ -2417,7 +2628,7 @@ renderEventos();renderEmps();
           });
         });
       });
-      if(a+d+ds>0)rows.push([e.nombre,e.area,e.num,e.banco||'',e.clabe||'',e.ine&&e.ine.name?e.ine.name:'',a,d,ds,sup,a+d+ds,moneda(p)]);
+      if(a+d+ds>0)rows.push([e.nombre,e.area,e.num,roleLabel(e.workerType||'jornal'),originLabel(e),e.banco||'',e.cuenta||'',e.clabe||'',e.ine&&e.ine.name?e.ine.name:'',a,d,ds,sup,a+d+ds,moneda(p)]);
     });
     var prefix=currentClientKey?CLIENTS[currentClientKey].slug:'demo';
     csv(prefix+'_resumen_'+new Date().toISOString().slice(0,10)+'.csv',rows);
@@ -2425,11 +2636,11 @@ renderEventos();renderEmps();
   };
 
   window.dlPorEvento=function(){
-    var rows=[['Evento','Tipo','Fecha','Turno','Rol','N°','Nombre','Área','Banco','INE','Pago']];
+    var rows=[['Evento','Tipo Evento','Fecha','Horario','Tipo Persona','Origen','N°','Nombre','Área','Banco','Cuenta','CLABE','INE','Pago']];
     eventos.forEach(function(ev){
       ['antes','durante','despues'].forEach(function(t){
-        var lbl={antes:'Antes',durante:'Durante',despues:'Después'}[t];
-        (ev.turnos[t]||[]).forEach(function(e){rows.push([ev.nombre,ev.tipo,ev.fecha,lbl,roleLabel(e.rol||'jornal'),e.num,e.nombre,e.area,e.banco||'',e.ine&&e.ine.name?e.ine.name:'',moneda(e.pago||payForRole(ev,t,e.rol||'jornal'))]);});
+        var lbl={antes:'Horario 1',durante:'Horario 2',despues:'Horario 3'}[t];
+        (ev.turnos[t]||[]).forEach(function(e){rows.push([ev.nombre,ev.tipo,ev.fecha,lbl,roleLabel(e.rol||e.workerType||'jornal'),originLabel(e),e.num,e.nombre,e.area,e.banco||'',e.cuenta||'',e.clabe||'',e.ine&&e.ine.name?e.ine.name:'',moneda(e.pago||payForRole(ev,t,e.rol||'jornal'))]);});
       });
     });
     var prefix=currentClientKey?CLIENTS[currentClientKey].slug:'demo';

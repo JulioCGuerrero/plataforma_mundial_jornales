@@ -128,12 +128,16 @@ def create_worker(
     client_slug: str, payload: WorkerIn, _: User = Depends(current_user), db: Session = Depends(get_db)
 ) -> Worker:
     client = get_client_or_404(db, client_slug)
-    code = payload.employee_number or payload.display_code or next_platform_code(db, client.id)
+    provided_code = payload.employee_number or payload.display_code
+    if payload.worker_type == "supervisor" and not provided_code:
+        raise HTTPException(status_code=400, detail="El folio SINGA del supervisor es obligatorio")
+    code = provided_code or next_platform_code(db, client.id)
     worker = Worker(
         client_id=client.id,
         employee_number=code,
         display_code=payload.display_code or code,
         source="platform",
+        worker_type=payload.worker_type,
         full_name=payload.full_name,
         area=payload.area,
         phone=payload.phone,
@@ -164,8 +168,10 @@ def update_worker(
         raise HTTPException(status_code=404, detail="Jornal no encontrado")
     if worker.source == "singa":
         raise HTTPException(status_code=403, detail="Los jornales SINGA no son editables")
+    if payload.worker_type == "supervisor" and not (payload.employee_number or payload.display_code):
+        raise HTTPException(status_code=400, detail="El folio SINGA del supervisor es obligatorio")
     for key, value in payload.model_dump(exclude_unset=True).items():
-        if key == "employee_number" and value is None:
+        if key in {"employee_number", "display_code"} and value is None:
             continue
         setattr(worker, key, value)
     try:
@@ -201,6 +207,21 @@ def create_event(client_slug: str, payload: EventIn, _: User = Depends(current_u
     client = get_client_or_404(db, client_slug)
     event = Event(client_id=client.id, **payload.model_dump())
     db.add(event)
+    db.commit()
+    db.refresh(event)
+    return event
+
+
+@app.put("/api/clients/{client_slug}/events/{event_id}", response_model=EventOut)
+def update_event(
+    client_slug: str, event_id: int, payload: EventIn, _: User = Depends(current_user), db: Session = Depends(get_db)
+) -> Event:
+    client = get_client_or_404(db, client_slug)
+    event = db.query(Event).filter(Event.id == event_id, Event.client_id == client.id).first()
+    if not event:
+        raise HTTPException(status_code=404, detail="Evento no encontrado")
+    for key, value in payload.model_dump(exclude_unset=True).items():
+        setattr(event, key, value)
     db.commit()
     db.refresh(event)
     return event
@@ -251,6 +272,17 @@ def create_assignment(
     worker = db.query(Worker).filter(Worker.id == payload.worker_id, Worker.client_id.in_(allowed_client_ids)).first()
     if not event or not worker:
         raise HTTPException(status_code=404, detail="Evento o jornal no encontrado")
+    if payload.worker_role == "supervisor" and worker.worker_type != "supervisor":
+        raise HTTPException(status_code=400, detail="Selecciona un supervisor para listas de supervision")
+    if payload.worker_role == "jornal" and worker.worker_type == "supervisor":
+        raise HTTPException(status_code=400, detail="Selecciona un jornal para listas de jornales")
+    existing = (
+        db.query(ShiftAssignment)
+        .filter(ShiftAssignment.event_id == event.id, ShiftAssignment.worker_id == worker.id)
+        .first()
+    )
+    if existing:
+        raise HTTPException(status_code=409, detail="El jornal ya esta asignado en este evento")
     assignment = ShiftAssignment(
         event_id=event.id,
         worker_id=worker.id,
@@ -306,7 +338,8 @@ def summary(client_slug: str, _: User = Depends(current_user), db: Session = Dep
             func.coalesce(func.sum(ShiftAssignment.pay_amount), 0).label("total_pay"),
         )
         .join(ShiftAssignment, ShiftAssignment.worker_id == Worker.id)
-        .filter(Worker.client_id == client.id)
+        .join(Event, Event.id == ShiftAssignment.event_id)
+        .filter(Event.client_id == client.id)
         .group_by(Worker.id)
         .order_by(func.coalesce(func.sum(ShiftAssignment.pay_amount), 0).desc())
         .all()

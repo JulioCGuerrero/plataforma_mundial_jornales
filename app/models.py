@@ -59,6 +59,7 @@ class Worker(TimestampMixin, Base):
     display_code: Mapped[str | None] = mapped_column(String(60), index=True)
     source: Mapped[str] = mapped_column(String(30), default="platform", index=True)
     external_id: Mapped[str | None] = mapped_column(String(80), index=True)
+    worker_type: Mapped[str] = mapped_column(String(30), default="jornal", index=True)
     full_name: Mapped[str] = mapped_column(String(180), index=True)
     area: Mapped[str] = mapped_column(String(120))
     phone: Mapped[str | None] = mapped_column(String(40))
@@ -95,6 +96,10 @@ class Event(TimestampMixin, Base):
     supervisor_before: Mapped[bool] = mapped_column(Boolean, default=True)
     supervisor_during: Mapped[bool] = mapped_column(Boolean, default=True)
     supervisor_after: Mapped[bool] = mapped_column(Boolean, default=False)
+    schedule_before: Mapped[str | None] = mapped_column(String(80))
+    schedule_during: Mapped[str | None] = mapped_column(String(80))
+    schedule_after: Mapped[str | None] = mapped_column(String(80))
+    sub_event_name: Mapped[str | None] = mapped_column(String(80), index=True)
 
     client: Mapped["Client"] = relationship(back_populates="events")
     assignments: Mapped[list["ShiftAssignment"]] = relationship(back_populates="event", cascade="all, delete-orphan")

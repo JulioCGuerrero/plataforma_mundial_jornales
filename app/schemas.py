@@ -26,6 +26,7 @@ class ClientOut(BaseModel):
 class WorkerIn(BaseModel):
     employee_number: str | None = None
     display_code: str | None = None
+    worker_type: str = Field(default="jornal", pattern="^(jornal|supervisor)$")
     full_name: str = Field(min_length=1, max_length=180)
     area: str = Field(min_length=1, max_length=120)
     phone: str | None = None
@@ -64,6 +65,10 @@ class EventIn(BaseModel):
     supervisor_before: bool = True
     supervisor_during: bool = True
     supervisor_after: bool = False
+    schedule_before: str | None = None
+    schedule_during: str | None = None
+    schedule_after: str | None = None
+    sub_event_name: str | None = None
 
 
 class EventOut(EventIn):
