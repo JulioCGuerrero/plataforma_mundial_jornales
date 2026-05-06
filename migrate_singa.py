@@ -11,6 +11,7 @@ SQLSERVER_USERNAME = os.getenv("SINGA_SQLSERVER_USERNAME", "alpreb")
 SQLSERVER_PASSWORD = os.getenv("SINGA_SQLSERVER_PASSWORD", "s1st3m4s@_")
 SQLSERVER_DRIVER = os.getenv("SINGA_SQLSERVER_DRIVER", "ODBC Driver 17 for SQL Server")
 SQLSERVER_TIMEOUT = int(os.getenv("SINGA_SQLSERVER_TIMEOUT", "10"))
+SQLSERVER_ENCRYPT = os.getenv("SINGA_SQLSERVER_ENCRYPT", "no")
 
 POSTGRES_DSN = os.environ["DATABASE_URL"].replace("postgresql+psycopg://", "postgresql://")
 CLIENT_SLUG = os.getenv("CLIENT_SLUG", "singa").strip() or "singa"
@@ -22,6 +23,21 @@ class SingaWorker:
     full_name: str
     bank: str | None
     account_number: str | None
+    clabe: str | None
+    phone: str | None
+    emergency_phone: str | None
+    emergency_contact: str | None
+
+
+def clean_text(value: object, max_length: int | None = None) -> str | None:
+    if value is None:
+        return None
+    text = str(value).strip()
+    if not text:
+        return None
+    if max_length is not None:
+        return text[:max_length]
+    return text
 
 
 def sqlserver_connection() -> pyodbc.Connection:
@@ -32,6 +48,7 @@ def sqlserver_connection() -> pyodbc.Connection:
         f"DATABASE={SQLSERVER_DATABASE};"
         f"UID={SQLSERVER_USERNAME};"
         f"PWD={SQLSERVER_PASSWORD};"
+        f"Encrypt={SQLSERVER_ENCRYPT};"
         "TrustServerCertificate=yes;"
     )
     conn = pyodbc.connect(connection_string, timeout=SQLSERVER_TIMEOUT)
@@ -71,7 +88,11 @@ def fetch_singa_workers() -> list[SingaWorker]:
                     COALESCE(j.materno, '')
                 ))) AS nombre_completo,
                 b.{bank_column} AS banco,
-                j.cuenta
+                j.cuenta,
+                j.clabe,
+                j.telefono,
+                j.telefono_emergencia,
+                j.contacto_emergencia
             FROM tb_jornalero j
             LEFT JOIN tb_banco b ON b.id_banco = j.id_banco
             WHERE j.id_status = 1
@@ -82,8 +103,12 @@ def fetch_singa_workers() -> list[SingaWorker]:
             SingaWorker(
                 external_id=str(row.id_jornalero),
                 full_name=str(row.nombre_completo).strip(),
-                bank=str(row.banco).strip() if row.banco is not None else None,
-                account_number=str(row.cuenta).strip() if row.cuenta is not None else None,
+                bank=clean_text(row.banco, 120),
+                account_number=clean_text(row.cuenta, 80),
+                clabe=clean_text(row.clabe, 18),
+                phone=clean_text(row.telefono, 40),
+                emergency_phone=clean_text(row.telefono_emergencia, 40),
+                emergency_contact=clean_text(row.contacto_emergencia, 120),
             )
             for row in rows
             if str(row.nombre_completo).strip()
@@ -134,11 +159,15 @@ def upsert_workers(workers: list[SingaWorker]) -> None:
                         worker_type,
                         full_name,
                         area,
+                        phone,
+                        mobile,
+                        social,
                         bank,
                         account_number,
+                        clabe,
                         active
                     )
-                    VALUES (%s, %s, %s, 'singa', %s, 'jornal', %s, 'SINGA', %s, %s, true)
+                    VALUES (%s, %s, %s, 'singa', %s, 'jornal', %s, 'SINGA', %s, %s, %s, %s, %s, %s, true)
                     ON CONFLICT (client_id, employee_number)
                     DO UPDATE SET
                         display_code = EXCLUDED.display_code,
@@ -147,8 +176,12 @@ def upsert_workers(workers: list[SingaWorker]) -> None:
                         worker_type = 'jornal',
                         full_name = EXCLUDED.full_name,
                         area = EXCLUDED.area,
+                        phone = EXCLUDED.phone,
+                        mobile = EXCLUDED.mobile,
+                        social = EXCLUDED.social,
                         bank = EXCLUDED.bank,
                         account_number = EXCLUDED.account_number,
+                        clabe = EXCLUDED.clabe,
                         active = true,
                         updated_at = now()
                     """,
@@ -158,8 +191,12 @@ def upsert_workers(workers: list[SingaWorker]) -> None:
                         worker.external_id,
                         worker.external_id,
                         worker.full_name,
+                        worker.phone,
+                        worker.emergency_phone,
+                        worker.emergency_contact,
                         worker.bank,
                         worker.account_number,
+                        worker.clabe,
                     ),
                 )
                 done += 1

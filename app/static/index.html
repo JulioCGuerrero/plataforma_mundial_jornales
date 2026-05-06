@@ -469,26 +469,47 @@ body.theme-plaza .client-banner{display:block}
 .t-lbl{font-family:'Bebas Neue',sans-serif;font-size:17px;letter-spacing:1.2px;line-height:1}
 .t-antes .t-lbl{color:var(--red)}
 .t-durante .t-lbl,.t-despues .t-lbl{color:white}
-.t-sub{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;opacity:.55;margin-top:2px}
+.t-sub{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.8px;opacity:.72;margin-top:3px}
 .t-antes .t-sub{color:var(--red)}
-.t-durante .t-sub,.t-despues .t-sub{color:white}
+.t-durante .t-sub,.t-despues .t-sub{color:rgba(255,255,255,.86);opacity:1;text-shadow:0 1px 2px rgba(0,0,0,.28)}
 
 .t-salary{
   font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:1px;
   padding:4px 12px;border-radius:8px
 }
 .t-antes .t-salary{color:var(--red);background:rgba(204,0,0,.08)}
-.t-durante .t-salary{color:var(--gold2);background:rgba(0,0,0,.2)}
-.t-despues .t-salary{color:white;background:rgba(204,0,0,.2)}
+.t-durante .t-salary{color:#fff3b0;background:rgba(80,0,0,.42);box-shadow:inset 0 0 0 1px rgba(255,255,255,.08)}
+.t-despues .t-salary{color:#fff;background:rgba(204,0,0,.28);box-shadow:inset 0 0 0 1px rgba(255,255,255,.08)}
+.t-durante .t-salary div,.t-despues .t-salary div{color:rgba(255,255,255,.76)!important;text-shadow:none}
 
 .t-body{padding:14px;flex:1}
 .add-row{display:flex;gap:8px;margin-bottom:12px}
+.add-row.stack{flex-direction:column}
+.assign-controls{display:grid;grid-template-columns:minmax(0,1fr) 128px;gap:8px;align-items:stretch}
+.assign-search{
+  width:100%;border:1.5px solid #E8E8E8;border-radius:9px;
+  padding:9px 11px;font-family:'Barlow',sans-serif;font-size:13px;
+  outline:none;background:#fff;color:var(--text);transition:border-color var(--transition)
+}
+.assign-search:focus{border-color:var(--red)}
 .add-row select{
+  min-width:0;
   flex:1;border:1.5px solid #E8E8E8;border-radius:9px;
   padding:9px 11px;font-family:'Barlow',sans-serif;font-size:13px;
   outline:none;background:white;color:var(--text);transition:border-color var(--transition)
 }
 .add-row select:focus{border-color:var(--red)}
+.add-row .btn{white-space:nowrap;width:100%;min-width:0;justify-content:center;padding-left:12px;padding-right:12px}
+.turno-card .btn-red{
+  background:linear-gradient(135deg,#b00000,#f00000);
+  color:#fff;
+  box-shadow:0 5px 18px rgba(176,0,0,.34)
+}
+.turno-card .btn-gold{
+  background:linear-gradient(135deg,#ffe07a,#c8a84b);
+  color:#1b1300;
+  box-shadow:0 5px 18px rgba(200,168,75,.32)
+}
 
 .emp-list{display:flex;flex-direction:column;gap:6px;max-height:240px;overflow-y:auto;padding-right:3px}
 .emp-list::-webkit-scrollbar{width:4px}
@@ -569,6 +590,25 @@ tbody tr:hover td{background:#FAFAFA}
 .file-input:hover{border-color:var(--red)}
 .file-preview{font-size:11px;color:var(--muted);margin-top:5px}
 
+.toolbar-card{padding:14px 16px;margin-bottom:12px;border-radius:14px}
+.toolbar-grid{display:grid;grid-template-columns:2fr repeat(3,minmax(150px,1fr)) auto;gap:10px;align-items:end}
+.toolbar-grid .btn{height:40px;justify-content:center}
+.compare-wrap{margin-bottom:18px}
+.compare-title{font-family:'Bebas Neue',sans-serif;font-size:19px;letter-spacing:1.8px;color:var(--red);margin:0 0 10px}
+.compare-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}
+.compare-card{
+  background:white;border:1px solid rgba(0,0,0,.06);border-radius:16px;
+  padding:16px;box-shadow:var(--shadow-sm)
+}
+.compare-card h3{font-family:'Bebas Neue',sans-serif;font-size:19px;letter-spacing:1px;margin:0;color:var(--text)}
+.compare-card .cell-muted{margin:2px 0 10px}
+.compare-metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.compare-metric{background:var(--gray);border:1px solid rgba(0,0,0,.05);border-radius:10px;padding:9px;text-align:center}
+.compare-metric strong{display:block;font-family:'Bebas Neue',sans-serif;font-size:24px;color:var(--red);line-height:1}
+.compare-metric span{font-size:10px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);font-weight:700}
+.compare-card.ok{border-color:rgba(30,122,58,.2)}
+.compare-card.warn{border-color:rgba(204,0,0,.22);box-shadow:0 8px 24px rgba(204,0,0,.08)}
+
 /* ── RESUMEN ── */
 .res-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px}
 .res-card{
@@ -622,6 +662,9 @@ tbody tr:hover td{background:#FAFAFA}
 @media(max-width:1000px){.turnos-grid{grid-template-columns:1fr}}
 @media(max-width:800px){
   .res-grid{grid-template-columns:repeat(2,1fr)}
+  .toolbar-grid{grid-template-columns:1fr}
+  .compare-metrics{grid-template-columns:1fr}
+  .assign-controls{grid-template-columns:1fr}
   .wrap{padding:18px 18px 60px}
   .ev-grid{grid-template-columns:1fr}
   .mascots-bar{gap:18px}
@@ -1249,8 +1292,16 @@ tbody tr:hover td{background:#FAFAFA}
         <div class="fg" style="max-width:170px"><label>Salario Horario 1 ($)</label><input id="ev-sal-antes" type="number" value="320" min="1"></div>
         <div class="fg" style="max-width:170px"><label>Salario Horario 2 ($)</label><input id="ev-sal-durante" type="number" value="480" min="1"></div>
         <div class="fg" style="max-width:170px"><label>Salario Horario 3 ($)</label><input id="ev-sal-despues" type="number" value="360" min="1"></div>
-        <div class="fg" style="max-width:170px"><label>Operario (cant.)</label><input id="ev-op" type="number" value="20" min="0"></div>
-        <div class="fg" style="max-width:170px"><label>Supervisión (cant.)</label><input id="ev-sup" type="number" value="4" min="0"></div>
+        <div class="fg" style="max-width:170px"><label>Operario total</label><input id="ev-op" type="number" value="20" min="0"></div>
+        <div class="fg" style="max-width:170px"><label>Supervision total</label><input id="ev-sup" type="number" value="4" min="0"></div>
+      </div>
+      <div class="form-row">
+        <div class="fg" style="max-width:170px"><label>Operarios Horario 1</label><input id="ev-op-antes" type="number" value="0" min="0"></div>
+        <div class="fg" style="max-width:170px"><label>Operarios Horario 2</label><input id="ev-op-durante" type="number" value="0" min="0"></div>
+        <div class="fg" style="max-width:170px"><label>Operarios Horario 3</label><input id="ev-op-despues" type="number" value="0" min="0"></div>
+        <div class="fg" style="max-width:170px"><label>Supervisores Horario 1</label><input id="ev-sup-antes" type="number" value="0" min="0"></div>
+        <div class="fg" style="max-width:170px"><label>Supervisores Horario 2</label><input id="ev-sup-durante" type="number" value="0" min="0"></div>
+        <div class="fg" style="max-width:170px"><label>Supervisores Horario 3</label><input id="ev-sup-despues" type="number" value="0" min="0"></div>
       </div>
       <div class="form-row">
         <div class="fg" style="max-width:190px"><label>Supervisor Horario 1 ($)</label><input id="ev-sup-sal-antes" type="number" value="450" min="1"></div>
@@ -1349,6 +1400,16 @@ tbody tr:hover td{background:#FAFAFA}
       </div>
     </div>
 
+    <div class="card toolbar-card">
+      <div class="toolbar-grid">
+        <div class="fg"><label>Buscar jornal</label><input id="emp-search" placeholder="ID, nombre, area, banco, cuenta o telefono"></div>
+        <div class="fg"><label>Tipo</label><select id="emp-filter-type"><option value="">Todos</option><option value="jornal">Jornales</option><option value="supervisor">Supervisores</option></select></div>
+        <div class="fg"><label>Origen</label><select id="emp-filter-origin"><option value="">Todos</option><option value="platform">Agregados</option><option value="singa">SINGA</option></select></div>
+        <div class="fg"><label>Area</label><select id="emp-filter-area"><option value="">Todas</option></select></div>
+        <button class="btn btn-gold" onclick="dlJornalesExcel()">Excel</button>
+      </div>
+    </div>
+
     <div class="tbl-wrap">
       <table>
         <thead><tr><th>N°</th><th>Nombre</th><th>Área</th><th>Contacto</th><th>Banco</th><th>INE</th><th style="text-align:center">Eventos</th><th style="text-align:center">Turnos</th><th style="text-align:right">Total Ganado</th><th>Acciones</th></tr></thead>
@@ -1361,9 +1422,13 @@ tbody tr:hover td{background:#FAFAFA}
   <div class="view" id="view-resumen">
     <div class="sec-head"><h2>RESUMEN GENERAL</h2></div>
     <div class="res-grid" id="res-stats"></div>
+    <div class="compare-wrap">
+      <div class="compare-title">ESPERADOS VS LLEGARON POR EVENTO</div>
+      <div class="compare-grid" id="expected-dashboard"></div>
+    </div>
     <div class="tbl-wrap">
       <table>
-        <thead><tr><th>Jornal</th><th>Área</th><th style="text-align:center">Horario 1</th><th style="text-align:center">Horario 2</th><th style="text-align:center">Horario 3</th><th style="text-align:center">Turnos</th><th style="text-align:right">A Pagar</th></tr></thead>
+        <thead><tr><th>Jornal</th><th>Area</th><th style="text-align:center">Eventos</th><th style="text-align:center">Horario 1</th><th style="text-align:center">Horario 2</th><th style="text-align:center">Horario 3</th><th style="text-align:center">Turnos</th><th style="text-align:right">A Pagar</th></tr></thead>
         <tbody id="res-tbody"></tbody>
       </table>
     </div>
@@ -2009,7 +2074,7 @@ renderEventos();renderEmps();
   var originalEnterClient=window.enterClient;
   var evEditId=null;
   var currentPersonType='jornal';
-  var empSearch='', empSortKey='nombre', empSortDir=1;
+  var empSearch='', empSortKey='nombre', empSortDir=1, empFilterType='', empFilterOrigin='', empFilterArea='';
   var stadiumKeys={ollamani:true,estadioazul:true};
 
   function api(path,opts){
@@ -2053,12 +2118,13 @@ renderEventos();renderEmps();
     };
   }
   function toEvent(ev,assignments){
+    var meta=eventMeta(ev.description||'');
     var mapped={
       id:ev.id,
       nombre:ev.name,
       fecha:ev.event_date,
       tipo:ev.event_type,
-      desc:ev.description||'',
+      desc:cleanDescription(ev.description||''),
       pago:Number(ev.salary_during||0),
       salarios:{
         antes:Number(ev.salary_before||0),
@@ -2073,6 +2139,10 @@ renderEventos();renderEmps();
       posiciones:{
         operario:ev.operator_positions||0,
         supervision:ev.supervisor_positions||0
+      },
+      cupos:(meta&&meta.cupos)||{
+        jornal:{antes:ev.operator_positions||0,durante:0,despues:0},
+        supervisor:{antes:ev.supervisor_positions||0,durante:0,despues:0}
       },
       supervisorTurnos:{
         antes:ev.supervisor_before!==false,
@@ -2113,6 +2183,26 @@ renderEventos();renderEmps();
   }
   function shiftLabel(ev,turno){
     return ev&&ev.horarios&&ev.horarios[turno]?ev.horarios[turno]:({antes:'Horario 1',durante:'Horario 2',despues:'Horario 3'}[turno]||turno);
+  }
+  function cleanDescription(desc){
+    return String(desc||'').replace(/\n?\s*\[CJ_META:[\s\S]*?\]\s*$/,'').trim();
+  }
+  function eventMeta(desc){
+    var match=String(desc||'').match(/\[CJ_META:([\s\S]*?)\]\s*$/);
+    if(!match)return {};
+    try{return JSON.parse(match[1]);}catch(e){return {};}
+  }
+  function withEventMeta(desc,meta){
+    var clean=cleanDescription(desc);
+    return (clean?clean+'\n\n':'')+'[CJ_META:'+JSON.stringify(meta)+']';
+  }
+  function shiftQuota(ev,role,turno){
+    var q=ev&&ev.cupos&&ev.cupos[role]&&ev.cupos[role][turno];
+    return Number(q||0);
+  }
+  function getInt(id){
+    var el=document.getElementById(id);
+    return el?Number(el.value||0):0;
   }
   function updatePersonFormCopy(){
     var isSupervisor=currentPersonType==='supervisor';
@@ -2218,11 +2308,19 @@ renderEventos();renderEmps();
     var f=document.getElementById('ev-fecha').value;
     if(!n){toast('Ingresa el nombre del evento');return;}
     if(!f){toast('Selecciona la fecha');return;}
+    var cupos={
+      jornal:{antes:getInt('ev-op-antes'),durante:getInt('ev-op-durante'),despues:getInt('ev-op-despues')},
+      supervisor:{antes:getInt('ev-sup-antes'),durante:getInt('ev-sup-durante'),despues:getInt('ev-sup-despues')}
+    };
+    var totalOperarios=cupos.jornal.antes+cupos.jornal.durante+cupos.jornal.despues;
+    var totalSupervisores=cupos.supervisor.antes+cupos.supervisor.durante+cupos.supervisor.despues;
+    if(totalOperarios===0)totalOperarios=Number(document.getElementById('ev-op').value||0);
+    if(totalSupervisores===0)totalSupervisores=Number(document.getElementById('ev-sup').value||0);
     var basePayload={
         name:n,
         event_date:f,
         event_type:document.getElementById('ev-tipo').value,
-        description:document.getElementById('ev-desc').value.trim(),
+        description:withEventMeta(document.getElementById('ev-desc').value.trim(),{cupos:cupos}),
         schedule_before:document.getElementById('ev-horario-antes').value.trim()||'Horario 1',
         schedule_during:document.getElementById('ev-horario-durante').value.trim()||'Horario 2',
         schedule_after:document.getElementById('ev-horario-despues').value.trim()||'Horario 3',
@@ -2232,8 +2330,8 @@ renderEventos();renderEmps();
         supervisor_salary_before:Number(document.getElementById('ev-sup-sal-antes').value||450),
         supervisor_salary_during:Number(document.getElementById('ev-sup-sal-durante').value||650),
         supervisor_salary_after:Number(document.getElementById('ev-sup-sal-despues').value||500),
-        operator_positions:Number(document.getElementById('ev-op').value||0),
-        supervisor_positions:Number(document.getElementById('ev-sup').value||0),
+        operator_positions:totalOperarios,
+        supervisor_positions:totalSupervisores,
         supervisor_before:document.getElementById('ev-sup-turno-antes').checked,
         supervisor_during:document.getElementById('ev-sup-turno-durante').checked,
         supervisor_after:document.getElementById('ev-sup-turno-despues').checked
@@ -2262,6 +2360,7 @@ renderEventos();renderEmps();
       document.getElementById('ev-sup-sal-antes').value='450';
       document.getElementById('ev-sup-sal-durante').value='650';
       document.getElementById('ev-sup-sal-despues').value='500';
+      ['ev-op-antes','ev-op-durante','ev-op-despues','ev-sup-antes','ev-sup-durante','ev-sup-despues'].forEach(function(id){var el=document.getElementById(id);if(el)el.value='0';});
       document.getElementById('ev-sup-turno-antes').checked=true;
       document.getElementById('ev-sup-turno-durante').checked=true;
       document.getElementById('ev-sup-turno-despues').checked=false;
@@ -2314,6 +2413,12 @@ renderEventos();renderEmps();
     document.getElementById('ev-sup-sal-despues').value=ev.salariosSupervisor.despues||500;
     document.getElementById('ev-op').value=ev.posiciones.operario||0;
     document.getElementById('ev-sup').value=ev.posiciones.supervision||0;
+    document.getElementById('ev-op-antes').value=shiftQuota(ev,'jornal','antes');
+    document.getElementById('ev-op-durante').value=shiftQuota(ev,'jornal','durante');
+    document.getElementById('ev-op-despues').value=shiftQuota(ev,'jornal','despues');
+    document.getElementById('ev-sup-antes').value=shiftQuota(ev,'supervisor','antes');
+    document.getElementById('ev-sup-durante').value=shiftQuota(ev,'supervisor','durante');
+    document.getElementById('ev-sup-despues').value=shiftQuota(ev,'supervisor','despues');
     document.getElementById('ev-sup-turno-antes').checked=!!(ev.supervisorTurnos&&ev.supervisorTurnos.antes);
     document.getElementById('ev-sup-turno-durante').checked=!!(ev.supervisorTurnos&&ev.supervisorTurnos.durante);
     document.getElementById('ev-sup-turno-despues').checked=!!(ev.supervisorTurnos&&ev.supervisorTurnos.despues);
@@ -2646,6 +2751,231 @@ renderEventos();renderEmps();
     var prefix=currentClientKey?CLIENTS[currentClientKey].slug:'demo';
     csv(prefix+'_desglose_por_evento.csv',rows);
     toast('Desglose por evento descargado');
+  };
+
+  window.filterAssignSelect=function(selectId,query){
+    var sel=document.getElementById(selectId);
+    if(!sel)return;
+    var q=String(query||'').toLowerCase();
+    Array.prototype.forEach.call(sel.options,function(opt,idx){
+      if(idx===0){opt.hidden=false;return;}
+      opt.hidden=q&&opt.text.toLowerCase().indexOf(q)===-1;
+    });
+    if(sel.selectedOptions[0]&&sel.selectedOptions[0].hidden)sel.value='';
+  };
+
+  function eventExpectedStats(ev){
+    var expected=0, arrived=0;
+    ['antes','durante','despues'].forEach(function(t){
+      expected+=shiftQuota(ev,'jornal',t)+shiftQuota(ev,'supervisor',t);
+      arrived+=(ev.turnos[t]||[]).length;
+    });
+    return {expected:expected,arrived:arrived,missing:Math.max(expected-arrived,0)};
+  }
+
+  function renderExpectedDashboard(){
+    var el=document.getElementById('expected-dashboard');
+    if(!el)return;
+    if(!eventos.length){el.innerHTML='<div class="empty" style="grid-column:1/-1">Sin eventos registrados.</div>';return;}
+    el.innerHTML=eventos.map(function(ev){
+      var s=eventExpectedStats(ev);
+      return'<article class="compare-card '+(s.missing?'warn':'ok')+'">'
+        +'<h3>'+safeTxt(ev.nombre)+'</h3><div class="cell-muted">'+safeTxt(ev.tipo)+' - '+safeTxt(fdate(ev.fecha))+'</div>'
+        +'<div class="compare-metrics">'
+        +'<div class="compare-metric"><strong>'+s.expected+'</strong><span>Esperados</span></div>'
+        +'<div class="compare-metric"><strong>'+s.arrived+'</strong><span>Llegaron</span></div>'
+        +'<div class="compare-metric"><strong>'+s.missing+'</strong><span>Faltan</span></div>'
+        +'</div></article>';
+    }).join('');
+  }
+
+  window.renderResumen=function(){
+    var totT=0,totP=0,totSup=0,totalExpected=0,totalArrived=0;
+    var rows=emps.map(function(e){
+      var a=0,d=0,ds=0,sup=0,p=0,evSet={};
+      eventos.forEach(function(ev){
+        var inEvent=false;
+        ['antes','durante','despues'].forEach(function(t){
+          (ev.turnos[t]||[]).forEach(function(x){
+            if(x.id===e.id){
+              if(t==='antes')a++;
+              if(t==='durante')d++;
+              if(t==='despues')ds++;
+              if(x.rol==='supervisor')sup++;
+              p+=Number(x.pago||payForRole(ev,t,x.rol||'jornal'));
+              inEvent=true;
+            }
+          });
+        });
+        if(inEvent)evSet[ev.id]=true;
+      });
+      var total=a+d+ds;totT+=total;totP+=p;totSup+=sup;
+      return{e:e,a:a,d:d,ds:ds,sup:sup,t:total,p:p,events:Object.keys(evSet).length};
+    }).filter(function(r){return r.t>0;}).sort(function(a,b){return b.p-a.p;});
+    eventos.forEach(function(ev){var s=eventExpectedStats(ev);totalExpected+=s.expected;totalArrived+=s.arrived;});
+    document.getElementById('res-stats').innerHTML=[
+      {l:'Eventos',v:eventos.length,s:'registrados',hl:false},
+      {l:'Esperados',v:totalExpected,s:'cupos programados',hl:false},
+      {l:'Llegaron',v:totalArrived,s:'personas asignadas',hl:false},
+      {l:'Total a Pagar',v:moneda(totP),s:'suma total nomina',hl:true},
+    ].map(function(r){
+      return'<div class="res-card'+(r.hl?' hl':'')+'"><div class="res-lbl">'+r.l+'</div><div class="res-val">'+r.v+'</div><div class="res-sub">'+r.s+'</div></div>';
+    }).join('');
+    renderExpectedDashboard();
+    var tb=document.getElementById('res-tbody');
+    if(!rows.length){tb.innerHTML='<tr><td colspan="8" style="text-align:center;color:var(--muted);padding:28px">Sin datos. Asigna jornales a los eventos.</td></tr>';return;}
+    tb.innerHTML=rows.map(function(r){
+      return'<tr>'
+        +'<td style="font-weight:600">'+safeTxt(r.e.nombre)+'</td>'
+        +'<td>'+safeTxt(r.e.area)+'</td>'
+        +'<td style="text-align:center;font-weight:700">'+r.events+'</td>'
+        +'<td style="text-align:center">'+r.a+'</td>'
+        +'<td style="text-align:center">'+r.d+'</td>'
+        +'<td style="text-align:center">'+r.ds+'</td>'
+        +'<td style="text-align:center;font-weight:700">'+r.t+'<div class="cell-muted">'+r.sup+' supervision</div></td>'
+        +'<td style="text-align:right;font-family:\'Bebas Neue\',sans-serif;font-size:18px;color:var(--red)">'+moneda(r.p)+'</td>'
+        +'</tr>';
+    }).join('');
+  };
+
+  window.renderTurnos=function(){
+    if(!selEv)return;
+    var ev=selEv;
+    document.getElementById('turnos-grid').innerHTML=TURNOS.map(function(t){
+      var list=ev.turnos[t.key]||[];
+      var jornales=list.filter(function(e){return (e.rol||'jornal')==='jornal';});
+      var supervisores=list.filter(function(e){return e.rol==='supervisor';});
+      var assignedIds=[].concat(ev.turnos.antes||[],ev.turnos.durante||[],ev.turnos.despues||[]).map(function(e){return e.id;});
+      var opts=emps.filter(function(e){return assignedIds.indexOf(e.id)===-1&&e.workerType!=='supervisor';}).map(function(e){return'<option value="'+e.id+'">'+safeTxt(e.num)+' - '+safeTxt(e.nombre)+' - '+safeTxt(e.area)+'</option>';}).join('');
+      var optsSup=emps.filter(function(e){return assignedIds.indexOf(e.id)===-1&&e.workerType==='supervisor';}).map(function(e){return'<option value="'+e.id+'">'+safeTxt(e.num)+' - '+safeTxt(e.nombre)+' - '+safeTxt(e.area)+'</option>';}).join('');
+      var salJornal=payForRole(ev,t.key,'jornal');
+      var salSupervisor=payForRole(ev,t.key,'supervisor');
+      var supervisorEnabled=ev.supervisorTurnos&&ev.supervisorTurnos[t.key];
+      var qJornal=shiftQuota(ev,'jornal',t.key);
+      var qSupervisor=shiftQuota(ev,'supervisor',t.key);
+      function renderItems(items,role){
+        var sal=payForRole(ev,t.key,role);
+        return items.length?items.map(function(e){
+          return'<div class="emp-item">'
+            +'<div class="emp-av">'+ini(e.nombre)+'</div>'
+            +'<div class="emp-info"><div class="emp-nm">'+safeTxt(e.num)+' - '+safeTxt(e.nombre)+'</div><div class="emp-ar">'+safeTxt(e.area)+' - '+roleBadge(role)+'</div></div>'
+            +'<div class="emp-pay">'+moneda(e.pago||sal)+'</div>'
+            +'<button class="btn-danger" onclick="removeEmp('+ev.id+',\''+t.key+'\','+e.id+')">Quitar</button>'
+            +'</div>';
+        }).join(''):'<div class="empty">Sin '+(role==='supervisor'?'supervisores':'jornales')+' asignados</div>';
+      }
+      var supervisorAdd=supervisorEnabled
+        ? '<div class="add-row stack" style="margin-top:10px"><input class="assign-search" placeholder="Buscar supervisor por nombre, ID o area" oninput="filterAssignSelect(\'sel-sup-'+t.key+'\',this.value)">'
+          +'<div class="assign-controls"><select id="sel-sup-'+t.key+'"><option value="">Seleccionar supervisor</option>'+optsSup+'</select>'
+          +'<button class="btn btn-gold btn-sm" onclick="addEmp('+ev.id+',\''+t.key+'\',\'supervisor\')">+ Supervisor</button></div></div>'
+        : '<div class="empty" style="margin-top:10px">Supervision no programada en este turno</div>';
+      var supervisorTotal=supervisores.reduce(function(sum,e){return sum+Number(e.pago||salSupervisor);},0);
+      var jornalTotal=jornales.reduce(function(sum,e){return sum+Number(e.pago||salJornal);},0);
+      return'<div class="turno-card '+t.cls+'">'
+        +'<div class="t-head"><div class="t-ico">'+t.ico+'</div>'
+        +'<div class="t-lbl-wrap"><div class="t-lbl">'+safeTxt(shiftLabel(ev,t.key))+'</div><div class="t-sub">Esperados '+qJornal+' op / '+qSupervisor+' sup</div></div>'
+        +'<div class="t-salary">'+moneda(salJornal)+'<div style="font-size:10px;color:var(--muted);font-family:Barlow,sans-serif">Supervisor '+moneda(salSupervisor)+'</div></div></div>'
+        +'<div class="t-body">'
+        +'<div class="add-row stack"><input class="assign-search" placeholder="Buscar jornal por nombre, ID o area" oninput="filterAssignSelect(\'sel-'+t.key+'\',this.value)">'
+        +'<div class="assign-controls"><select id="sel-'+t.key+'"><option value="">Seleccionar jornal</option>'+opts+'</select>'
+        +'<button class="btn btn-red btn-sm" onclick="addEmp('+ev.id+',\''+t.key+'\',\'jornal\')">+ Jornal</button></div></div>'
+        +'<div class="emp-list">'+renderItems(jornales,'jornal')+'</div>'
+        +'<div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--border)"><div class="t-lbl" style="font-size:13px">Supervision</div>'
+        +supervisorAdd+'<div class="emp-list">'+renderItems(supervisores,'supervisor')+'</div></div></div>'
+        +'<div class="t-foot"><div class="t-total">'+jornales.length+' jornales - '+supervisores.length+' supervisores &nbsp;-&nbsp; <strong>'+moneda(jornalTotal+supervisorTotal)+'</strong></div>'
+        +'<button class="btn btn-outline btn-xs" onclick="dlTurno('+ev.id+',\''+t.key+'\')">Lista</button></div></div>';
+    }).join('');
+  };
+
+  function workerStats(e){
+    var turnos=0,evCount=0,pago=0,sup=0;
+    eventos.forEach(function(ev){
+      var en=false;
+      ['antes','durante','despues'].forEach(function(t){
+        (ev.turnos[t]||[]).forEach(function(a){
+          if(a.id===e.id){
+            turnos++;
+            if(a.rol==='supervisor')sup++;
+            pago+=Number(a.pago||payForRole(ev,t,a.rol||'jornal'));
+            en=true;
+          }
+        });
+      });
+      if(en)evCount++;
+    });
+    return {turnos:turnos,events:evCount,pago:pago,sup:sup};
+  }
+  function bindWorkerFilters(){
+    var search=document.getElementById('emp-search');
+    var type=document.getElementById('emp-filter-type');
+    var origin=document.getElementById('emp-filter-origin');
+    var area=document.getElementById('emp-filter-area');
+    if(search&&!search._bound){search._bound=true;search.addEventListener('input',function(){empSearch=this.value.toLowerCase();renderEmps();});}
+    if(type&&!type._bound){type._bound=true;type.addEventListener('change',function(){empFilterType=this.value;renderEmps();});}
+    if(origin&&!origin._bound){origin._bound=true;origin.addEventListener('change',function(){empFilterOrigin=this.value;renderEmps();});}
+    if(area&&!area._bound){area._bound=true;area.addEventListener('change',function(){empFilterArea=this.value;renderEmps();});}
+    if(area){
+      var current=area.value;
+      var areas=Array.from(new Set(emps.map(function(e){return e.area||'';}).filter(Boolean))).sort();
+      area.innerHTML='<option value="">Todas</option>'+areas.map(function(a){return'<option value="'+safeTxt(a)+'">'+safeTxt(a)+'</option>';}).join('');
+      area.value=areas.indexOf(current)!==-1?current:'';
+      empFilterArea=area.value;
+    }
+  }
+  function filteredWorkers(){
+    var q=empSearch||'';
+    return emps.filter(function(e){
+      var type=e.workerType||'jornal';
+      var origin=e.source||'platform';
+      if(empFilterType&&type!==empFilterType)return false;
+      if(empFilterOrigin&&origin!==empFilterOrigin)return false;
+      if(empFilterArea&&(e.area||'')!==empFilterArea)return false;
+      return !q||[e.num,e.nombre,e.area,e.banco,e.cuenta,e.clabe,e.telefono,e.celular,e.redes].join(' ').toLowerCase().indexOf(q)!==-1;
+    }).sort(function(a,b){var av=(a[empSortKey]||'').toString().toLowerCase(),bv=(b[empSortKey]||'').toString().toLowerCase();return av>bv?empSortDir:av<bv?-empSortDir:0;});
+  }
+  window.renderEmps=function(){
+    bindWorkerFilters();
+    document.getElementById('emp-count').textContent=emps.length;
+    var tb=document.getElementById('emp-tbody');
+    var list=filteredWorkers();
+    if(!list.length){tb.innerHTML='<tr><td colspan="10" style="text-align:center;color:var(--muted);padding:28px;font-size:14px">Sin jornales con esos filtros</td></tr>';return;}
+    function rowHtml(e){
+      var st=workerStats(e);
+      var isSinga=e.source==='singa';
+      var isSupervisor=e.workerType==='supervisor';
+      var contacto='<div class="contact-line"><strong>Tel.</strong> '+safeTxt(e.telefono||'--')+'</div>'
+        +'<div class="contact-line"><strong>'+(isSinga?'Emerg.':'Cel.')+'</strong> '+safeTxt(e.celular||'--')+'</div>'
+        +'<div class="contact-line"><strong>'+(isSinga?'Contacto':'Red.')+'</strong> '+safeTxt(e.redes||'--')+'</div>';
+      var banco='<div class="contact-line"><strong>Banco</strong> '+safeTxt(e.banco||'--')+'</div>'
+        +'<div class="contact-line"><strong>Cuenta</strong> '+safeTxt(e.cuenta||'--')+'</div>'
+        +'<div class="contact-line"><strong>CLABE</strong> '+safeTxt(e.clabe||'--')+'</div>';
+      var ine=isSinga?'<span class="cell-badge off">No aplica</span>':(e.ine&&e.ine.name?'<span class="cell-badge">INE cargada</span><div class="cell-muted">'+safeTxt(e.ine.name)+'</div>':'<span class="cell-badge off">Sin INE</span>');
+      var acciones=isSinga?'<span class="cell-muted">Solo lectura</span>':'<div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end"><button class="btn-danger" onclick="openEmpForm('+e.id+')">Editar</button><button class="btn-danger" onclick="eliminarEmp('+e.id+')">Eliminar</button></div>';
+      return'<tr>'
+        +'<td><span class="tag">'+safeTxt(e.num)+'</span></td>'
+        +'<td style="font-weight:600">'+safeTxt(e.nombre)+(isSinga?'<div class="cell-muted">SINGA ID '+safeTxt(e.externalId||e.num)+'</div>':(isSupervisor?'<div class="cell-muted">Supervisor plataforma</div>':'<div class="cell-muted">Jornal plataforma</div>'))+'</td>'
+        +'<td>'+safeTxt(e.area||'--')+'</td>'
+        +'<td>'+contacto+'</td><td>'+banco+'</td><td>'+ine+'</td>'
+        +'<td style="text-align:center">'+st.events+'</td>'
+        +'<td style="text-align:center">'+st.turnos+'<div class="cell-muted">'+st.sup+' supervisor</div></td>'
+        +'<td style="text-align:right;font-family:\'Bebas Neue\',sans-serif;font-size:17px;color:var(--red)">'+moneda(st.pago)+'</td>'
+        +'<td>'+acciones+'</td></tr>';
+    }
+    tb.innerHTML=list.map(rowHtml).join('');
+  };
+
+  window.dlJornalesExcel=function(){
+    var rows=[['Numero','Nombre','Area','Tipo','Origen','Telefono','Telefono 2','Contacto/Redes','Banco','Cuenta','CLABE','INE','Eventos','Turnos','Supervision','Total ganado']];
+    filteredWorkers().forEach(function(e){
+      var st=workerStats(e);
+      rows.push([e.num,e.nombre,e.area,roleLabel(e.workerType||'jornal'),originLabel(e),e.telefono||'',e.celular||'',e.redes||'',e.banco||'',e.cuenta||'',e.clabe||'',e.ine&&e.ine.name?e.ine.name:'',st.events,st.turnos,st.sup,moneda(st.pago)]);
+    });
+    var html='<html><head><meta charset="utf-8"></head><body><table>'+rows.map(function(r){return'<tr>'+r.map(function(c){return'<td>'+safeTxt(c)+'</td>';}).join('')+'</tr>';}).join('')+'</table></body></html>';
+    var a=document.createElement('a');
+    a.href='data:application/vnd.ms-excel;charset=utf-8,'+encodeURIComponent(html);
+    a.download=(currentClientKey?CLIENTS[currentClientKey].slug:'demo')+'_jornales_'+new Date().toISOString().slice(0,10)+'.xls';
+    a.click();
+    toast('Jornales descargados en Excel');
   };
 
   window.addEmp=function(evId,turno,role){
