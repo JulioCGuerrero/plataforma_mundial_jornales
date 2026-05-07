@@ -1,3 +1,4 @@
+from datetime import datetime
 from decimal import Decimal
 from pathlib import Path
 
@@ -5,12 +6,12 @@ from fastapi import Depends, FastAPI, HTTPException, Response, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
-from sqlalchemy import case, func, select
+from sqlalchemy import case, func, select, text
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session, joinedload
 
 from app.config import get_settings
-from app.db import get_db
+from app.db import SessionLocal, get_db
 from app.models import Client, Event, ShiftAssignment, User, Worker
 from app.schemas import (
     AssignmentIn,
@@ -44,6 +45,23 @@ if settings.cors_origin_list:
     )
 
 app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
+
+
+@app.on_event("startup")
+def ensure_worker_columns() -> None:
+    statements = [
+        "ALTER TABLE workers ADD COLUMN IF NOT EXISTS edited BOOLEAN DEFAULT false",
+        "ALTER TABLE workers ADD COLUMN IF NOT EXISTS edited_at TIMESTAMP WITH TIME ZONE",
+        "ALTER TABLE workers ADD COLUMN IF NOT EXISTS vetoed BOOLEAN DEFAULT false",
+        "ALTER TABLE workers ADD COLUMN IF NOT EXISTS veto_date DATE",
+        "ALTER TABLE workers ADD COLUMN IF NOT EXISTS veto_reason TEXT",
+        "ALTER TABLE workers ADD COLUMN IF NOT EXISTS veto_cleared_date DATE",
+        "ALTER TABLE workers ADD COLUMN IF NOT EXISTS veto_cleared_reason TEXT",
+    ]
+    with SessionLocal() as db:
+        for statement in statements:
+            db.execute(text(statement))
+        db.commit()
 
 
 def get_client_or_404(db: Session, client_slug: str) -> Client:
@@ -147,6 +165,11 @@ def create_worker(
         account_number=payload.account_number,
         clabe=payload.clabe,
         ine_filename=payload.ine_filename,
+        vetoed=payload.vetoed,
+        veto_date=payload.veto_date,
+        veto_reason=payload.veto_reason,
+        veto_cleared_date=payload.veto_cleared_date,
+        veto_cleared_reason=payload.veto_cleared_reason,
     )
     db.add(worker)
     try:
@@ -163,17 +186,32 @@ def update_worker(
     client_slug: str, worker_id: int, payload: WorkerIn, _: User = Depends(current_user), db: Session = Depends(get_db)
 ) -> Worker:
     client = get_client_or_404(db, client_slug)
-    worker = db.query(Worker).filter(Worker.id == worker_id, Worker.client_id == client.id).first()
+    singa_client = db.query(Client).filter(Client.slug == "singa", Client.active.is_(True)).first()
+    allowed_client_ids = [client.id]
+    if singa_client:
+        allowed_client_ids.append(singa_client.id)
+    worker = db.query(Worker).filter(Worker.id == worker_id, Worker.client_id.in_(allowed_client_ids)).first()
     if not worker:
         raise HTTPException(status_code=404, detail="Jornal no encontrado")
-    if worker.source == "singa":
-        raise HTTPException(status_code=403, detail="Los jornales SINGA no son editables")
     if payload.worker_type == "supervisor" and not (payload.employee_number or payload.display_code):
         raise HTTPException(status_code=400, detail="El folio SINGA del supervisor es obligatorio")
+    editable_keys = None
+    if worker.source in {"singa", "ollamani"}:
+        editable_keys = {
+            "vetoed",
+            "veto_date",
+            "veto_reason",
+            "veto_cleared_date",
+            "veto_cleared_reason",
+        }
     for key, value in payload.model_dump(exclude_unset=True).items():
+        if editable_keys is not None and key not in editable_keys:
+            continue
         if key in {"employee_number", "display_code"} and value is None:
             continue
         setattr(worker, key, value)
+    worker.edited = True
+    worker.edited_at = datetime.utcnow()
     try:
         db.commit()
     except IntegrityError as exc:
@@ -189,8 +227,8 @@ def delete_worker(client_slug: str, worker_id: int, _: User = Depends(current_us
     worker = db.query(Worker).filter(Worker.id == worker_id, Worker.client_id == client.id).first()
     if not worker:
         raise HTTPException(status_code=404, detail="Jornal no encontrado")
-    if worker.source == "singa":
-        raise HTTPException(status_code=403, detail="Los jornales SINGA no se eliminan desde la plataforma")
+    if worker.source in {"singa", "ollamani"}:
+        raise HTTPException(status_code=403, detail="Los jornales importados no se eliminan desde la plataforma")
     db.delete(worker)
     db.commit()
     return Response(status_code=204)
@@ -272,6 +310,8 @@ def create_assignment(
     worker = db.query(Worker).filter(Worker.id == payload.worker_id, Worker.client_id.in_(allowed_client_ids)).first()
     if not event or not worker:
         raise HTTPException(status_code=404, detail="Evento o jornal no encontrado")
+    if worker.vetoed:
+        raise HTTPException(status_code=400, detail="El jornal esta vetado y no puede asignarse")
     if payload.worker_role == "supervisor" and worker.worker_type != "supervisor":
         raise HTTPException(status_code=400, detail="Selecciona un supervisor para listas de supervision")
     if payload.worker_role == "jornal" and worker.worker_type == "supervisor":

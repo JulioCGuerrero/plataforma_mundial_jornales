@@ -70,6 +70,13 @@ class Worker(TimestampMixin, Base):
     clabe: Mapped[str | None] = mapped_column(String(18))
     ine_filename: Mapped[str | None] = mapped_column(String(255))
     ine_gcs_uri: Mapped[str | None] = mapped_column(String(500))
+    edited: Mapped[bool] = mapped_column(Boolean, default=False)
+    edited_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    vetoed: Mapped[bool] = mapped_column(Boolean, default=False, index=True)
+    veto_date: Mapped[date | None] = mapped_column(Date)
+    veto_reason: Mapped[str | None] = mapped_column(Text)
+    veto_cleared_date: Mapped[date | None] = mapped_column(Date)
+    veto_cleared_reason: Mapped[str | None] = mapped_column(Text)
     active: Mapped[bool] = mapped_column(Boolean, default=True)
 
     client: Mapped["Client"] = relationship(back_populates="workers")

@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, datetime
 from decimal import Decimal
 
 from pydantic import BaseModel, ConfigDict, Field
@@ -36,6 +36,11 @@ class WorkerIn(BaseModel):
     account_number: str | None = None
     clabe: str | None = Field(default=None, max_length=18)
     ine_filename: str | None = None
+    vetoed: bool = False
+    veto_date: date | None = None
+    veto_reason: str | None = None
+    veto_cleared_date: date | None = None
+    veto_cleared_reason: str | None = None
 
 
 class WorkerOut(WorkerIn):
@@ -47,6 +52,8 @@ class WorkerOut(WorkerIn):
     source: str = "platform"
     external_id: str | None = None
     ine_gcs_uri: str | None = None
+    edited: bool = False
+    edited_at: datetime | None = None
 
 
 class EventIn(BaseModel):

@@ -339,6 +339,8 @@ body.theme-plaza .client-banner{display:block}
   box-shadow:0 0 0 4px rgba(204,0,0,.07),inset 0 1px 3px rgba(0,0,0,.04)
 }
 .fg input::placeholder{color:rgba(0,0,0,.3)}
+.checkline{display:flex!important;align-items:center;gap:8px;min-height:42px;text-transform:none!important;letter-spacing:0!important;color:var(--text)!important;font-size:13px!important}
+.checkline input{width:auto;min-height:auto}
 
 /* ── BUTTONS ── */
 .btn{
@@ -1281,9 +1283,9 @@ tbody tr:hover td{background:#FAFAFA}
         </div>
       </div>
       <div class="form-row">
-        <div class="fg" style="max-width:220px"><label>Horario 1</label><input id="ev-horario-antes" placeholder="Ej: 08:00 - 12:00"></div>
-        <div class="fg" style="max-width:220px"><label>Horario 2</label><input id="ev-horario-durante" placeholder="Ej: 12:00 - 18:00"></div>
-        <div class="fg" style="max-width:220px"><label>Horario 3</label><input id="ev-horario-despues" placeholder="Ej: 18:00 - 22:00"></div>
+        <div class="fg" style="max-width:220px"><label>Horario 1</label><input id="ev-horario-antes" type="time"></div>
+        <div class="fg" style="max-width:220px"><label>Horario 2</label><input id="ev-horario-durante" type="time"></div>
+        <div class="fg" style="max-width:220px"><label>Horario 3</label><input id="ev-horario-despues" type="time"></div>
       </div>
       <div class="form-row">
         <div class="fg"><label>Notas / Descripción</label><input id="ev-desc" placeholder="Información adicional del evento..."></div>
@@ -1394,6 +1396,13 @@ tbody tr:hover td{background:#FAFAFA}
           </div>
         </div>
       </div>
+      <div class="form-row">
+        <div class="fg" style="max-width:210px"><label>Veto</label><label class="checkline"><input id="emp-veto" type="checkbox" onchange="syncVetoFields()"> Vetado</label></div>
+        <div class="fg veto-on" style="max-width:180px"><label>Fecha de veto</label><input id="emp-veto-fecha" type="date"></div>
+        <div class="fg veto-on"><label>Motivo de veto</label><input id="emp-veto-motivo" placeholder="Motivo"></div>
+        <div class="fg veto-off" style="max-width:180px;display:none"><label>Fecha de desmarque</label><input id="emp-veto-off-fecha" type="date"></div>
+        <div class="fg veto-off" style="display:none"><label>Motivo de desmarque</label><input id="emp-veto-off-motivo" placeholder="Motivo para quitar veto"></div>
+      </div>
       <div style="display:flex;gap:9px">
         <button class="btn btn-red" id="emp-save-btn" onclick="agregarEmp()">Guardar</button>
         <button class="btn btn-outline" onclick="cancelEmpForm()">Cancelar</button>
@@ -1404,8 +1413,9 @@ tbody tr:hover td{background:#FAFAFA}
       <div class="toolbar-grid">
         <div class="fg"><label>Buscar jornal</label><input id="emp-search" placeholder="ID, nombre, area, banco, cuenta o telefono"></div>
         <div class="fg"><label>Tipo</label><select id="emp-filter-type"><option value="">Todos</option><option value="jornal">Jornales</option><option value="supervisor">Supervisores</option></select></div>
-        <div class="fg"><label>Origen</label><select id="emp-filter-origin"><option value="">Todos</option><option value="platform">Agregados</option><option value="singa">SINGA</option></select></div>
+        <div class="fg"><label>Origen</label><select id="emp-filter-origin"><option value="">Todos</option><option value="platform">Agregados</option><option value="ollamani">Ollamani</option><option value="singa">SINGA</option></select></div>
         <div class="fg"><label>Area</label><select id="emp-filter-area"><option value="">Todas</option></select></div>
+        <div class="fg"><label>Estado</label><select id="emp-filter-status"><option value="">Todos</option><option value="veto">Vetados</option><option value="editados">Editados</option></select></div>
         <button class="btn btn-gold" onclick="dlJornalesExcel()">Excel</button>
       </div>
     </div>
@@ -1420,11 +1430,15 @@ tbody tr:hover td{background:#FAFAFA}
 
   <!-- VIEW: RESUMEN -->
   <div class="view" id="view-resumen">
-    <div class="sec-head"><h2>RESUMEN GENERAL</h2></div>
+    <div class="sec-head"><h2>RESUMEN GENERAL</h2><div class="fg" style="max-width:280px;margin-left:auto"><label>Evento</label><select id="dash-event-filter"><option value="">Todos los eventos</option></select></div></div>
     <div class="res-grid" id="res-stats"></div>
     <div class="compare-wrap">
       <div class="compare-title">ESPERADOS VS LLEGARON POR EVENTO</div>
       <div class="compare-grid" id="expected-dashboard"></div>
+    </div>
+    <div class="compare-wrap">
+      <div class="compare-title">MAS FRECUENTES</div>
+      <div class="compare-grid" id="frequent-dashboard"></div>
     </div>
     <div class="tbl-wrap">
       <table>
@@ -1467,7 +1481,7 @@ var emps=[
   {id:13,num:'013',nombre:'Verónica Salinas',area:'Transmisiones',telefono:'55 1000 1013',celular:'55 2000 1013',redes:'@jr013',banco:'Banorte',cuenta:'1234567902',clabe:'012345678901234579',ine:{name:'INE_Veronica_Salinas.pdf'}},
   {id:14,num:'014',nombre:'Ramón Torres',area:'Estacionamiento',telefono:'55 1000 1014',celular:'55 2000 1014',redes:'@jr014',banco:'Santander',cuenta:'1234567903',clabe:'012345678901234580',ine:{name:'INE_Ramon_Torres.jpg'}},
 ];
-var eventos=[],selEv=null,nextEvId=1,nextEmpId=15,empEditId=null,empIneCleared=false;
+var eventos=[],selEv=null,nextEvId=1,nextEmpId=15,empEditId=null,empIneCleared=false,empPrevVetoed=false;
 var TURNOS=[
   {key:'antes',lbl:'Horario 1',ico:'▷',sub:'Primer bloque',cls:'t-antes'},
   {key:'durante',lbl:'Horario 2',ico:'▶',sub:'Segundo bloque',cls:'t-durante'},
@@ -1729,14 +1743,23 @@ function fillEmpForm(emp){
   document.getElementById('emp-banco').value=emp.banco||'';
   document.getElementById('emp-cuenta').value=emp.cuenta||'';
   document.getElementById('emp-clabe').value=emp.clabe||'';
+  empPrevVetoed=!!emp.vetoed;
+  document.getElementById('emp-veto').checked=!!emp.vetoed;
+  document.getElementById('emp-veto-fecha').value=emp.vetoDate||'';
+  document.getElementById('emp-veto-motivo').value=emp.vetoReason||'';
+  document.getElementById('emp-veto-off-fecha').value=emp.vetoClearedDate||'';
+  document.getElementById('emp-veto-off-motivo').value=emp.vetoClearedReason||'';
+  syncVetoFields();
   document.getElementById('emp-ine').value='';empIneCleared=false;
   document.getElementById('emp-ine-preview').textContent=emp.ine&&emp.ine.name?emp.ine.name:'Sin archivo cargado';
   document.getElementById('emp-save-btn').textContent='Guardar Cambios';
   document.querySelector('#form-emp .card-title').textContent='EDITAR JORNAL';
 }
 function resetEmpForm(){
-  empEditId=null;empIneCleared=false;
-  ['emp-nom','emp-num','emp-tel','emp-cel','emp-redes','emp-banco','emp-cuenta','emp-clabe'].forEach(function(id){document.getElementById(id).value='';});
+  empEditId=null;empIneCleared=false;empPrevVetoed=false;
+  ['emp-nom','emp-num','emp-tel','emp-cel','emp-redes','emp-banco','emp-cuenta','emp-clabe','emp-veto-fecha','emp-veto-motivo','emp-veto-off-fecha','emp-veto-off-motivo'].forEach(function(id){document.getElementById(id).value='';});
+  ['emp-veto'].forEach(function(id){document.getElementById(id).checked=false;});
+  syncVetoFields();
   document.getElementById('emp-area').value='Seguridad';
   document.getElementById('emp-ine').value='';
   document.getElementById('emp-ine-preview').textContent='Sin archivo cargado';
@@ -1751,6 +1774,11 @@ function openEmpForm(id){
 function cancelEmpForm(){resetEmpForm();document.getElementById('form-emp').style.display='none';}
 function clearEmpIne(){document.getElementById('emp-ine').value='';document.getElementById('emp-ine-preview').textContent='INE eliminada';empIneCleared=true;}
 function handleEmpIneChange(input){empIneCleared=false;document.getElementById('emp-ine-preview').textContent=input.files&&input.files[0]?input.files[0].name:'Sin archivo cargado';}
+function syncVetoFields(){
+  var checked=document.getElementById('emp-veto')&&document.getElementById('emp-veto').checked;
+  document.querySelectorAll('.veto-on').forEach(function(el){el.style.display=checked?'flex':'none';});
+  document.querySelectorAll('.veto-off').forEach(function(el){el.style.display=(!checked&&empPrevVetoed)?'flex':'none';});
+}
 
 function gotoView(v,btn){
   document.querySelectorAll('.view').forEach(function(e){e.classList.remove('active');});
@@ -2074,7 +2102,7 @@ renderEventos();renderEmps();
   var originalEnterClient=window.enterClient;
   var evEditId=null;
   var currentPersonType='jornal';
-  var empSearch='', empSortKey='nombre', empSortDir=1, empFilterType='', empFilterOrigin='', empFilterArea='';
+  var empSearch='', empSortKey='nombre', empSortDir=1, empFilterType='', empFilterOrigin='', empFilterArea='', empFilterStatus='', dashboardEventFilter='';
   var stadiumKeys={ollamani:true,estadioazul:true};
 
   function api(path,opts){
@@ -2114,7 +2142,14 @@ renderEventos();renderEmps();
       banco:w.bank||'',
       cuenta:w.account_number||'',
       clabe:w.clabe||'',
-      ine:w.ine_filename?{name:w.ine_filename}:null
+      ine:w.ine_filename?{name:w.ine_filename}:null,
+      edited:!!w.edited,
+      editedAt:w.edited_at||'',
+      vetoed:!!w.vetoed,
+      vetoDate:w.veto_date||'',
+      vetoReason:w.veto_reason||'',
+      vetoClearedDate:w.veto_cleared_date||'',
+      vetoClearedReason:w.veto_cleared_reason||''
     };
   }
   function toEvent(ev,assignments){
@@ -2176,7 +2211,12 @@ renderEventos();renderEmps();
     return role==='supervisor'?'Supervisor':'Jornal';
   }
   function originLabel(item){
-    return item&&item.source==='singa'?'SINGA':'Agregado';
+    if(item&&item.source==='singa')return 'SINGA';
+    if(item&&item.source==='ollamani')return 'Ollamani';
+    return 'Agregado';
+  }
+  function isImportedWorker(item){
+    return item&&(item.source==='singa'||item.source==='ollamani');
   }
   function roleBadge(role){
     return '<span class="cell-badge'+(role==='supervisor'?'':' off')+'" style="display:inline-flex;margin-top:4px">'+roleLabel(role)+'</span>';
@@ -2214,6 +2254,14 @@ renderEventos();renderEmps();
       input.required=isSupervisor;
     }
   }
+  function setSingaVetoMode(isSinga){
+    ['emp-nom','emp-num','emp-area','emp-tel','emp-cel','emp-redes','emp-banco','emp-cuenta','emp-clabe','emp-ine'].forEach(function(id){
+      var el=document.getElementById(id);
+      if(el)el.disabled=!!isSinga;
+    });
+    var clearBtn=document.querySelector('button[onclick="clearEmpIne()"]');
+    if(clearBtn)clearBtn.disabled=!!isSinga;
+  }
   function workerPayload(){
     var file=document.getElementById('emp-ine').files[0];
     var ineName=file?file.name:(empIneCleared?'':document.getElementById('emp-ine-preview').textContent);
@@ -2230,7 +2278,12 @@ renderEventos();renderEmps();
       bank:document.getElementById('emp-banco').value.trim(),
       account_number:document.getElementById('emp-cuenta').value.trim(),
       clabe:document.getElementById('emp-clabe').value.trim(),
-      ine_filename:ineName||null
+      ine_filename:ineName||null,
+      vetoed:document.getElementById('emp-veto').checked,
+      veto_date:document.getElementById('emp-veto-fecha').value||null,
+      veto_reason:document.getElementById('emp-veto-motivo').value.trim()||null,
+      veto_cleared_date:document.getElementById('emp-veto-off-fecha').value||null,
+      veto_cleared_reason:document.getElementById('emp-veto-off-motivo').value.trim()||null
     };
   }
   function loadClientData(){
@@ -2373,6 +2426,8 @@ renderEventos();renderEmps();
     var payload=workerPayload();
     if(!payload.full_name){toast('Ingresa el nombre');return;}
     if(payload.worker_type==='supervisor'&&!payload.employee_number){toast('Ingresa el folio SINGA del supervisor');return;}
+    if(payload.vetoed&&(!payload.veto_date||!payload.veto_reason)){toast('Captura fecha y motivo de veto');return;}
+    if(!payload.vetoed&&empPrevVetoed&&(!payload.veto_cleared_date||!payload.veto_cleared_reason)){toast('Captura fecha y motivo para quitar el veto');return;}
     var id=empEditId;
     var url='/api/clients/'+slug()+'/workers'+(id!=null?'/'+id:'');
     api(url,{method:id!=null?'PUT':'POST',body:JSON.stringify(payload)})
@@ -2386,7 +2441,7 @@ renderEventos();renderEmps();
 
   window.eliminarEmp=function(id){
     var emp=emps.find(function(e){return e.id===id;});
-    if(emp&&emp.source==='singa'){toast('Los jornales SINGA no se eliminan desde la plataforma');return;}
+    if(isImportedWorker(emp)){toast('Los jornales importados no se eliminan desde la plataforma');return;}
     if(!confirm('Eliminar este jornal?'))return;
     api('/api/clients/'+slug()+'/workers/'+id,{method:'DELETE'})
       .then(function(){toast('Jornal eliminado');return loadClientData();})
@@ -2637,6 +2692,7 @@ renderEventos();renderEmps();
         if(en)evCount++;
       });
       var isSinga=e.source==='singa';
+      var isImported=isImportedWorker(e);
       var isSupervisor=e.workerType==='supervisor';
       var contacto='<div class="contact-line"><strong>Tel.</strong> '+safeTxt(e.telefono||'--')+'</div>'
         +'<div class="contact-line"><strong>Cel.</strong> '+safeTxt(e.celular||'--')+'</div>'
@@ -2644,8 +2700,8 @@ renderEventos();renderEmps();
       var banco='<div class="contact-line"><strong>Banco</strong> '+safeTxt(e.banco||'--')+'</div>'
         +'<div class="contact-line"><strong>Cuenta</strong> '+safeTxt(e.cuenta||'--')+'</div>'
         +'<div class="contact-line"><strong>CLABE</strong> '+safeTxt(e.clabe||'--')+'</div>';
-      var ine=isSinga?'<span class="cell-badge off">No aplica</span>':(e.ine&&e.ine.name?'<span class="cell-badge">INE cargada</span><div class="cell-muted">'+safeTxt(e.ine.name)+'</div>':'<span class="cell-badge off">Sin INE</span>');
-      var acciones=isSinga?'<span class="cell-muted">Solo lectura</span>':'<div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end"><button class="btn-danger" onclick="openEmpForm('+e.id+')">Editar</button><button class="btn-danger" onclick="eliminarEmp('+e.id+')">Eliminar</button></div>';
+      var ine=isImported?'<span class="cell-badge off">No aplica</span>':(e.ine&&e.ine.name?'<span class="cell-badge">INE cargada</span><div class="cell-muted">'+safeTxt(e.ine.name)+'</div>':'<span class="cell-badge off">Sin INE</span>');
+      var acciones=isImported?'<div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end"><button class="btn-danger" onclick="openEmpForm('+e.id+')">Veto / seguimiento</button></div>':'<div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end"><button class="btn-danger" onclick="openEmpForm('+e.id+')">Editar</button><button class="btn-danger" onclick="eliminarEmp('+e.id+')">Eliminar</button></div>';
       return'<tr>'
         +'<td><span class="tag">'+safeTxt(e.num)+'</span></td>'
         +'<td style="font-weight:600">'+safeTxt(e.nombre)+(isSinga?'<div class="cell-muted">SINGA ID '+safeTxt(e.externalId||e.num)+'</div>':(isSupervisor?'<div class="cell-muted">Supervisor plataforma</div>':'<div class="cell-muted">Jornal plataforma</div>'))+'</td>'
@@ -2665,10 +2721,11 @@ renderEventos();renderEmps();
     }
     function matches(e){var q=empSearch||'';return !q||[e.num,e.nombre,e.area,e.banco,e.cuenta,e.clabe,e.telefono,e.celular].join(' ').toLowerCase().indexOf(q)!==-1;}
     function sortItems(items){return items.filter(matches).sort(function(a,b){var av=(a[empSortKey]||'').toString().toLowerCase(),bv=(b[empSortKey]||'').toString().toLowerCase();return av>bv?empSortDir:av<bv?-empSortDir:0;});}
-    var platform=sortItems(emps.filter(function(e){return e.source!=='singa'&&e.workerType!=='supervisor';}));
-    var supervisors=sortItems(emps.filter(function(e){return e.source!=='singa'&&e.workerType==='supervisor';}));
+    var platform=sortItems(emps.filter(function(e){return e.source!=='singa'&&e.source!=='ollamani'&&e.workerType!=='supervisor';}));
+    var supervisors=sortItems(emps.filter(function(e){return e.source!=='singa'&&e.source!=='ollamani'&&e.workerType==='supervisor';}));
+    var ollamani=sortItems(emps.filter(function(e){return e.source==='ollamani';}));
     var singa=sortItems(emps.filter(function(e){return e.source==='singa';}));
-    tb.innerHTML=section('Jornales plataforma',platform)+section('Supervisores',supervisors)+section('Jornales SINGA',singa);
+    tb.innerHTML=section('Jornales plataforma',platform)+section('Supervisores',supervisors)+section('Empleados Ollamani',ollamani)+section('Jornales SINGA',singa);
   };
 
   window.openEmpForm=(function(original){
@@ -2676,11 +2733,14 @@ renderEventos();renderEmps();
       currentPersonType='jornal';
       if(id!=null){
         var emp=emps.find(function(e){return e.id===id;});
-        if(emp&&emp.source==='singa'){toast('Los jornales SINGA son solo lectura');return;}
+        if(isImportedWorker(emp)){currentPersonType=emp.workerType||'jornal';}
         if(emp&&emp.workerType==='supervisor')currentPersonType='supervisor';
       }
       original(id);
       document.querySelector('#form-emp .card-title').textContent=currentPersonType==='supervisor'?(id!=null?'EDITAR SUPERVISOR':'NUEVO SUPERVISOR'):(id!=null?'EDITAR JORNAL':'NUEVO JORNAL');
+      var selected=id!=null?emps.find(function(e){return e.id===id;}):null;
+      if(isImportedWorker(selected))document.querySelector('#form-emp .card-title').textContent='VETO / SEGUIMIENTO '+originLabel(selected).toUpperCase();
+      setSingaVetoMode(!!isImportedWorker(selected));
       updatePersonFormCopy();
     };
   })(window.openEmpForm);
@@ -2691,6 +2751,7 @@ renderEventos();renderEmps();
     document.querySelector('#form-emp .card-title').textContent='NUEVO SUPERVISOR';
     document.getElementById('emp-area').value='Supervisión';
     updatePersonFormCopy();
+    setSingaVetoMode(false);
     document.getElementById('form-emp').style.display='block';
   };
 
@@ -2776,8 +2837,9 @@ renderEventos();renderEmps();
   function renderExpectedDashboard(){
     var el=document.getElementById('expected-dashboard');
     if(!el)return;
-    if(!eventos.length){el.innerHTML='<div class="empty" style="grid-column:1/-1">Sin eventos registrados.</div>';return;}
-    el.innerHTML=eventos.map(function(ev){
+    var list=dashboardEvents();
+    if(!list.length){el.innerHTML='<div class="empty" style="grid-column:1/-1">Sin eventos registrados.</div>';return;}
+    el.innerHTML=list.map(function(ev){
       var s=eventExpectedStats(ev);
       return'<article class="compare-card '+(s.missing?'warn':'ok')+'">'
         +'<h3>'+safeTxt(ev.nombre)+'</h3><div class="cell-muted">'+safeTxt(ev.tipo)+' - '+safeTxt(fdate(ev.fecha))+'</div>'
@@ -2788,12 +2850,34 @@ renderEventos();renderEmps();
         +'</div></article>';
     }).join('');
   }
+  function dashboardEvents(){
+    return dashboardEventFilter?eventos.filter(function(ev){return String(ev.id)===String(dashboardEventFilter);}):eventos;
+  }
+  function bindDashboardFilter(){
+    var sel=document.getElementById('dash-event-filter');
+    if(!sel)return;
+    var current=dashboardEventFilter||sel.value||'';
+    sel.innerHTML='<option value="">Todos los eventos</option>'+eventos.map(function(ev){return'<option value="'+ev.id+'">'+safeTxt(ev.nombre)+' - '+safeTxt(fdate(ev.fecha))+'</option>';}).join('');
+    sel.value=eventos.some(function(ev){return String(ev.id)===String(current);})?current:'';
+    dashboardEventFilter=sel.value;
+    if(!sel._bound){sel._bound=true;sel.addEventListener('change',function(){dashboardEventFilter=this.value;renderResumen();});}
+  }
+  function renderFrequentDashboard(rows){
+    var el=document.getElementById('frequent-dashboard');
+    if(!el)return;
+    if(!rows.length){el.innerHTML='<div class="empty" style="grid-column:1/-1">Sin datos.</div>';return;}
+    el.innerHTML=rows.slice(0,6).map(function(r){
+      return'<article class="compare-card ok"><h3>'+safeTxt(r.e.nombre)+'</h3><div class="cell-muted">'+safeTxt(r.e.area)+' - '+roleLabel(r.e.workerType||'jornal')+'</div><div class="compare-metrics"><div class="compare-metric"><strong>'+r.events+'</strong><span>Eventos</span></div><div class="compare-metric"><strong>'+r.t+'</strong><span>Turnos</span></div><div class="compare-metric"><strong>'+moneda(r.p)+'</strong><span>Pago</span></div></div></article>';
+    }).join('');
+  }
 
   window.renderResumen=function(){
     var totT=0,totP=0,totSup=0,totalExpected=0,totalArrived=0;
+    bindDashboardFilter();
+    var dashEvents=dashboardEvents();
     var rows=emps.map(function(e){
       var a=0,d=0,ds=0,sup=0,p=0,evSet={};
-      eventos.forEach(function(ev){
+      dashEvents.forEach(function(ev){
         var inEvent=false;
         ['antes','durante','despues'].forEach(function(t){
           (ev.turnos[t]||[]).forEach(function(x){
@@ -2812,9 +2896,9 @@ renderEventos();renderEmps();
       var total=a+d+ds;totT+=total;totP+=p;totSup+=sup;
       return{e:e,a:a,d:d,ds:ds,sup:sup,t:total,p:p,events:Object.keys(evSet).length};
     }).filter(function(r){return r.t>0;}).sort(function(a,b){return b.p-a.p;});
-    eventos.forEach(function(ev){var s=eventExpectedStats(ev);totalExpected+=s.expected;totalArrived+=s.arrived;});
+    dashEvents.forEach(function(ev){var s=eventExpectedStats(ev);totalExpected+=s.expected;totalArrived+=s.arrived;});
     document.getElementById('res-stats').innerHTML=[
-      {l:'Eventos',v:eventos.length,s:'registrados',hl:false},
+      {l:'Eventos',v:dashEvents.length,s:dashboardEventFilter?'filtrado':'registrados',hl:false},
       {l:'Esperados',v:totalExpected,s:'cupos programados',hl:false},
       {l:'Llegaron',v:totalArrived,s:'personas asignadas',hl:false},
       {l:'Total a Pagar',v:moneda(totP),s:'suma total nomina',hl:true},
@@ -2822,6 +2906,7 @@ renderEventos();renderEmps();
       return'<div class="res-card'+(r.hl?' hl':'')+'"><div class="res-lbl">'+r.l+'</div><div class="res-val">'+r.v+'</div><div class="res-sub">'+r.s+'</div></div>';
     }).join('');
     renderExpectedDashboard();
+    renderFrequentDashboard(rows);
     var tb=document.getElementById('res-tbody');
     if(!rows.length){tb.innerHTML='<tr><td colspan="8" style="text-align:center;color:var(--muted);padding:28px">Sin datos. Asigna jornales a los eventos.</td></tr>';return;}
     tb.innerHTML=rows.map(function(r){
@@ -2846,8 +2931,8 @@ renderEventos();renderEmps();
       var jornales=list.filter(function(e){return (e.rol||'jornal')==='jornal';});
       var supervisores=list.filter(function(e){return e.rol==='supervisor';});
       var assignedIds=[].concat(ev.turnos.antes||[],ev.turnos.durante||[],ev.turnos.despues||[]).map(function(e){return e.id;});
-      var opts=emps.filter(function(e){return assignedIds.indexOf(e.id)===-1&&e.workerType!=='supervisor';}).map(function(e){return'<option value="'+e.id+'">'+safeTxt(e.num)+' - '+safeTxt(e.nombre)+' - '+safeTxt(e.area)+'</option>';}).join('');
-      var optsSup=emps.filter(function(e){return assignedIds.indexOf(e.id)===-1&&e.workerType==='supervisor';}).map(function(e){return'<option value="'+e.id+'">'+safeTxt(e.num)+' - '+safeTxt(e.nombre)+' - '+safeTxt(e.area)+'</option>';}).join('');
+      var opts=emps.filter(function(e){return assignedIds.indexOf(e.id)===-1&&e.workerType!=='supervisor'&&!e.vetoed;}).map(function(e){return'<option value="'+e.id+'">'+safeTxt(e.num)+' - '+safeTxt(e.nombre)+' - '+safeTxt(e.area)+'</option>';}).join('');
+      var optsSup=emps.filter(function(e){return assignedIds.indexOf(e.id)===-1&&e.workerType==='supervisor'&&!e.vetoed;}).map(function(e){return'<option value="'+e.id+'">'+safeTxt(e.num)+' - '+safeTxt(e.nombre)+' - '+safeTxt(e.area)+'</option>';}).join('');
       var salJornal=payForRole(ev,t.key,'jornal');
       var salSupervisor=payForRole(ev,t.key,'supervisor');
       var supervisorEnabled=ev.supervisorTurnos&&ev.supervisorTurnos[t.key];
@@ -2910,10 +2995,12 @@ renderEventos();renderEmps();
     var type=document.getElementById('emp-filter-type');
     var origin=document.getElementById('emp-filter-origin');
     var area=document.getElementById('emp-filter-area');
+    var status=document.getElementById('emp-filter-status');
     if(search&&!search._bound){search._bound=true;search.addEventListener('input',function(){empSearch=this.value.toLowerCase();renderEmps();});}
     if(type&&!type._bound){type._bound=true;type.addEventListener('change',function(){empFilterType=this.value;renderEmps();});}
     if(origin&&!origin._bound){origin._bound=true;origin.addEventListener('change',function(){empFilterOrigin=this.value;renderEmps();});}
     if(area&&!area._bound){area._bound=true;area.addEventListener('change',function(){empFilterArea=this.value;renderEmps();});}
+    if(status&&!status._bound){status._bound=true;status.addEventListener('change',function(){empFilterStatus=this.value;renderEmps();});}
     if(area){
       var current=area.value;
       var areas=Array.from(new Set(emps.map(function(e){return e.area||'';}).filter(Boolean))).sort();
@@ -2930,7 +3017,9 @@ renderEventos();renderEmps();
       if(empFilterType&&type!==empFilterType)return false;
       if(empFilterOrigin&&origin!==empFilterOrigin)return false;
       if(empFilterArea&&(e.area||'')!==empFilterArea)return false;
-      return !q||[e.num,e.nombre,e.area,e.banco,e.cuenta,e.clabe,e.telefono,e.celular,e.redes].join(' ').toLowerCase().indexOf(q)!==-1;
+      if(empFilterStatus==='veto'&&!e.vetoed)return false;
+      if(empFilterStatus==='editados'&&!e.edited)return false;
+      return !q||[e.num,e.nombre,e.area,e.banco,e.cuenta,e.clabe,e.telefono,e.celular,e.redes,e.vetoReason,e.vetoClearedReason].join(' ').toLowerCase().indexOf(q)!==-1;
     }).sort(function(a,b){var av=(a[empSortKey]||'').toString().toLowerCase(),bv=(b[empSortKey]||'').toString().toLowerCase();return av>bv?empSortDir:av<bv?-empSortDir:0;});
   }
   window.renderEmps=function(){
@@ -2942,6 +3031,7 @@ renderEventos();renderEmps();
     function rowHtml(e){
       var st=workerStats(e);
       var isSinga=e.source==='singa';
+      var isImported=isImportedWorker(e);
       var isSupervisor=e.workerType==='supervisor';
       var contacto='<div class="contact-line"><strong>Tel.</strong> '+safeTxt(e.telefono||'--')+'</div>'
         +'<div class="contact-line"><strong>'+(isSinga?'Emerg.':'Cel.')+'</strong> '+safeTxt(e.celular||'--')+'</div>'
@@ -2949,11 +3039,14 @@ renderEventos();renderEmps();
       var banco='<div class="contact-line"><strong>Banco</strong> '+safeTxt(e.banco||'--')+'</div>'
         +'<div class="contact-line"><strong>Cuenta</strong> '+safeTxt(e.cuenta||'--')+'</div>'
         +'<div class="contact-line"><strong>CLABE</strong> '+safeTxt(e.clabe||'--')+'</div>';
-      var ine=isSinga?'<span class="cell-badge off">No aplica</span>':(e.ine&&e.ine.name?'<span class="cell-badge">INE cargada</span><div class="cell-muted">'+safeTxt(e.ine.name)+'</div>':'<span class="cell-badge off">Sin INE</span>');
-      var acciones=isSinga?'<span class="cell-muted">Solo lectura</span>':'<div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end"><button class="btn-danger" onclick="openEmpForm('+e.id+')">Editar</button><button class="btn-danger" onclick="eliminarEmp('+e.id+')">Eliminar</button></div>';
+      var ine=isImported?'<span class="cell-badge off">No aplica</span>':(e.ine&&e.ine.name?'<span class="cell-badge">INE cargada</span><div class="cell-muted">'+safeTxt(e.ine.name)+'</div>':'<span class="cell-badge off">Sin INE</span>');
+      var acciones=isImported?'<div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end"><button class="btn-danger" onclick="openEmpForm('+e.id+')">Veto / seguimiento</button></div>':'<div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end"><button class="btn-danger" onclick="openEmpForm('+e.id+')">Editar</button><button class="btn-danger" onclick="eliminarEmp('+e.id+')">Eliminar</button></div>';
+      var statusBadges=(e.vetoed?'<span class="cell-badge off">Veto '+safeTxt(e.vetoDate||'')+'</span><div class="cell-muted">'+safeTxt(e.vetoReason||'Sin motivo')+'</div>':'')
+        +(e.edited?'<span class="cell-badge">Editado</span>':'')
+        +(!e.vetoed&&e.vetoClearedDate?'<div class="cell-muted">Veto retirado '+safeTxt(e.vetoClearedDate)+' - '+safeTxt(e.vetoClearedReason||'Sin motivo')+'</div>':'');
       return'<tr>'
         +'<td><span class="tag">'+safeTxt(e.num)+'</span></td>'
-        +'<td style="font-weight:600">'+safeTxt(e.nombre)+(isSinga?'<div class="cell-muted">SINGA ID '+safeTxt(e.externalId||e.num)+'</div>':(isSupervisor?'<div class="cell-muted">Supervisor plataforma</div>':'<div class="cell-muted">Jornal plataforma</div>'))+'</td>'
+        +'<td style="font-weight:600">'+safeTxt(e.nombre)+(isImported?'<div class="cell-muted">'+originLabel(e)+' ID '+safeTxt(e.externalId||e.num)+'</div>':(isSupervisor?'<div class="cell-muted">Supervisor plataforma</div>':'<div class="cell-muted">Jornal plataforma</div>'))+statusBadges+'</td>'
         +'<td>'+safeTxt(e.area||'--')+'</td>'
         +'<td>'+contacto+'</td><td>'+banco+'</td><td>'+ine+'</td>'
         +'<td style="text-align:center">'+st.events+'</td>'
@@ -2965,12 +3058,12 @@ renderEventos();renderEmps();
   };
 
   window.dlJornalesExcel=function(){
-    var rows=[['Numero','Nombre','Area','Tipo','Origen','Telefono','Telefono 2','Contacto/Redes','Banco','Cuenta','CLABE','INE','Eventos','Turnos','Supervision','Total ganado']];
+    var rows=[['Numero','Nombre','Area','Tipo','Origen','Telefono','Telefono 2','Contacto/Redes','Banco','Cuenta','CLABE','INE','Veto','Fecha veto','Motivo veto','Fecha desmarque','Motivo desmarque','Eventos','Turnos','Supervision','Total ganado']];
     filteredWorkers().forEach(function(e){
       var st=workerStats(e);
-      rows.push([e.num,e.nombre,e.area,roleLabel(e.workerType||'jornal'),originLabel(e),e.telefono||'',e.celular||'',e.redes||'',e.banco||'',e.cuenta||'',e.clabe||'',e.ine&&e.ine.name?e.ine.name:'',st.events,st.turnos,st.sup,moneda(st.pago)]);
+      rows.push([e.num,e.nombre,e.area,roleLabel(e.workerType||'jornal'),originLabel(e),e.telefono||'',e.celular||'',e.redes||'',e.banco||'',e.cuenta||'',e.clabe||'',e.ine&&e.ine.name?e.ine.name:'',e.vetoed?'Si':'No',e.vetoDate||'',e.vetoReason||'',e.vetoClearedDate||'',e.vetoClearedReason||'',st.events,st.turnos,st.sup,moneda(st.pago)]);
     });
-    var html='<html><head><meta charset="utf-8"></head><body><table>'+rows.map(function(r){return'<tr>'+r.map(function(c){return'<td>'+safeTxt(c)+'</td>';}).join('')+'</tr>';}).join('')+'</table></body></html>';
+    var html='<html><head><meta charset="utf-8"><style>td{mso-number-format:"\\@";}</style></head><body><table>'+rows.map(function(r){return'<tr>'+r.map(function(c){return'<td style="mso-number-format:&quot;\\@&quot;">'+safeTxt(c)+'</td>';}).join('')+'</tr>';}).join('')+'</table></body></html>';
     var a=document.createElement('a');
     a.href='data:application/vnd.ms-excel;charset=utf-8,'+encodeURIComponent(html);
     a.download=(currentClientKey?CLIENTS[currentClientKey].slug:'demo')+'_jornales_'+new Date().toISOString().slice(0,10)+'.xls';

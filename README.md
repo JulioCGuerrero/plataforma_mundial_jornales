@@ -16,7 +16,22 @@ copy .env.example .env
 uvicorn app.main:app --reload
 ```
 
-Antes de arrancar la app, la base de datos de `DATABASE_URL` debe existir y contener las tablas y el usuario inicial.
+Antes de arrancar la app, la base de datos de `DATABASE_URL` debe existir y contener las tablas y el usuario inicial. Al iniciar, la app agrega automaticamente las columnas nuevas de jornales si faltan.
+
+## Importar empleados Ollamani
+
+El script `migrate_ollamani.py` lee `tb_empleado` desde SINGA con `id_cliente = 2401` e `id_status = 2`, y los guarda en el cliente `ollamani` con `source = 'ollamani'`.
+
+```powershell
+$env:DATABASE_URL="postgresql+psycopg://USER:PASSWORD@HOST:5432/DB"
+python migrate_ollamani.py
+```
+
+Variables opcionales:
+
+- `OLLAMANI_SINGA_CLIENT_ID`: por defecto `2401`.
+- `OLLAMANI_SINGA_STATUS_ID`: por defecto `2`.
+- `OLLAMANI_CLIENT_SLUG`: por defecto `ollamani`.
 
 ## Variables para Cloud Run
 
@@ -45,4 +60,4 @@ gcloud run deploy control-jornales `
   --set-secrets JWT_SECRET=jwt-secret:latest
 ```
 
-El contenedor no crea ni modifica estructura de base de datos. Solo inicia la aplicacion.
+El contenedor no crea tablas nuevas. En el arranque agrega columnas faltantes de jornales con `ALTER TABLE ... ADD COLUMN IF NOT EXISTS`.
