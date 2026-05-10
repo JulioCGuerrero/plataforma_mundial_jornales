@@ -1,6 +1,14 @@
-from datetime import datetime
+import base64
+import csv
+import html
+import io
+import re
+import zipfile
+from datetime import date, datetime, timedelta
 from decimal import Decimal
+from html.parser import HTMLParser
 from pathlib import Path
+from xml.etree import ElementTree
 
 from fastapi import Depends, FastAPI, HTTPException, Response, status
 from fastapi.middleware.cors import CORSMiddleware
@@ -24,6 +32,8 @@ from app.schemas import (
     SummaryRow,
     TokenOut,
     WorkerIn,
+    WorkerImportIn,
+    WorkerImportOut,
     WorkerOut,
 )
 from app.security import create_access_token, current_user, verify_password
@@ -100,6 +110,168 @@ def salary_for_shift(event: Event, shift: str, worker_role: str = "jornal") -> D
         "during": event.salary_during,
         "after": event.salary_after,
     }[shift]
+
+
+WORKER_IMPORT_HEADERS = [
+    "Numero",
+    "Nombre",
+    "Area",
+    "Tipo",
+    "Telefono",
+    "Telefono 2",
+    "Contacto/Redes",
+    "Banco",
+    "Cuenta",
+    "CLABE",
+    "INE",
+    "Veto",
+    "Fecha veto",
+    "Motivo veto",
+    "Fecha desmarque",
+    "Motivo desmarque",
+]
+
+
+class TableHTMLParser(HTMLParser):
+    def __init__(self) -> None:
+        super().__init__()
+        self.rows: list[list[str]] = []
+        self.current_row: list[str] | None = None
+        self.current_cell: list[str] | None = None
+
+    def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
+        if tag.lower() == "tr":
+            self.current_row = []
+        elif tag.lower() in {"td", "th"} and self.current_row is not None:
+            self.current_cell = []
+
+    def handle_data(self, data: str) -> None:
+        if self.current_cell is not None:
+            self.current_cell.append(data)
+
+    def handle_endtag(self, tag: str) -> None:
+        tag = tag.lower()
+        if tag in {"td", "th"} and self.current_row is not None and self.current_cell is not None:
+            self.current_row.append(html.unescape("".join(self.current_cell)).strip())
+            self.current_cell = None
+        elif tag == "tr" and self.current_row is not None:
+            self.rows.append(self.current_row)
+            self.current_row = None
+
+
+def cell_text(value: object) -> str:
+    text_value = str(value or "").strip()
+    if text_value.endswith(".0") and text_value[:-2].isdigit():
+        return text_value[:-2]
+    return text_value
+
+
+def parse_bool(value: str) -> bool:
+    return value.strip().lower() in {"si", "sí", "s", "yes", "true", "1", "x"}
+
+
+def parse_import_date(value: str) -> date | None:
+    value = value.strip()
+    if not value:
+        return None
+    for fmt in ("%Y-%m-%d", "%d/%m/%Y", "%d-%m-%Y"):
+        try:
+            return datetime.strptime(value, fmt).date()
+        except ValueError:
+            pass
+    try:
+        serial = int(float(value))
+    except ValueError:
+        return None
+    if serial <= 0:
+        return None
+    return date(1899, 12, 30) + timedelta(days=serial)
+
+
+def parse_csv_rows(content: bytes) -> list[list[str]]:
+    text_content = content.decode("utf-8-sig", errors="replace")
+    return [[cell_text(cell) for cell in row] for row in csv.reader(io.StringIO(text_content))]
+
+
+def parse_html_table_rows(content: bytes) -> list[list[str]]:
+    parser = TableHTMLParser()
+    parser.feed(content.decode("utf-8-sig", errors="replace"))
+    return parser.rows
+
+
+def parse_xlsx_rows(content: bytes) -> list[list[str]]:
+    namespaces = {
+        "main": "http://schemas.openxmlformats.org/spreadsheetml/2006/main",
+        "rel": "http://schemas.openxmlformats.org/package/2006/relationships",
+    }
+    with zipfile.ZipFile(io.BytesIO(content)) as workbook:
+        shared_strings: list[str] = []
+        if "xl/sharedStrings.xml" in workbook.namelist():
+            shared_root = ElementTree.fromstring(workbook.read("xl/sharedStrings.xml"))
+            for item in shared_root.findall("main:si", namespaces):
+                parts = [node.text or "" for node in item.findall(".//main:t", namespaces)]
+                shared_strings.append("".join(parts))
+
+        workbook_root = ElementTree.fromstring(workbook.read("xl/workbook.xml"))
+        first_sheet = workbook_root.find("main:sheets/main:sheet", namespaces)
+        if first_sheet is None:
+            return []
+        relationship_id = first_sheet.attrib.get("{http://schemas.openxmlformats.org/officeDocument/2006/relationships}id")
+        rels_root = ElementTree.fromstring(workbook.read("xl/_rels/workbook.xml.rels"))
+        target = None
+        for rel in rels_root.findall("rel:Relationship", namespaces):
+            if rel.attrib.get("Id") == relationship_id:
+                target = rel.attrib.get("Target")
+                break
+        if not target:
+            return []
+        sheet_path = "xl/" + target.lstrip("/")
+        sheet_root = ElementTree.fromstring(workbook.read(sheet_path))
+        rows: list[list[str]] = []
+        for row in sheet_root.findall(".//main:sheetData/main:row", namespaces):
+            values_by_col: dict[int, str] = {}
+            for cell in row.findall("main:c", namespaces):
+                ref = cell.attrib.get("r", "")
+                match = re.match(r"([A-Z]+)", ref)
+                col_idx = 0
+                if match:
+                    for char in match.group(1):
+                        col_idx = col_idx * 26 + ord(char) - ord("A") + 1
+                    col_idx -= 1
+                cell_type = cell.attrib.get("t")
+                inline_text = cell.find("main:is/main:t", namespaces)
+                raw_value = cell.findtext("main:v", default="", namespaces=namespaces)
+                if cell_type == "s" and raw_value:
+                    try:
+                        value = shared_strings[int(raw_value)]
+                    except (IndexError, ValueError):
+                        value = ""
+                elif cell_type == "inlineStr" and inline_text is not None:
+                    value = inline_text.text or ""
+                else:
+                    value = raw_value
+                values_by_col[col_idx] = cell_text(value)
+            if values_by_col:
+                rows.append([values_by_col.get(index, "") for index in range(max(values_by_col) + 1)])
+        return rows
+
+
+def parse_worker_import_rows(filename: str, content: bytes) -> list[list[str]]:
+    lower_name = filename.lower()
+    if lower_name.endswith(".xlsx"):
+        return parse_xlsx_rows(content)
+    if lower_name.endswith(".xls") or content.lstrip().lower().startswith(b"<html"):
+        return parse_html_table_rows(content)
+    if lower_name.endswith(".csv"):
+        return parse_csv_rows(content)
+    raise HTTPException(status_code=400, detail="Usa un archivo .xlsx, .xls o .csv con el layout de jornales")
+
+
+def normalize_worker_type(value: str) -> str:
+    normalized = value.strip().lower()
+    if normalized in {"supervisor", "supervision", "supervisión"}:
+        return "supervisor"
+    return "jornal"
 
 
 @app.get("/", include_in_schema=False)
@@ -179,6 +351,110 @@ def create_worker(
         raise HTTPException(status_code=409, detail="Numero de empleado duplicado para el cliente") from exc
     db.refresh(worker)
     return worker
+
+
+@app.post("/api/clients/{client_slug}/workers/import", response_model=WorkerImportOut)
+def import_workers(
+    client_slug: str, payload: WorkerImportIn, _: User = Depends(current_user), db: Session = Depends(get_db)
+) -> WorkerImportOut:
+    client = get_client_or_404(db, client_slug)
+    try:
+        content = base64.b64decode(payload.content_base64)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail="Archivo invalido") from exc
+
+    rows = [row for row in parse_worker_import_rows(payload.filename, content) if any(cell_text(cell) for cell in row)]
+    if not rows:
+        raise HTTPException(status_code=400, detail="El archivo esta vacio")
+
+    header = [cell_text(cell) for cell in rows[0][: len(WORKER_IMPORT_HEADERS)]]
+    if header != WORKER_IMPORT_HEADERS or len(rows[0]) < len(WORKER_IMPORT_HEADERS):
+        expected = ", ".join(WORKER_IMPORT_HEADERS)
+        raise HTTPException(status_code=400, detail=f"Layout invalido. Encabezados esperados: {expected}")
+
+    result = WorkerImportOut()
+    seen_numbers: set[str] = set()
+    next_auto_index = int(next_platform_code(db, client.id).split("-", 1)[1])
+    for index, row in enumerate(rows[1:], start=2):
+        values = [cell_text(cell) for cell in row]
+        values += [""] * (len(WORKER_IMPORT_HEADERS) - len(values))
+        data = dict(zip(WORKER_IMPORT_HEADERS, values[: len(WORKER_IMPORT_HEADERS)]))
+        if not data["Nombre"] and not data["Area"] and not data["Numero"]:
+            result.skipped += 1
+            continue
+        if not data["Nombre"]:
+            result.errors.append(f"Fila {index}: Nombre es obligatorio")
+            continue
+        if not data["Area"]:
+            result.errors.append(f"Fila {index}: Area es obligatoria")
+            continue
+        worker_type = normalize_worker_type(data["Tipo"])
+        if worker_type == "supervisor" and not data["Numero"]:
+            result.errors.append(f"Fila {index}: Numero es obligatorio para supervisores")
+            continue
+        if data["Numero"] and data["Numero"] in seen_numbers:
+            result.errors.append(f"Fila {index}: Numero duplicado dentro del archivo")
+            continue
+        if data["Numero"]:
+            seen_numbers.add(data["Numero"])
+        vetoed = parse_bool(data["Veto"])
+        veto_date = parse_import_date(data["Fecha veto"])
+        veto_cleared_date = parse_import_date(data["Fecha desmarque"])
+        if vetoed and (not veto_date or not data["Motivo veto"]):
+            result.errors.append(f"Fila {index}: si Veto es Si, captura Fecha veto y Motivo veto")
+            continue
+
+        if data["Numero"]:
+            code = data["Numero"]
+        else:
+            code = f"fp-{next_auto_index:03d}"
+            next_auto_index += 1
+            while code in seen_numbers:
+                code = f"fp-{next_auto_index:03d}"
+                next_auto_index += 1
+            seen_numbers.add(code)
+        worker = db.query(Worker).filter(Worker.client_id == client.id, Worker.employee_number == code).first()
+        is_new = worker is None
+        if is_new:
+            worker = Worker(client_id=client.id, employee_number=code, source="platform")
+            db.add(worker)
+        elif worker.source in {"singa", "ollamani"}:
+            result.errors.append(f"Fila {index}: no se puede sobrescribir un jornal importado desde {worker.source}")
+            continue
+
+        worker.display_code = code
+        worker.worker_type = worker_type
+        worker.full_name = data["Nombre"]
+        worker.area = data["Area"]
+        worker.phone = data["Telefono"] or None
+        worker.mobile = data["Telefono 2"] or None
+        worker.social = data["Contacto/Redes"] or None
+        worker.bank = data["Banco"] or None
+        worker.account_number = data["Cuenta"] or None
+        worker.clabe = data["CLABE"] or None
+        worker.ine_filename = data["INE"] or None
+        worker.vetoed = vetoed
+        worker.veto_date = veto_date
+        worker.veto_reason = data["Motivo veto"] or None
+        worker.veto_cleared_date = veto_cleared_date
+        worker.veto_cleared_reason = data["Motivo desmarque"] or None
+        worker.edited = not is_new
+        worker.edited_at = datetime.utcnow() if not is_new else None
+        worker.active = True
+        if is_new:
+            result.created += 1
+        else:
+            result.updated += 1
+
+    if result.errors:
+        db.rollback()
+        return result
+    try:
+        db.commit()
+    except IntegrityError as exc:
+        db.rollback()
+        raise HTTPException(status_code=409, detail="El archivo contiene numeros de empleado duplicados") from exc
+    return result
 
 
 @app.put("/api/clients/{client_slug}/workers/{worker_id}", response_model=WorkerOut)

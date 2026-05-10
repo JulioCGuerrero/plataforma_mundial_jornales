@@ -33,6 +33,16 @@ Variables opcionales:
 - `OLLAMANI_SINGA_STATUS_ID`: por defecto `2`.
 - `OLLAMANI_CLIENT_SLUG`: por defecto `ollamani`.
 
+## Importar layout de jornales
+
+En la vista **Base de Jornales**, usa **Layout** para descargar el formato y **Importar** para cargarlo. El archivo debe conservar estos encabezados en el mismo orden:
+
+```text
+Numero, Nombre, Area, Tipo, Telefono, Telefono 2, Contacto/Redes, Banco, Cuenta, CLABE, INE, Veto, Fecha veto, Motivo veto, Fecha desmarque, Motivo desmarque
+```
+
+`Nombre` y `Area` son obligatorios. `Tipo` acepta `Jornal` o `Supervisor`; los supervisores requieren `Numero`. Si `Numero` ya existe en el cliente, se actualiza el registro de plataforma; si no existe, se crea.
+
 ## Variables para Cloud Run
 
 Configura estas variables o secrets:

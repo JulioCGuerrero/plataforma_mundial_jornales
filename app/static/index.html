@@ -452,6 +452,15 @@ body.theme-plaza .client-banner{display:block}
   transition:box-shadow var(--transition)
 }
 .turno-card:hover{box-shadow:var(--shadow-md)}
+.turno-card.t-collapsed .t-body,.turno-card.t-collapsed .t-foot{display:none}
+.turno-toggle{
+  margin-left:auto;background:none;border:none;cursor:pointer;
+  width:28px;height:28px;border-radius:50%;flex-shrink:0;padding:0;
+  display:flex;align-items:center;justify-content:center;
+  font-size:16px;opacity:.55;transition:transform .2s ease,opacity .2s
+}
+.turno-toggle:hover{opacity:1}
+.t-collapsed .turno-toggle{transform:rotate(-90deg)}
 
 .t-head{padding:14px 18px;display:flex;align-items:center;gap:12px}
 .t-antes .t-head{background:linear-gradient(135deg,#fff5f5,#ffe5e5);border-bottom:2px solid rgba(204,0,0,.12)}
@@ -1416,6 +1425,9 @@ tbody tr:hover td{background:#FAFAFA}
         <div class="fg"><label>Origen</label><select id="emp-filter-origin"><option value="">Todos</option><option value="platform">Agregados</option><option value="ollamani">Ollamani</option><option value="singa">SINGA</option></select></div>
         <div class="fg"><label>Area</label><select id="emp-filter-area"><option value="">Todas</option></select></div>
         <div class="fg"><label>Estado</label><select id="emp-filter-status"><option value="">Todos</option><option value="veto">Vetados</option><option value="editados">Editados</option></select></div>
+        <input id="jornales-import-file" type="file" accept=".xlsx,.xls,.csv" style="display:none" onchange="importJornalesExcel(this)">
+        <button class="btn btn-outline" onclick="dlJornalesLayout()">Layout</button>
+        <button class="btn btn-red" onclick="document.getElementById('jornales-import-file').click()">Importar</button>
         <button class="btn btn-gold" onclick="dlJornalesExcel()">Excel</button>
       </div>
     </div>
@@ -2778,10 +2790,11 @@ renderEventos();renderEmps();
   };
 
   window.dlResumen=function(){
+    var dlEvents=dashboardEvents();
     var rows=[['Empleado','Área','N°','Tipo','Origen','Banco','Cuenta','CLABE','INE','Horario 1','Horario 2','Horario 3','Supervisión','Total Turnos','Total a Pagar']];
     emps.forEach(function(e){
       var a=0,d=0,ds=0,sup=0,p=0;
-      eventos.forEach(function(ev){
+      dlEvents.forEach(function(ev){
         ['antes','durante','despues'].forEach(function(t){
           (ev.turnos[t]||[]).forEach(function(x){
             if(x.id===e.id){
@@ -2803,7 +2816,7 @@ renderEventos();renderEmps();
 
   window.dlPorEvento=function(){
     var rows=[['Evento','Tipo Evento','Fecha','Horario','Tipo Persona','Origen','N°','Nombre','Área','Banco','Cuenta','CLABE','INE','Pago']];
-    eventos.forEach(function(ev){
+    dashboardEvents().forEach(function(ev){
       ['antes','durante','despues'].forEach(function(t){
         var lbl={antes:'Horario 1',durante:'Horario 2',despues:'Horario 3'}[t];
         (ev.turnos[t]||[]).forEach(function(e){rows.push([ev.nombre,ev.tipo,ev.fecha,lbl,roleLabel(e.rol||e.workerType||'jornal'),originLabel(e),e.num,e.nombre,e.area,e.banco||'',e.cuenta||'',e.clabe||'',e.ine&&e.ine.name?e.ine.name:'',moneda(e.pago||payForRole(ev,t,e.rol||'jornal'))]);});
@@ -2831,6 +2844,7 @@ renderEventos();renderEmps();
       expected+=shiftQuota(ev,'jornal',t)+shiftQuota(ev,'supervisor',t);
       arrived+=(ev.turnos[t]||[]).length;
     });
+    if(expected===0)expected=(ev.posiciones&&ev.posiciones.operario||0)+(ev.posiciones&&ev.posiciones.supervision||0);
     return {expected:expected,arrived:arrived,missing:Math.max(expected-arrived,0)};
   }
 
@@ -2899,6 +2913,7 @@ renderEventos();renderEmps();
     dashEvents.forEach(function(ev){var s=eventExpectedStats(ev);totalExpected+=s.expected;totalArrived+=s.arrived;});
     document.getElementById('res-stats').innerHTML=[
       {l:'Eventos',v:dashEvents.length,s:dashboardEventFilter?'filtrado':'registrados',hl:false},
+      {l:'Total Registrado',v:emps.length,s:'personal en sistema',hl:false},
       {l:'Esperados',v:totalExpected,s:'cupos programados',hl:false},
       {l:'Llegaron',v:totalArrived,s:'personas asignadas',hl:false},
       {l:'Total a Pagar',v:moneda(totP),s:'suma total nomina',hl:true},
@@ -2956,10 +2971,14 @@ renderEventos();renderEmps();
         : '<div class="empty" style="margin-top:10px">Supervision no programada en este turno</div>';
       var supervisorTotal=supervisores.reduce(function(sum,e){return sum+Number(e.pago||salSupervisor);},0);
       var jornalTotal=jornales.reduce(function(sum,e){return sum+Number(e.pago||salJornal);},0);
-      return'<div class="turno-card '+t.cls+'">'
-        +'<div class="t-head"><div class="t-ico">'+t.ico+'</div>'
+      var defaultLabels={antes:'Horario 1',durante:'Horario 2',despues:'Horario 3'};
+      var hasNoTime=shiftLabel(ev,t.key)===defaultLabels[t.key];
+      var collapsed=hasNoTime&&jornales.length===0&&supervisores.length===0;
+      return'<div class="turno-card '+t.cls+(collapsed?' t-collapsed':'')+'" id="tc-'+t.key+'">'
+        +'<div class="t-head" onclick="toggleTurnoCard(\''+t.key+'\')" style="cursor:pointer"><div class="t-ico">'+t.ico+'</div>'
         +'<div class="t-lbl-wrap"><div class="t-lbl">'+safeTxt(shiftLabel(ev,t.key))+'</div><div class="t-sub">Esperados '+qJornal+' op / '+qSupervisor+' sup</div></div>'
-        +'<div class="t-salary">'+moneda(salJornal)+'<div style="font-size:10px;color:var(--muted);font-family:Barlow,sans-serif">Supervisor '+moneda(salSupervisor)+'</div></div></div>'
+        +'<div class="t-salary">'+moneda(salJornal)+'<div style="font-size:10px;color:var(--muted);font-family:Barlow,sans-serif">Supervisor '+moneda(salSupervisor)+'</div></div>'
+        +'<button class="turno-toggle" type="button" onclick="event.stopPropagation();toggleTurnoCard(\''+t.key+'\')">&#9660;</button></div>'
         +'<div class="t-body">'
         +'<div class="add-row stack"><input class="assign-search" placeholder="Buscar jornal por nombre, ID o area" oninput="filterAssignSelect(\'sel-'+t.key+'\',this.value)">'
         +'<div class="assign-controls"><select id="sel-'+t.key+'"><option value="">Seleccionar jornal</option>'+opts+'</select>'
@@ -3069,6 +3088,62 @@ renderEventos();renderEmps();
     a.download=(currentClientKey?CLIENTS[currentClientKey].slug:'demo')+'_jornales_'+new Date().toISOString().slice(0,10)+'.xls';
     a.click();
     toast('Jornales descargados en Excel');
+  };
+
+  window.dlJornalesLayout=function(){
+    var headers=['Numero','Nombre','Area','Tipo','Telefono','Telefono 2','Contacto/Redes','Banco','Cuenta','CLABE','INE','Veto','Fecha veto','Motivo veto','Fecha desmarque','Motivo desmarque'];
+    var sample=['fp-001','Nombre Apellido','Seguridad','Jornal','55 1234 5678','55 9876 5432','@usuario','BBVA','1234567890','012345678901234567','INE_Nombre.pdf','No','','','',''];
+    var html='<html><head><meta charset="utf-8"><style>td{mso-number-format:"\\@";} th{background:#CC0000;color:#fff;font-weight:bold;mso-number-format:"\\@";}</style></head><body><table>'
+      +'<tr>'+headers.map(function(c){return'<th>'+safeTxt(c)+'</th>';}).join('')+'</tr>'
+      +'<tr>'+sample.map(function(c){return'<td style="mso-number-format:&quot;\\@&quot;">'+safeTxt(c)+'</td>';}).join('')+'</tr>'
+      +'</table></body></html>';
+    var a=document.createElement('a');
+    a.href='data:application/vnd.ms-excel;charset=utf-8,'+encodeURIComponent(html);
+    a.download=(currentClientKey?CLIENTS[currentClientKey].slug:'demo')+'_layout_jornales.xls';
+    a.click();
+    toast('Layout descargado');
+  };
+
+  function fileToBase64(file){
+    return new Promise(function(resolve,reject){
+      var reader=new FileReader();
+      reader.onload=function(){
+        var bytes=new Uint8Array(reader.result);
+        var binary='';
+        for(var i=0;i<bytes.byteLength;i+=1)binary+=String.fromCharCode(bytes[i]);
+        resolve(btoa(binary));
+      };
+      reader.onerror=function(){reject(new Error('No se pudo leer el archivo'));};
+      reader.readAsArrayBuffer(file);
+    });
+  }
+
+  window.importJornalesExcel=function(input){
+    var file=input.files&&input.files[0];
+    if(!file)return;
+    fileToBase64(file).then(function(content){
+      return api('/api/clients/'+slug()+'/workers/import',{
+        method:'POST',
+        body:JSON.stringify({filename:file.name,content_base64:content})
+      });
+    }).then(function(result){
+      input.value='';
+      if(result.errors&&result.errors.length){
+        toast('No se importo: revisa errores del layout');
+        alert('No se importo ningun jornal porque el archivo tiene errores:\n\n'+result.errors.slice(0,20).join('\n'));
+        return;
+      }
+      toast('Importados '+result.created+' nuevos, '+result.updated+' actualizados');
+      return loadClientData();
+    }).catch(function(e){
+      input.value='';
+      toast('Error importando: '+e.message);
+    });
+  };
+
+  window.toggleTurnoCard=function(key){
+    var el=document.getElementById('tc-'+key);
+    if(el)el.classList.toggle('t-collapsed');
   };
 
   window.addEmp=function(evId,turno,role){

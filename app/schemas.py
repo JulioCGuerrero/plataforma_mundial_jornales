@@ -56,6 +56,18 @@ class WorkerOut(WorkerIn):
     edited_at: datetime | None = None
 
 
+class WorkerImportIn(BaseModel):
+    filename: str
+    content_base64: str
+
+
+class WorkerImportOut(BaseModel):
+    created: int = 0
+    updated: int = 0
+    skipped: int = 0
+    errors: list[str] = []
+
+
 class EventIn(BaseModel):
     name: str = Field(min_length=1, max_length=220)
     event_date: date
