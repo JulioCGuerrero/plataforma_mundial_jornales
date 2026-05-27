@@ -20,7 +20,7 @@ from sqlalchemy.orm import Session, joinedload
 
 from app.config import get_settings
 from app.db import SessionLocal, get_db
-from app.models import Client, Event, ShiftAssignment, User, Worker
+from app.models import Client, Event, PayrollPeriod, ShiftAssignment, User, Worker
 from app.schemas import (
     AssignmentIn,
     AssignmentOut,
@@ -28,6 +28,7 @@ from app.schemas import (
     EventIn,
     EventOut,
     LoginIn,
+    PayrollPeriodOut,
     SummaryOut,
     SummaryRow,
     TokenOut,
@@ -60,6 +61,27 @@ app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 @app.on_event("startup")
 def ensure_worker_columns() -> None:
     statements = [
+        """
+        CREATE TABLE IF NOT EXISTS payroll_periods (
+            id SERIAL PRIMARY KEY,
+            source_id VARCHAR(80) UNIQUE,
+            period_code VARCHAR(80),
+            period_type VARCHAR(40),
+            name VARCHAR(180) NOT NULL,
+            start_date DATE NOT NULL,
+            end_date DATE NOT NULL,
+            year INTEGER NOT NULL,
+            active BOOLEAN DEFAULT true,
+            created_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
+            updated_at TIMESTAMP WITH TIME ZONE DEFAULT now()
+        )
+        """,
+        "CREATE INDEX IF NOT EXISTS ix_payroll_periods_year ON payroll_periods (year)",
+        "CREATE INDEX IF NOT EXISTS ix_payroll_periods_start_date ON payroll_periods (start_date)",
+        "CREATE INDEX IF NOT EXISTS ix_payroll_periods_end_date ON payroll_periods (end_date)",
+        "CREATE INDEX IF NOT EXISTS ix_payroll_periods_period_code ON payroll_periods (period_code)",
+        "ALTER TABLE payroll_periods ADD COLUMN IF NOT EXISTS period_type VARCHAR(40)",
+        "CREATE INDEX IF NOT EXISTS ix_payroll_periods_period_type ON payroll_periods (period_type)",
         "ALTER TABLE workers ADD COLUMN IF NOT EXISTS edited BOOLEAN DEFAULT false",
         "ALTER TABLE workers ADD COLUMN IF NOT EXISTS edited_at TIMESTAMP WITH TIME ZONE",
         "ALTER TABLE workers ADD COLUMN IF NOT EXISTS vetoed BOOLEAN DEFAULT false",
@@ -79,6 +101,13 @@ def get_client_or_404(db: Session, client_slug: str) -> Client:
     if not client:
         raise HTTPException(status_code=404, detail="Cliente no encontrado")
     return client
+
+
+def get_period_or_404(db: Session, period_id: int) -> PayrollPeriod:
+    period = db.query(PayrollPeriod).filter(PayrollPeriod.id == period_id, PayrollPeriod.active.is_(True)).first()
+    if not period:
+        raise HTTPException(status_code=404, detail="Periodo de nomina no encontrado")
+    return period
 
 
 def next_platform_code(db: Session, client_id: int) -> str:
@@ -298,6 +327,102 @@ def list_clients(_: User = Depends(current_user), db: Session = Depends(get_db))
     return db.query(Client).filter(Client.active.is_(True)).order_by(Client.name).all()
 
 
+@app.get("/api/payroll-periods", response_model=list[PayrollPeriodOut])
+def list_payroll_periods(
+    year: int = 2026, _: User = Depends(current_user), db: Session = Depends(get_db)
+) -> list[PayrollPeriod]:
+    return (
+        db.query(PayrollPeriod)
+        .filter(PayrollPeriod.year == year, PayrollPeriod.active.is_(True))
+        .order_by(PayrollPeriod.start_date, PayrollPeriod.id)
+        .all()
+    )
+
+
+@app.get("/api/reports/payroll-final.csv")
+def payroll_final_report(
+    period_id: int | None = None, _: User = Depends(current_user), db: Session = Depends(get_db)
+) -> Response:
+    period = get_period_or_404(db, period_id) if period_id else None
+    query = (
+        db.query(
+            Client.name.label("client_name"),
+            Event.name.label("event_name"),
+            Event.event_date,
+            Event.event_type,
+            Worker.employee_number,
+            Worker.display_code,
+            Worker.full_name,
+            Worker.area,
+            Worker.worker_type,
+            Worker.source,
+            Worker.bank,
+            Worker.account_number,
+            Worker.clabe,
+            ShiftAssignment.shift,
+            ShiftAssignment.worker_role,
+            ShiftAssignment.pay_amount,
+        )
+        .join(Event, Event.id == ShiftAssignment.event_id)
+        .join(Client, Client.id == Event.client_id)
+        .join(Worker, Worker.id == ShiftAssignment.worker_id)
+        .filter(Client.active.is_(True))
+        .order_by(Client.name, Event.event_date, Event.name, Worker.full_name)
+    )
+    if period:
+        query = query.filter(Event.event_date >= period.start_date, Event.event_date <= period.end_date)
+
+    output = io.StringIO()
+    writer = csv.writer(output)
+    writer.writerow(
+        [
+            "Periodo",
+            "Fecha inicio",
+            "Fecha fin",
+            "Cliente",
+            "Evento",
+            "Fecha evento",
+            "Tipo evento",
+            "Numero",
+            "Nombre",
+            "Area",
+            "Tipo persona",
+            "Origen",
+            "Banco",
+            "Cuenta",
+            "CLABE",
+            "Horario",
+            "Pago",
+        ]
+    )
+    shift_labels = {"before": "Horario 1", "during": "Horario 2", "after": "Horario 3"}
+    for row in query.all():
+        writer.writerow(
+            [
+                period.name if period else "Todos",
+                period.start_date.isoformat() if period else "",
+                period.end_date.isoformat() if period else "",
+                row.client_name,
+                row.event_name,
+                row.event_date.isoformat(),
+                row.event_type,
+                row.display_code or row.employee_number,
+                row.full_name,
+                row.area,
+                "Supervisor" if row.worker_role == "supervisor" else "Jornal",
+                row.source,
+                row.bank or "",
+                row.account_number or "",
+                row.clabe or "",
+                shift_labels.get(row.shift, row.shift),
+                f"{Decimal(row.pay_amount or 0):.2f}",
+            ]
+        )
+    filename_period = f"periodo_{period.id}" if period else "todos"
+    headers = {"Content-Disposition": f'attachment; filename="nomina_final_{filename_period}.csv"'}
+    return Response(content="\ufeff" + output.getvalue(), media_type="text/csv; charset=utf-8", headers=headers)
+
+
 @app.get("/api/clients/{client_slug}/workers", response_model=list[WorkerOut])
 def list_workers(client_slug: str, _: User = Depends(current_user), db: Session = Depends(get_db)) -> list[Worker]:
     client = get_client_or_404(db, client_slug)
@@ -511,9 +636,18 @@ def delete_worker(client_slug: str, worker_id: int, _: User = Depends(current_us
 
 
 @app.get("/api/clients/{client_slug}/events", response_model=list[EventOut])
-def list_events(client_slug: str, _: User = Depends(current_user), db: Session = Depends(get_db)) -> list[Event]:
+def list_events(
+    client_slug: str,
+    period_id: int | None = None,
+    _: User = Depends(current_user),
+    db: Session = Depends(get_db),
+) -> list[Event]:
     client = get_client_or_404(db, client_slug)
-    return db.query(Event).filter(Event.client_id == client.id).order_by(Event.event_date.desc(), Event.id.desc()).all()
+    query = db.query(Event).filter(Event.client_id == client.id)
+    if period_id:
+        period = get_period_or_404(db, period_id)
+        query = query.filter(Event.event_date >= period.start_date, Event.event_date <= period.end_date)
+    return query.order_by(Event.event_date.desc(), Event.id.desc()).all()
 
 
 @app.post("/api/clients/{client_slug}/events", response_model=EventOut, status_code=201)
@@ -635,13 +769,19 @@ def delete_assignment(
 
 
 @app.get("/api/clients/{client_slug}/summary", response_model=SummaryOut)
-def summary(client_slug: str, _: User = Depends(current_user), db: Session = Depends(get_db)) -> SummaryOut:
+def summary(
+    client_slug: str,
+    period_id: int | None = None,
+    _: User = Depends(current_user),
+    db: Session = Depends(get_db),
+) -> SummaryOut:
     client = get_client_or_404(db, client_slug)
+    period = get_period_or_404(db, period_id) if period_id else None
     before_count = func.coalesce(func.sum(case((ShiftAssignment.shift == "before", 1), else_=0)), 0)
     during_count = func.coalesce(func.sum(case((ShiftAssignment.shift == "during", 1), else_=0)), 0)
     after_count = func.coalesce(func.sum(case((ShiftAssignment.shift == "after", 1), else_=0)), 0)
     supervisor_shift_count = func.coalesce(func.sum(case((ShiftAssignment.worker_role == "supervisor", 1), else_=0)), 0)
-    rows = (
+    rows_query = (
         db.query(
             Worker.id,
             Worker.full_name,
@@ -656,11 +796,13 @@ def summary(client_slug: str, _: User = Depends(current_user), db: Session = Dep
         .join(ShiftAssignment, ShiftAssignment.worker_id == Worker.id)
         .join(Event, Event.id == ShiftAssignment.event_id)
         .filter(Event.client_id == client.id)
-        .group_by(Worker.id)
-        .order_by(func.coalesce(func.sum(ShiftAssignment.pay_amount), 0).desc())
-        .all()
     )
-    event_count = db.query(func.count(Event.id)).filter(Event.client_id == client.id).scalar() or 0
+    event_count_query = db.query(func.count(Event.id)).filter(Event.client_id == client.id)
+    if period:
+        rows_query = rows_query.filter(Event.event_date >= period.start_date, Event.event_date <= period.end_date)
+        event_count_query = event_count_query.filter(Event.event_date >= period.start_date, Event.event_date <= period.end_date)
+    rows = rows_query.group_by(Worker.id).order_by(func.coalesce(func.sum(ShiftAssignment.pay_amount), 0).desc()).all()
+    event_count = event_count_query.scalar() or 0
     total_shifts = sum(row.shift_count for row in rows)
     total_pay = sum((row.total_pay for row in rows), Decimal("0"))
     return SummaryOut(

@@ -97,6 +97,19 @@ class EventOut(EventIn):
     client_id: int
 
 
+class PayrollPeriodOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    source_id: str | None = None
+    period_code: str | None = None
+    period_type: str | None = None
+    name: str
+    start_date: date
+    end_date: date
+    year: int
+
+
 class AssignmentIn(BaseModel):
     worker_id: int
     shift: str = Field(pattern="^(before|during|after)$")

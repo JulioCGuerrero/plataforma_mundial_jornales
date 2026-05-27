@@ -112,6 +112,20 @@ class Event(TimestampMixin, Base):
     assignments: Mapped[list["ShiftAssignment"]] = relationship(back_populates="event", cascade="all, delete-orphan")
 
 
+class PayrollPeriod(TimestampMixin, Base):
+    __tablename__ = "payroll_periods"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    source_id: Mapped[str | None] = mapped_column(String(80), unique=True, index=True)
+    period_code: Mapped[str | None] = mapped_column(String(80), index=True)
+    period_type: Mapped[str | None] = mapped_column(String(40), index=True)
+    name: Mapped[str] = mapped_column(String(180), index=True)
+    start_date: Mapped[date] = mapped_column(Date, index=True)
+    end_date: Mapped[date] = mapped_column(Date, index=True)
+    year: Mapped[int] = mapped_column(Integer, index=True)
+    active: Mapped[bool] = mapped_column(Boolean, default=True)
+
+
 class ShiftAssignment(TimestampMixin, Base):
     __tablename__ = "shift_assignments"
     __table_args__ = (UniqueConstraint("event_id", "worker_id", "shift", name="uq_assignment_event_worker_shift"),)

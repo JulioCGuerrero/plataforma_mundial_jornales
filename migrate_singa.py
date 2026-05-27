@@ -5,7 +5,7 @@ import psycopg
 import pyodbc
 
 
-SQLSERVER_SERVER = os.getenv("SINGA_SQLSERVER_SERVER", "192.168.2.3")
+SQLSERVER_SERVER = os.getenv("SINGA_SQLSERVER_SERVER", "192.168.12.3")
 SQLSERVER_DATABASE = os.getenv("SINGA_SQLSERVER_DATABASE", "SINGA")
 SQLSERVER_USERNAME = os.getenv("SINGA_SQLSERVER_USERNAME", "alpreb")
 SQLSERVER_PASSWORD = os.getenv("SINGA_SQLSERVER_PASSWORD", "s1st3m4s@_")
@@ -145,7 +145,9 @@ def upsert_workers(workers: list[SingaWorker]) -> None:
         with conn.cursor() as cur:
             total = len(workers)
             done = 0
-            print(f"[5/5] Insertando/actualizando {total} registros...", flush=True)
+            inserted = 0
+            skipped = 0
+            print(f"[5/5] Insertando solo faltantes de {total} registros origen...", flush=True)
             client_id = clients[0]
             for worker in workers:
                 cur.execute(
@@ -169,21 +171,7 @@ def upsert_workers(workers: list[SingaWorker]) -> None:
                     )
                     VALUES (%s, %s, %s, 'singa', %s, 'jornal', %s, 'SINGA', %s, %s, %s, %s, %s, %s, true)
                     ON CONFLICT (client_id, employee_number)
-                    DO UPDATE SET
-                        display_code = EXCLUDED.display_code,
-                        source = 'singa',
-                        external_id = EXCLUDED.external_id,
-                        worker_type = 'jornal',
-                        full_name = EXCLUDED.full_name,
-                        area = EXCLUDED.area,
-                        phone = EXCLUDED.phone,
-                        mobile = EXCLUDED.mobile,
-                        social = EXCLUDED.social,
-                        bank = EXCLUDED.bank,
-                        account_number = EXCLUDED.account_number,
-                        clabe = EXCLUDED.clabe,
-                        active = true,
-                        updated_at = now()
+                    DO NOTHING
                     """,
                     (
                         client_id,
@@ -199,11 +187,15 @@ def upsert_workers(workers: list[SingaWorker]) -> None:
                         worker.clabe,
                     ),
                 )
+                if cur.rowcount == 1:
+                    inserted += 1
+                else:
+                    skipped += 1
                 done += 1
                 if done % 100 == 0:
                     print(f"[5/5] Progreso: {done}/{total}", flush=True)
         conn.commit()
-        print(f"[5/5] Commit OK. Registros procesados: {total}", flush=True)
+        print(f"[5/5] Commit OK. Nuevos: {inserted}. Ya existian sin cambios: {skipped}.", flush=True)
 
 
 def main() -> None:
@@ -211,7 +203,7 @@ def main() -> None:
     workers = fetch_singa_workers()
     upsert_workers(workers)
     target = CLIENT_SLUG or "todos los clientes"
-    print(f"Importados/actualizados {len(workers)} jornales SINGA en {target}.")
+    print(f"Revision de faltantes SINGA terminada en {target}. Registros origen revisados: {len(workers)}.")
 
 
 if __name__ == "__main__":

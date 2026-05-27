@@ -43,6 +43,22 @@ Numero, Nombre, Area, Tipo, Telefono, Telefono 2, Contacto/Redes, Banco, Cuenta,
 
 `Nombre` y `Area` son obligatorios. `Tipo` acepta `Jornal` o `Supervisor`; los supervisores requieren `Numero`. Si `Numero` ya existe en el cliente, se actualiza el registro de plataforma; si no existe, se crea.
 
+## Importar periodos de nomina
+
+El script `migrate_periodonomina.py` lee `tb_periodonomina` desde SQL Server SINGA y guarda en Cloud SQL los periodos del anio configurado. La plataforma usa esos rangos para filtrar eventos por `event_date`.
+
+```powershell
+$env:DATABASE_URL="postgresql+psycopg://USER:PASSWORD@HOST:5432/DB"
+$env:SINGA_SQLSERVER_SERVER="192.168.12.3"
+$env:SINGA_SQLSERVER_DATABASE="SINGA"
+$env:SINGA_SQLSERVER_USERNAME="alpreb"
+$env:SINGA_SQLSERVER_PASSWORD="..."
+$env:PAYROLL_YEAR="2026"
+python migrate_periodonomina.py
+```
+
+Tambien puedes ajustar `migrate_periodonomina.ps1` con el host/puerto de Cloud SQL y ejecutarlo directamente.
+
 ## Variables para Cloud Run
 
 Configura estas variables o secrets:
@@ -70,4 +86,4 @@ gcloud run deploy control-jornales `
   --set-secrets JWT_SECRET=jwt-secret:latest
 ```
 
-El contenedor no crea tablas nuevas. En el arranque agrega columnas faltantes de jornales con `ALTER TABLE ... ADD COLUMN IF NOT EXISTS`.
+En el arranque la app crea la tabla `payroll_periods` si falta y agrega columnas faltantes de jornales con `ALTER TABLE ... ADD COLUMN IF NOT EXISTS`.

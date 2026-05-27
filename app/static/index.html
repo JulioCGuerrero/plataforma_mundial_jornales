@@ -565,6 +565,17 @@ body.theme-plaza .client-banner{display:block}
   border:1px solid rgba(0,0,0,.06);
   overflow:auto;box-shadow:var(--shadow-sm)
 }
+.summary-table{
+  max-height:360px;
+  border-radius:14px;
+}
+.summary-table table{font-size:12px;min-width:980px}
+.summary-table thead th{
+  position:sticky;top:0;z-index:2;
+  padding:9px 14px;font-size:11px
+}
+.summary-table tbody td{padding:8px 14px}
+.summary-table .cell-muted{font-size:10px;line-height:1.15}
 table{width:100%;border-collapse:collapse;font-size:13px;min-width:1240px}
 thead th{
   text-align:left;padding:13px 18px;
@@ -1272,7 +1283,9 @@ tbody tr:hover td{background:#FAFAFA}
     <div class="sec-head">
       <h2>EVENTOS</h2>
       <span class="badge" id="ev-count">0</span>
-      <button class="btn btn-red" style="margin-left:auto" onclick="toggle('form-ev')">
+      <div class="fg" style="max-width:180px;margin-left:auto"><label>Tipo Periodo</label><select id="period-type-filter" onchange="setPayrollType(this.value)"><option value="">Todos</option><option value="semanal">Semanal</option><option value="quincenal">Quincenal</option></select></div>
+      <div class="fg" style="max-width:340px"><label>Periodo de Pago</label><select id="period-filter" onchange="setPayrollPeriod(this.value)"><option value="">Todos los periodos</option></select></div>
+      <button class="btn btn-red" onclick="toggle('form-ev')">
         <svg width="13" height="13" viewBox="0 0 13 13" fill="currentColor"><path d="M6 1v11M1 6h11"/></svg>
         Nuevo Evento
       </button>
@@ -1442,7 +1455,7 @@ tbody tr:hover td{background:#FAFAFA}
 
   <!-- VIEW: RESUMEN -->
   <div class="view" id="view-resumen">
-    <div class="sec-head"><h2>RESUMEN GENERAL</h2><div class="fg" style="max-width:280px;margin-left:auto"><label>Evento</label><select id="dash-event-filter"><option value="">Todos los eventos</option></select></div></div>
+    <div class="sec-head"><h2>RESUMEN GENERAL</h2><div class="fg" style="max-width:180px;margin-left:auto"><label>Tipo Periodo</label><select id="summary-period-type-filter" onchange="setPayrollType(this.value)"><option value="">Todos</option><option value="semanal">Semanal</option><option value="quincenal">Quincenal</option></select></div><div class="fg" style="max-width:340px"><label>Periodo de Pago</label><select id="summary-period-filter" onchange="setPayrollPeriod(this.value)"><option value="">Todos los periodos</option></select></div><div class="fg" style="max-width:280px"><label>Evento</label><select id="dash-event-filter"><option value="">Todos los eventos</option></select></div><button class="btn btn-gold btn-sm" onclick="dlNominaFinal()"><svg width="11" height="11" viewBox="0 0 11 11" fill="currentColor"><path d="M5.5 1v6M2 9h7"/><path d="M2.5 5.5L5.5 8.5l3-3"/></svg>Nomina Bancos</button></div>
     <div class="res-grid" id="res-stats"></div>
     <div class="compare-wrap">
       <div class="compare-title">ESPERADOS VS LLEGARON POR EVENTO</div>
@@ -1452,7 +1465,7 @@ tbody tr:hover td{background:#FAFAFA}
       <div class="compare-title">MAS FRECUENTES</div>
       <div class="compare-grid" id="frequent-dashboard"></div>
     </div>
-    <div class="tbl-wrap">
+    <div class="tbl-wrap summary-table">
       <table>
         <thead><tr><th>Jornal</th><th>Area</th><th style="text-align:center">Eventos</th><th style="text-align:center">Horario 1</th><th style="text-align:center">Horario 2</th><th style="text-align:center">Horario 3</th><th style="text-align:center">Turnos</th><th style="text-align:right">A Pagar</th></tr></thead>
         <tbody id="res-tbody"></tbody>
@@ -1468,6 +1481,10 @@ tbody tr:hover td{background:#FAFAFA}
         <button class="btn btn-outline btn-sm" onclick="dlPorEvento()">
           <svg width="11" height="11" viewBox="0 0 11 11" fill="currentColor"><path d="M5.5 1v6M2 9h7"/><path d="M2.5 5.5L5.5 8.5l3-3"/></svg>
           Desglose por Evento (CSV)
+        </button>
+        <button class="btn btn-gold btn-sm" onclick="dlNominaFinal()">
+          <svg width="11" height="11" viewBox="0 0 11 11" fill="currentColor"><path d="M5.5 1v6M2 9h7"/><path d="M2.5 5.5L5.5 8.5l3-3"/></svg>
+          Nomina Final Bancos (CSV)
         </button>
       </div>
     </div>
@@ -1493,7 +1510,7 @@ var emps=[
   {id:13,num:'013',nombre:'Verónica Salinas',area:'Transmisiones',telefono:'55 1000 1013',celular:'55 2000 1013',redes:'@jr013',banco:'Banorte',cuenta:'1234567902',clabe:'012345678901234579',ine:{name:'INE_Veronica_Salinas.pdf'}},
   {id:14,num:'014',nombre:'Ramón Torres',area:'Estacionamiento',telefono:'55 1000 1014',celular:'55 2000 1014',redes:'@jr014',banco:'Santander',cuenta:'1234567903',clabe:'012345678901234580',ine:{name:'INE_Ramon_Torres.jpg'}},
 ];
-var eventos=[],selEv=null,nextEvId=1,nextEmpId=15,empEditId=null,empIneCleared=false,empPrevVetoed=false;
+var eventos=[],allEventos=[],payrollPeriods=[],selectedPayrollType='',selectedPayrollPeriodId='',selEv=null,nextEvId=1,nextEmpId=15,empEditId=null,empIneCleared=false,empPrevVetoed=false;
 var TURNOS=[
   {key:'antes',lbl:'Horario 1',ico:'▷',sub:'Primer bloque',cls:'t-antes'},
   {key:'durante',lbl:'Horario 2',ico:'▶',sub:'Segundo bloque',cls:'t-durante'},
@@ -2222,6 +2239,83 @@ renderEventos();renderEmps();
   function roleLabel(role){
     return role==='supervisor'?'Supervisor':'Jornal';
   }
+  function periodLabel(period){
+    if(!period)return 'Todos los periodos';
+    return period.name+' · '+fdate(period.start_date)+' - '+fdate(period.end_date);
+  }
+  function normalizePayrollType(value){
+    var text=String(value||'').toLowerCase();
+    if(text.indexOf('quinc')!==-1)return 'quincenal';
+    if(text.indexOf('seman')!==-1)return 'semanal';
+    return '';
+  }
+  function periodType(period){
+    return normalizePayrollType(period&&period.period_type||period&&period.name);
+  }
+  function typedPayrollPeriods(){
+    return selectedPayrollType?payrollPeriods.filter(function(p){return periodType(p)===selectedPayrollType;}):payrollPeriods;
+  }
+  function currentPayrollPeriod(){
+    return payrollPeriods.find(function(p){return String(p.id)===String(selectedPayrollPeriodId);})||null;
+  }
+  function eventInPayrollPeriod(ev,period){
+    if(!period)return true;
+    return ev.fecha>=period.start_date&&ev.fecha<=period.end_date;
+  }
+  function syncPayrollPeriodControls(){
+    ['period-type-filter','summary-period-type-filter'].forEach(function(id){
+      var typeSel=document.getElementById(id);
+      if(!typeSel)return;
+      typeSel.value=selectedPayrollType||'';
+    });
+    var filtered=typedPayrollPeriods();
+    var html='<option value="">Todos los periodos</option>'+filtered.map(function(p){
+      return'<option value="'+p.id+'">'+safeTxt(periodLabel(p))+'</option>';
+    }).join('');
+    ['period-filter','summary-period-filter'].forEach(function(id){
+      var sel=document.getElementById(id);
+      if(!sel)return;
+      sel.innerHTML=html;
+      sel.value=selectedPayrollPeriodId||'';
+    });
+  }
+  function defaultPayrollPeriod(){
+    if(selectedPayrollPeriodId||!typedPayrollPeriods().length)return;
+    var today=new Date().toISOString().slice(0,10);
+    var filtered=typedPayrollPeriods();
+    var current=filtered.find(function(p){return today>=p.start_date&&today<=p.end_date;});
+    selectedPayrollPeriodId=String((current||filtered[filtered.length-1]).id);
+  }
+  function applyPayrollPeriodFilter(){
+    if(selectedPayrollPeriodId&&!typedPayrollPeriods().some(function(p){return String(p.id)===String(selectedPayrollPeriodId);})){
+      selectedPayrollPeriodId='';
+    }
+    defaultPayrollPeriod();
+    var period=currentPayrollPeriod();
+    eventos=allEventos.filter(function(ev){return eventInPayrollPeriod(ev,period);});
+    if(selEv&&!eventos.some(function(ev){return ev.id===selEv.id;}))selEv=null;
+    if(dashboardEventFilter&&!eventos.some(function(ev){return String(ev.id)===String(dashboardEventFilter);}))dashboardEventFilter='';
+    syncPayrollPeriodControls();
+  }
+  window.setPayrollPeriod=function(value){
+    selectedPayrollPeriodId=value||'';
+    applyPayrollPeriodFilter();
+    renderEventos();
+    updateDashboardEventFilter();
+    if(document.getElementById('view-resumen').classList.contains('active'))renderResumen();
+    if(selEv){
+      document.getElementById('turnos-sec').style.display='block';
+      document.getElementById('t-ev-title').textContent=selEv.nombre.toUpperCase();
+      renderTurnos();
+    }else{
+      document.getElementById('turnos-sec').style.display='none';
+    }
+  };
+  window.setPayrollType=function(value){
+    selectedPayrollType=normalizePayrollType(value);
+    selectedPayrollPeriodId='';
+    window.setPayrollPeriod('');
+  };
   function originLabel(item){
     if(item&&item.source==='singa')return 'SINGA';
     if(item&&item.source==='ollamani')return 'Ollamani';
@@ -2303,16 +2397,19 @@ renderEventos();renderEmps();
     if(!s)return Promise.resolve();
     return Promise.all([
       api('/api/clients/'+s+'/workers'),
-      api('/api/clients/'+s+'/events')
+      api('/api/clients/'+s+'/events'),
+      api('/api/payroll-periods?year=2026').catch(function(){return[];})
     ]).then(function(results){
       emps=results[0].map(toEmp);
+      payrollPeriods=results[2]||[];
       return Promise.all(results[1].map(function(ev){
         return api('/api/clients/'+s+'/events/'+ev.id+'/assignments').then(function(assignments){
           return toEvent(ev,assignments);
         });
       }));
     }).then(function(mappedEvents){
-      eventos=mappedEvents;
+      allEventos=mappedEvents;
+      applyPayrollPeriodFilter();
       selEv=selEv?eventos.find(function(ev){return ev.id===selEv.id;}):null;
       renderEventos();
       renderEmps();
@@ -2356,7 +2453,7 @@ renderEventos();renderEmps();
       return;
     }
     originalEnterClient(key);
-    emps=[];eventos=[];selEv=null;
+    emps=[];eventos=[];allEventos=[];selEv=null;
     renderEventos();renderEmps();
     loadClientData();
   };
@@ -2502,9 +2599,10 @@ renderEventos();renderEmps();
   };
 
   window.renderEventos=function(){
-    document.getElementById('ev-count').textContent=eventos.length;
+    document.getElementById('ev-count').textContent=allEventos.length&&allEventos.length!==eventos.length?eventos.length+'/'+allEventos.length:eventos.length;
     var g=document.getElementById('ev-grid');
-    if(!eventos.length){g.innerHTML='<p style="color:var(--muted);font-size:14px;grid-column:1/-1;padding:12px 0;opacity:.6">Sin eventos registrados. Crea el primero.</p>';return;}
+    var period=currentPayrollPeriod();
+    if(!eventos.length){g.innerHTML='<p style="color:var(--muted);font-size:14px;grid-column:1/-1;padding:12px 0;opacity:.6">'+(period?'Sin eventos dentro de '+safeTxt(periodLabel(period))+'.':'Sin eventos registrados. Crea el primero.')+'</p>';return;}
     g.innerHTML=eventos.map(function(ev){
       var tot=(ev.turnos.antes||[]).length+(ev.turnos.durante||[]).length+(ev.turnos.despues||[]).length;
       var s=selEv&&selEv.id===ev.id;
@@ -2825,6 +2923,26 @@ renderEventos();renderEmps();
     var prefix=currentClientKey?CLIENTS[currentClientKey].slug:'demo';
     csv(prefix+'_desglose_por_evento.csv',rows);
     toast('Desglose por evento descargado');
+  };
+
+  window.dlNominaFinal=function(){
+    var period=currentPayrollPeriod();
+    if(!period){toast('Selecciona un periodo de pago');return;}
+    fetch('/api/reports/payroll-final.csv?period_id='+encodeURIComponent(period.id),{
+      headers:token?{Authorization:'Bearer '+token}:{}
+    }).then(function(res){
+      if(!res.ok)return res.text().then(function(t){throw new Error(t||'Error de servidor');});
+      return res.blob();
+    }).then(function(blob){
+      var a=document.createElement('a');
+      a.href=URL.createObjectURL(blob);
+      a.download='nomina_final_periodo_'+period.id+'.csv';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(function(){URL.revokeObjectURL(a.href);},1000);
+      toast('Nomina final descargada');
+    }).catch(function(e){toast('Error API: '+e.message);});
   };
 
   window.filterAssignSelect=function(selectId,query){
