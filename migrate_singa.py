@@ -2,6 +2,7 @@ import os
 from dataclasses import dataclass
 
 import psycopg
+from psycopg.rows import dict_row
 import pyodbc
 
 
@@ -142,59 +143,68 @@ def upsert_workers(workers: list[SingaWorker]) -> None:
     with psycopg.connect(POSTGRES_DSN) as conn:
         print("[4/5] Conexion PostgreSQL OK.", flush=True)
         clients = client_ids(conn)
+        client_id = clients[0]
+        with conn.cursor(row_factory=dict_row) as cur:
+            print("[5/5] Revisando jornales ya existentes en Cloud SQL...", flush=True)
+            cur.execute("SELECT employee_number FROM workers WHERE client_id = %s", (client_id,))
+            existing_numbers = {str(row["employee_number"]) for row in cur.fetchall()}
+
+        missing_workers = [worker for worker in workers if worker.external_id not in existing_numbers]
+        skipped = len(workers) - len(missing_workers)
+        print(f"[5/5] Faltantes detectados: {len(missing_workers)}. Ya existian sin cambios: {skipped}.", flush=True)
+        if not missing_workers:
+            conn.commit()
+            print("[5/5] No habia jornales nuevos por insertar.", flush=True)
+            return
+
+        insert_sql = """
+            INSERT INTO workers (
+                client_id,
+                employee_number,
+                display_code,
+                source,
+                external_id,
+                worker_type,
+                full_name,
+                area,
+                phone,
+                mobile,
+                social,
+                bank,
+                account_number,
+                clabe,
+                active
+            )
+            VALUES (%s, %s, %s, 'singa', %s, 'jornal', %s, 'SINGA', %s, %s, %s, %s, %s, %s, true)
+            ON CONFLICT (client_id, employee_number) DO NOTHING
+        """
+        inserted = 0
+        batch_size = int(os.getenv("SINGA_INSERT_BATCH_SIZE", "250"))
         with conn.cursor() as cur:
-            total = len(workers)
-            done = 0
-            inserted = 0
-            skipped = 0
-            print(f"[5/5] Insertando solo faltantes de {total} registros origen...", flush=True)
-            client_id = clients[0]
-            for worker in workers:
-                cur.execute(
-                    """
-                    INSERT INTO workers (
-                        client_id,
-                        employee_number,
-                        display_code,
-                        source,
-                        external_id,
-                        worker_type,
-                        full_name,
-                        area,
-                        phone,
-                        mobile,
-                        social,
-                        bank,
-                        account_number,
-                        clabe,
-                        active
-                    )
-                    VALUES (%s, %s, %s, 'singa', %s, 'jornal', %s, 'SINGA', %s, %s, %s, %s, %s, %s, true)
-                    ON CONFLICT (client_id, employee_number)
-                    DO NOTHING
-                    """,
-                    (
-                        client_id,
-                        worker.external_id,
-                        worker.external_id,
-                        worker.external_id,
-                        worker.full_name,
-                        worker.phone,
-                        worker.emergency_phone,
-                        worker.emergency_contact,
-                        worker.bank,
-                        worker.account_number,
-                        worker.clabe,
-                    ),
+            for start in range(0, len(missing_workers), batch_size):
+                batch = missing_workers[start : start + batch_size]
+                cur.executemany(
+                    insert_sql,
+                    [
+                        (
+                            client_id,
+                            worker.external_id,
+                            worker.external_id,
+                            worker.external_id,
+                            worker.full_name,
+                            worker.phone,
+                            worker.emergency_phone,
+                            worker.emergency_contact,
+                            worker.bank,
+                            worker.account_number,
+                            worker.clabe,
+                        )
+                        for worker in batch
+                    ],
                 )
-                if cur.rowcount == 1:
-                    inserted += 1
-                else:
-                    skipped += 1
-                done += 1
-                if done % 100 == 0:
-                    print(f"[5/5] Progreso: {done}/{total}", flush=True)
-        conn.commit()
+                conn.commit()
+                inserted += cur.rowcount if cur.rowcount and cur.rowcount > 0 else len(batch)
+                print(f"[5/5] Insertados {min(start + len(batch), len(missing_workers))}/{len(missing_workers)} faltantes", flush=True)
         print(f"[5/5] Commit OK. Nuevos: {inserted}. Ya existian sin cambios: {skipped}.", flush=True)
 
 
