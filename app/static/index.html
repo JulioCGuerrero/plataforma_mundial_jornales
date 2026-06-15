@@ -1179,6 +1179,10 @@ tbody tr:hover td{background:#FAFAFA}
         <svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor"><circle cx="6" cy="3.5" r="2.5" opacity=".7"/><path d="M1 11c0-2.76 2.24-5 5-5s5 2.24 5 5" opacity=".7"/></svg>
         Jornales
       </button>
+      <button class="nav-btn" onclick="gotoView('periodos',this)">
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor"><path d="M2 1h8v2H2zM2 4h8v7H2z" opacity=".7"/><path d="M4 6h2v2H4z" opacity=".9"/></svg>
+        Periodos
+      </button>
       <button class="nav-btn" onclick="gotoView('resumen',this)">
         <svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor"><rect x="1" y="7" width="2" height="4" opacity=".7"/><rect x="5" y="4" width="2" height="7" opacity=".7"/><rect x="9" y="1" width="2" height="10" opacity=".7"/></svg>
         Resumen
@@ -1440,8 +1444,9 @@ tbody tr:hover td{background:#FAFAFA}
         <div class="fg"><label>Estado</label><select id="emp-filter-status"><option value="">Todos</option><option value="veto">Vetados</option><option value="editados">Editados</option></select></div>
         <input id="jornales-import-file" type="file" accept=".xlsx,.xls,.csv" style="display:none" onchange="importJornalesExcel(this)">
         <button class="btn btn-outline" onclick="dlJornalesLayout()">Layout</button>
-        <button class="btn btn-red" onclick="document.getElementById('jornales-import-file').click()">Importar</button>
+        <button id="jornales-import-btn" class="btn btn-red" onclick="var input=document.getElementById('jornales-import-file');input.value='';input.click()">Importar</button>
         <button class="btn btn-gold" onclick="dlJornalesExcel()">Excel</button>
+        <span id="jornales-import-status" class="muted" style="align-self:center"></span>
       </div>
     </div>
 
@@ -1449,6 +1454,43 @@ tbody tr:hover td{background:#FAFAFA}
       <table>
         <thead><tr><th>N°</th><th>Nombre</th><th>Área</th><th>Contacto</th><th>Banco</th><th>INE</th><th style="text-align:center">Eventos</th><th style="text-align:center">Turnos</th><th style="text-align:right">Total Ganado</th><th>Acciones</th></tr></thead>
         <tbody id="emp-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- VIEW: PERIODOS -->
+  <div class="view" id="view-periodos">
+    <div class="sec-head">
+      <h2>PERIODOS DE PAGO</h2>
+      <span class="badge" id="period-count">0</span>
+      <button class="btn btn-red" style="margin-left:auto" onclick="openPeriodForm()">
+        <svg width="13" height="13" viewBox="0 0 13 13" fill="currentColor"><path d="M6 1v11M1 6h11"/></svg>
+        Nuevo Periodo
+      </button>
+    </div>
+
+    <div class="card" id="form-period" style="display:none">
+      <div class="card-title" id="period-form-title">NUEVO PERIODO</div>
+      <div class="form-row">
+        <div class="fg" style="max-width:180px"><label>Tipo</label><select id="period-type"><option value="semanal">Semanal</option><option value="quincenal">Quincenal</option></select></div>
+        <div class="fg"><label>Nombre</label><input id="period-name" placeholder="Semanal 08/06/2026 - 14/06/2026"></div>
+        <div class="fg" style="max-width:150px"><label>Codigo</label><input id="period-code" placeholder="SEM-2026-24"></div>
+      </div>
+      <div class="form-row">
+        <div class="fg" style="max-width:190px"><label>Fecha inicio</label><input id="period-start" type="date"></div>
+        <div class="fg" style="max-width:190px"><label>Fecha fin</label><input id="period-end" type="date"></div>
+        <div class="fg" style="max-width:140px"><label>Ano</label><input id="period-year" type="number" value="2026" min="2020"></div>
+      </div>
+      <div style="display:flex;gap:9px;flex-wrap:wrap">
+        <button class="btn btn-red" onclick="savePeriod()">Guardar Periodo</button>
+        <button class="btn btn-outline" onclick="cancelPeriodForm()">Cancelar</button>
+      </div>
+    </div>
+
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Tipo</th><th>Nombre</th><th>Codigo</th><th>Inicio</th><th>Fin</th><th>Ano</th><th style="text-align:right">Acciones</th></tr></thead>
+        <tbody id="period-tbody"></tbody>
       </table>
     </div>
   </div>
@@ -1816,6 +1858,7 @@ function gotoView(v,btn){
   if(btn)btn.classList.add('active');
   if(v==='resumen')renderResumen();
   if(v==='empleados')renderEmps();
+  if(v==='periodos'&&window.renderPeriodos)renderPeriodos();
 }
 
 function crearEvento(){
@@ -2110,6 +2153,76 @@ function dlPorEvento(){
 renderEventos();renderEmps();
 </script>
 <script>
+window.importJornalesExcel=function(input){
+  var file=input.files&&input.files[0];
+  if(!file)return;
+
+  var button=document.getElementById('jornales-import-btn');
+  var status=document.getElementById('jornales-import-status');
+  var slugs={
+    ollamani:'ollamani',
+    parque:'parque-bicentenario',
+    plaza:'plaza-de-toros-mexico',
+    estadioazul:'estadio-azul',
+    arenacdmx:'arena-cdmx'
+  };
+  var clientSlug=slugs[currentClientKey]||currentClientKey;
+  var token=localStorage.getItem('cj_token')||'';
+  var reader=new FileReader();
+
+  button.disabled=true;
+  button.textContent='Procesando...';
+  status.textContent='Leyendo '+file.name;
+  toast('Archivo seleccionado: '+file.name);
+
+  reader.onerror=function(){
+    button.disabled=false;
+    button.textContent='Importar';
+    status.textContent='No se pudo leer el archivo';
+    alert('No se pudo leer el archivo seleccionado.');
+  };
+  reader.onload=function(){
+    var dataUrl=String(reader.result||'');
+    var separator=dataUrl.indexOf(',');
+    if(separator===-1)return reader.onerror();
+
+    status.textContent='Subiendo archivo...';
+    var request=new XMLHttpRequest();
+    request.open('POST','/api/clients/'+clientSlug+'/workers/import');
+    request.setRequestHeader('Content-Type','application/json');
+    if(token)request.setRequestHeader('Authorization','Bearer '+token);
+    request.onload=function(){
+      button.disabled=false;
+      button.textContent='Importar';
+      var result={};
+      try{result=JSON.parse(request.responseText||'{}');}catch(ignore){}
+      if(request.status<200||request.status>=300){
+        var message=result.detail||('Error del servidor ('+request.status+')');
+        status.textContent='Error: '+message;
+        alert('No se pudo importar el archivo:\n\n'+message);
+        return;
+      }
+      if(result.errors&&result.errors.length){
+        status.textContent='El archivo contiene errores';
+        alert('No se importo ningun jornal:\n\n'+result.errors.slice(0,20).join('\n'));
+        return;
+      }
+      status.textContent='Importados '+result.created+' nuevos, '+result.updated+' actualizados';
+      alert('Importacion terminada.\n\nNuevos: '+result.created+'\nActualizados: '+result.updated);
+      location.reload();
+    };
+    request.onerror=function(){
+      button.disabled=false;
+      button.textContent='Importar';
+      status.textContent='Error de conexion';
+      alert('No se pudo conectar con el servidor para importar.');
+    };
+    request.send(JSON.stringify({filename:file.name,content_base64:dataUrl.slice(separator+1)}));
+  };
+  reader.readAsDataURL(file);
+};
+</script>
+<script>
 (function(){
   var token=localStorage.getItem('cj_token')||'';
   var clientSlugByKey={
@@ -2130,6 +2243,7 @@ renderEventos();renderEmps();
   var shiftFromApi={before:'antes',during:'durante',after:'despues'};
   var originalEnterClient=window.enterClient;
   var evEditId=null;
+  var periodEditId=null;
   var currentPersonType='jornal';
   var empSearch='', empSortKey='nombre', empSortDir=1, empFilterType='', empFilterOrigin='', empFilterArea='', empFilterStatus='', dashboardEventFilter='';
   var stadiumKeys={ollamani:true,estadioazul:true};
@@ -2258,6 +2372,91 @@ renderEventos();renderEmps();
   function currentPayrollPeriod(){
     return payrollPeriods.find(function(p){return String(p.id)===String(selectedPayrollPeriodId);})||null;
   }
+  function periodTypeLabel(type){
+    return type==='quincenal'?'Quincenal':'Semanal';
+  }
+  function periodPayload(){
+    return {
+      period_code:document.getElementById('period-code').value.trim()||null,
+      period_type:document.getElementById('period-type').value,
+      name:document.getElementById('period-name').value.trim(),
+      start_date:document.getElementById('period-start').value,
+      end_date:document.getElementById('period-end').value,
+      year:parseInt(document.getElementById('period-year').value,10)||2026
+    };
+  }
+  function resetPeriodForm(){
+    periodEditId=null;
+    document.getElementById('period-form-title').textContent='NUEVO PERIODO';
+    document.getElementById('period-type').value='semanal';
+    document.getElementById('period-name').value='';
+    document.getElementById('period-code').value='';
+    document.getElementById('period-start').value='';
+    document.getElementById('period-end').value='';
+    document.getElementById('period-year').value='2026';
+  }
+  window.openPeriodForm=function(id){
+    resetPeriodForm();
+    if(id!=null){
+      var p=payrollPeriods.find(function(item){return item.id===id;});
+      if(p){
+        periodEditId=id;
+        document.getElementById('period-form-title').textContent='EDITAR PERIODO';
+        document.getElementById('period-type').value=periodType(p)||'semanal';
+        document.getElementById('period-name').value=p.name||'';
+        document.getElementById('period-code').value=p.period_code||'';
+        document.getElementById('period-start').value=p.start_date||'';
+        document.getElementById('period-end').value=p.end_date||'';
+        document.getElementById('period-year').value=p.year||2026;
+      }
+    }
+    document.getElementById('form-period').style.display='block';
+  };
+  window.cancelPeriodForm=function(){
+    resetPeriodForm();
+    document.getElementById('form-period').style.display='none';
+  };
+  window.renderPeriodos=function(){
+    var tbody=document.getElementById('period-tbody');
+    if(!tbody)return;
+    var count=document.getElementById('period-count');
+    if(count)count.textContent=payrollPeriods.length;
+    tbody.innerHTML=payrollPeriods.map(function(p){
+      var type=periodType(p);
+      return '<tr>'
+        +'<td>'+safeTxt(periodTypeLabel(type))+'</td>'
+        +'<td style="font-weight:600">'+safeTxt(p.name)+'</td>'
+        +'<td>'+safeTxt(p.period_code||'--')+'</td>'
+        +'<td>'+safeTxt(fdate(p.start_date))+'</td>'
+        +'<td>'+safeTxt(fdate(p.end_date))+'</td>'
+        +'<td>'+safeTxt(p.year)+'</td>'
+        +'<td style="text-align:right"><div style="display:flex;gap:6px;justify-content:flex-end;flex-wrap:wrap">'
+        +'<button class="btn-danger" onclick="openPeriodForm('+p.id+')">Editar</button>'
+        +'<button class="btn-danger" onclick="deletePeriod('+p.id+')">Eliminar</button>'
+        +'</div></td>'
+        +'</tr>';
+    }).join('')||'<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:28px">Sin periodos registrados.</td></tr>';
+  };
+  window.savePeriod=function(){
+    var payload=periodPayload();
+    if(!payload.name){toast('Captura el nombre del periodo');return;}
+    if(!payload.start_date||!payload.end_date){toast('Captura fecha inicio y fin');return;}
+    if(payload.end_date<payload.start_date){toast('La fecha fin no puede ser menor que la fecha inicio');return;}
+    api('/api/payroll-periods'+(periodEditId?'/'+periodEditId:''),{
+      method:periodEditId?'PUT':'POST',
+      body:JSON.stringify(payload)
+    }).then(function(){
+      toast(periodEditId?'Periodo actualizado':'Periodo creado');
+      cancelPeriodForm();
+      return reloadPayrollPeriods();
+    }).catch(function(e){toast('Error API: '+e.message);});
+  };
+  window.deletePeriod=function(id){
+    if(!confirm('Eliminar este periodo?'))return;
+    api('/api/payroll-periods/'+id,{method:'DELETE'})
+      .then(function(){toast('Periodo eliminado');return reloadPayrollPeriods();})
+      .catch(function(e){toast('Error API: '+e.message);});
+  };
   function eventInPayrollPeriod(ev,period){
     if(!period)return true;
     return ev.fecha>=period.start_date&&ev.fecha<=period.end_date;
@@ -2296,6 +2495,17 @@ renderEventos();renderEmps();
     if(selEv&&!eventos.some(function(ev){return ev.id===selEv.id;}))selEv=null;
     if(dashboardEventFilter&&!eventos.some(function(ev){return String(ev.id)===String(dashboardEventFilter);}))dashboardEventFilter='';
     syncPayrollPeriodControls();
+  }
+  function reloadPayrollPeriods(){
+    return api('/api/payroll-periods?year=2026').then(function(periods){
+      payrollPeriods=periods||[];
+      applyPayrollPeriodFilter();
+      renderPeriodos();
+      renderEventos();
+      updateDashboardEventFilter();
+      if(document.getElementById('view-resumen').classList.contains('active'))renderResumen();
+      if(selEv)renderTurnos();
+    });
   }
   window.setPayrollPeriod=function(value){
     selectedPayrollPeriodId=value||'';
@@ -2413,6 +2623,7 @@ renderEventos();renderEmps();
       selEv=selEv?eventos.find(function(ev){return ev.id===selEv.id;}):null;
       renderEventos();
       renderEmps();
+      renderPeriodos();
       if(selEv){
         document.getElementById('turnos-sec').style.display='block';
         document.getElementById('t-ev-title').textContent=selEv.nombre.toUpperCase();
@@ -3220,43 +3431,6 @@ renderEventos();renderEmps();
     a.download=(currentClientKey?CLIENTS[currentClientKey].slug:'demo')+'_layout_jornales.xls';
     a.click();
     toast('Layout descargado');
-  };
-
-  function fileToBase64(file){
-    return new Promise(function(resolve,reject){
-      var reader=new FileReader();
-      reader.onload=function(){
-        var bytes=new Uint8Array(reader.result);
-        var binary='';
-        for(var i=0;i<bytes.byteLength;i+=1)binary+=String.fromCharCode(bytes[i]);
-        resolve(btoa(binary));
-      };
-      reader.onerror=function(){reject(new Error('No se pudo leer el archivo'));};
-      reader.readAsArrayBuffer(file);
-    });
-  }
-
-  window.importJornalesExcel=function(input){
-    var file=input.files&&input.files[0];
-    if(!file)return;
-    fileToBase64(file).then(function(content){
-      return api('/api/clients/'+slug()+'/workers/import',{
-        method:'POST',
-        body:JSON.stringify({filename:file.name,content_base64:content})
-      });
-    }).then(function(result){
-      input.value='';
-      if(result.errors&&result.errors.length){
-        toast('No se importo: revisa errores del layout');
-        alert('No se importo ningun jornal porque el archivo tiene errores:\n\n'+result.errors.slice(0,20).join('\n'));
-        return;
-      }
-      toast('Importados '+result.created+' nuevos, '+result.updated+' actualizados');
-      return loadClientData();
-    }).catch(function(e){
-      input.value='';
-      toast('Error importando: '+e.message);
-    });
   };
 
   window.toggleTurnoCard=function(key){

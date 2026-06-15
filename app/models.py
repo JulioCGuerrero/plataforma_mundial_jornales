@@ -67,7 +67,7 @@ class Worker(TimestampMixin, Base):
     social: Mapped[str | None] = mapped_column(String(120))
     bank: Mapped[str | None] = mapped_column(String(120))
     account_number: Mapped[str | None] = mapped_column(String(80))
-    clabe: Mapped[str | None] = mapped_column(String(18))
+    clabe: Mapped[str | None] = mapped_column(String(80))
     ine_filename: Mapped[str | None] = mapped_column(String(255))
     ine_gcs_uri: Mapped[str | None] = mapped_column(String(500))
     edited: Mapped[bool] = mapped_column(Boolean, default=False)

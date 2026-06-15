@@ -34,7 +34,7 @@ class WorkerIn(BaseModel):
     social: str | None = None
     bank: str | None = None
     account_number: str | None = None
-    clabe: str | None = Field(default=None, max_length=18)
+    clabe: str | None = Field(default=None, max_length=80)
     ine_filename: str | None = None
     vetoed: bool = False
     veto_date: date | None = None
@@ -108,6 +108,15 @@ class PayrollPeriodOut(BaseModel):
     start_date: date
     end_date: date
     year: int
+
+
+class PayrollPeriodIn(BaseModel):
+    period_code: str | None = Field(default=None, max_length=80)
+    period_type: str = Field(pattern="^(semanal|quincenal)$")
+    name: str = Field(min_length=1, max_length=180)
+    start_date: date
+    end_date: date
+    year: int = 2026
 
 
 class AssignmentIn(BaseModel):

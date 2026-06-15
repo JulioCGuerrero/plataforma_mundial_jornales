@@ -2,6 +2,7 @@ import base64
 import csv
 import html
 import io
+import posixpath
 import re
 import zipfile
 from datetime import date, datetime, timedelta
@@ -15,7 +16,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from sqlalchemy import case, func, select, text
-from sqlalchemy.exc import IntegrityError
+from sqlalchemy.exc import DataError, IntegrityError
 from sqlalchemy.orm import Session, joinedload
 
 from app.config import get_settings
@@ -28,6 +29,7 @@ from app.schemas import (
     EventIn,
     EventOut,
     LoginIn,
+    PayrollPeriodIn,
     PayrollPeriodOut,
     SummaryOut,
     SummaryRow,
@@ -89,6 +91,7 @@ def ensure_worker_columns() -> None:
         "ALTER TABLE workers ADD COLUMN IF NOT EXISTS veto_reason TEXT",
         "ALTER TABLE workers ADD COLUMN IF NOT EXISTS veto_cleared_date DATE",
         "ALTER TABLE workers ADD COLUMN IF NOT EXISTS veto_cleared_reason TEXT",
+        "ALTER TABLE workers ALTER COLUMN clabe TYPE VARCHAR(80)",
     ]
     with SessionLocal() as db:
         for statement in statements:
@@ -228,6 +231,40 @@ def parse_html_table_rows(content: bytes) -> list[list[str]]:
     return parser.rows
 
 
+def parse_xlsx_sheet_rows(workbook: zipfile.ZipFile, sheet_path: str, shared_strings: list[str]) -> list[list[str]]:
+    namespaces = {
+        "main": "http://schemas.openxmlformats.org/spreadsheetml/2006/main",
+    }
+    sheet_root = ElementTree.fromstring(workbook.read(sheet_path))
+    rows: list[list[str]] = []
+    for row in sheet_root.findall(".//main:sheetData/main:row", namespaces):
+        values_by_col: dict[int, str] = {}
+        for cell in row.findall("main:c", namespaces):
+            ref = cell.attrib.get("r", "")
+            match = re.match(r"([A-Z]+)", ref)
+            col_idx = 0
+            if match:
+                for char in match.group(1):
+                    col_idx = col_idx * 26 + ord(char) - ord("A") + 1
+                col_idx -= 1
+            cell_type = cell.attrib.get("t")
+            inline_text = cell.find("main:is/main:t", namespaces)
+            raw_value = cell.findtext("main:v", default="", namespaces=namespaces)
+            if cell_type == "s" and raw_value:
+                try:
+                    value = shared_strings[int(raw_value)]
+                except (IndexError, ValueError):
+                    value = ""
+            elif cell_type == "inlineStr" and inline_text is not None:
+                value = inline_text.text or ""
+            else:
+                value = raw_value
+            values_by_col[col_idx] = cell_text(value)
+        if values_by_col:
+            rows.append([values_by_col.get(index, "") for index in range(max(values_by_col) + 1)])
+    return rows
+
+
 def parse_xlsx_rows(content: bytes) -> list[list[str]]:
     namespaces = {
         "main": "http://schemas.openxmlformats.org/spreadsheetml/2006/main",
@@ -242,47 +279,41 @@ def parse_xlsx_rows(content: bytes) -> list[list[str]]:
                 shared_strings.append("".join(parts))
 
         workbook_root = ElementTree.fromstring(workbook.read("xl/workbook.xml"))
-        first_sheet = workbook_root.find("main:sheets/main:sheet", namespaces)
-        if first_sheet is None:
+        sheets = workbook_root.findall("main:sheets/main:sheet", namespaces)
+        if not sheets:
             return []
-        relationship_id = first_sheet.attrib.get("{http://schemas.openxmlformats.org/officeDocument/2006/relationships}id")
         rels_root = ElementTree.fromstring(workbook.read("xl/_rels/workbook.xml.rels"))
-        target = None
+        targets_by_id: dict[str, str] = {}
         for rel in rels_root.findall("rel:Relationship", namespaces):
-            if rel.attrib.get("Id") == relationship_id:
-                target = rel.attrib.get("Target")
-                break
-        if not target:
-            return []
-        sheet_path = "xl/" + target.lstrip("/")
-        sheet_root = ElementTree.fromstring(workbook.read(sheet_path))
-        rows: list[list[str]] = []
-        for row in sheet_root.findall(".//main:sheetData/main:row", namespaces):
-            values_by_col: dict[int, str] = {}
-            for cell in row.findall("main:c", namespaces):
-                ref = cell.attrib.get("r", "")
-                match = re.match(r"([A-Z]+)", ref)
-                col_idx = 0
-                if match:
-                    for char in match.group(1):
-                        col_idx = col_idx * 26 + ord(char) - ord("A") + 1
-                    col_idx -= 1
-                cell_type = cell.attrib.get("t")
-                inline_text = cell.find("main:is/main:t", namespaces)
-                raw_value = cell.findtext("main:v", default="", namespaces=namespaces)
-                if cell_type == "s" and raw_value:
-                    try:
-                        value = shared_strings[int(raw_value)]
-                    except (IndexError, ValueError):
-                        value = ""
-                elif cell_type == "inlineStr" and inline_text is not None:
-                    value = inline_text.text or ""
-                else:
-                    value = raw_value
-                values_by_col[col_idx] = cell_text(value)
-            if values_by_col:
-                rows.append([values_by_col.get(index, "") for index in range(max(values_by_col) + 1)])
-        return rows
+            rel_id = rel.attrib.get("Id")
+            target = rel.attrib.get("Target")
+            if rel_id and target:
+                targets_by_id[rel_id] = target
+
+        relationship_key = "{http://schemas.openxmlformats.org/officeDocument/2006/relationships}id"
+        preferred = sorted(
+            sheets,
+            key=lambda sheet: 0
+            if any(word in sheet.attrib.get("name", "").lower() for word in ("layout", "import"))
+            else 1,
+        )
+        fallback_rows: list[list[str]] = []
+        for sheet in preferred:
+            target = targets_by_id.get(sheet.attrib.get(relationship_key, ""))
+            if not target:
+                continue
+            if target.startswith("/"):
+                sheet_path = target.lstrip("/")
+            else:
+                sheet_path = posixpath.normpath(posixpath.join("xl", target))
+            rows = parse_xlsx_sheet_rows(workbook, sheet_path, shared_strings)
+            if not fallback_rows:
+                fallback_rows = rows
+            if rows:
+                header = [cell_text(cell) for cell in rows[0][: len(WORKER_IMPORT_HEADERS)]]
+                if header == WORKER_IMPORT_HEADERS and len(rows[0]) >= len(WORKER_IMPORT_HEADERS):
+                    return rows
+        return fallback_rows
 
 
 def parse_worker_import_rows(filename: str, content: bytes) -> list[list[str]]:
@@ -305,7 +336,14 @@ def normalize_worker_type(value: str) -> str:
 
 @app.get("/", include_in_schema=False)
 def index() -> FileResponse:
-    return FileResponse(STATIC_DIR / "index.html")
+    return FileResponse(
+        STATIC_DIR / "index.html",
+        headers={
+            "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0",
+            "Pragma": "no-cache",
+            "Expires": "0",
+        },
+    )
 
 
 @app.get("/healthz")
@@ -337,6 +375,58 @@ def list_payroll_periods(
         .order_by(PayrollPeriod.start_date, PayrollPeriod.id)
         .all()
     )
+
+
+@app.post("/api/payroll-periods", response_model=PayrollPeriodOut)
+def create_payroll_period(
+    payload: PayrollPeriodIn, _: User = Depends(current_user), db: Session = Depends(get_db)
+) -> PayrollPeriod:
+    if payload.end_date < payload.start_date:
+        raise HTTPException(status_code=400, detail="La fecha fin no puede ser menor que la fecha inicio")
+    source_id = f"manual-{payload.year}-{payload.period_type}-{payload.start_date.isoformat()}"
+    existing = db.query(PayrollPeriod).filter(PayrollPeriod.source_id == source_id).first()
+    if existing and existing.active:
+        raise HTTPException(status_code=409, detail="Ya existe un periodo manual con esa fecha de inicio")
+    period = existing or PayrollPeriod(source_id=source_id)
+    period.period_code = payload.period_code or None
+    period.period_type = payload.period_type
+    period.name = payload.name
+    period.start_date = payload.start_date
+    period.end_date = payload.end_date
+    period.year = payload.year
+    period.active = True
+    db.add(period)
+    db.commit()
+    db.refresh(period)
+    return period
+
+
+@app.put("/api/payroll-periods/{period_id}", response_model=PayrollPeriodOut)
+def update_payroll_period(
+    period_id: int, payload: PayrollPeriodIn, _: User = Depends(current_user), db: Session = Depends(get_db)
+) -> PayrollPeriod:
+    if payload.end_date < payload.start_date:
+        raise HTTPException(status_code=400, detail="La fecha fin no puede ser menor que la fecha inicio")
+    period = get_period_or_404(db, period_id)
+    period.period_code = payload.period_code or None
+    period.period_type = payload.period_type
+    period.name = payload.name
+    period.start_date = payload.start_date
+    period.end_date = payload.end_date
+    period.year = payload.year
+    db.commit()
+    db.refresh(period)
+    return period
+
+
+@app.delete("/api/payroll-periods/{period_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_payroll_period(
+    period_id: int, _: User = Depends(current_user), db: Session = Depends(get_db)
+) -> Response:
+    period = get_period_or_404(db, period_id)
+    period.active = False
+    db.commit()
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
 @app.get("/api/reports/payroll-final.csv")
@@ -579,6 +669,9 @@ def import_workers(
     except IntegrityError as exc:
         db.rollback()
         raise HTTPException(status_code=409, detail="El archivo contiene numeros de empleado duplicados") from exc
+    except DataError as exc:
+        db.rollback()
+        raise HTTPException(status_code=400, detail="El archivo contiene un valor demasiado largo") from exc
     return result
 
 
