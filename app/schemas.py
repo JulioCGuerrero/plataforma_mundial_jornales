@@ -155,3 +155,51 @@ class SummaryOut(BaseModel):
     total_shifts: int
     total_pay: Decimal
     rows: list[SummaryRow]
+
+
+class ApplicationIn(BaseModel):
+    full_name: str
+    phone: str
+    email: str | None = None
+    area: str | None = None
+    notes: str | None = None
+
+
+class ApplicationStatusIn(BaseModel):
+    status: str
+    notes: str | None = None
+
+
+class ApplicationOut(BaseModel):
+    id: int
+    event_id: int
+    token: str
+    full_name: str
+    phone: str
+    email: str | None
+    area: str | None
+    status: str
+    notes: str | None
+    ine_filename: str | None
+    ine_storage_path: str | None
+    created_at: datetime
+
+    model_config = {"from_attributes": True}
+
+
+class PublicEventOut(BaseModel):
+    id: int
+    name: str
+    event_date: date
+    event_type: str
+    description: str | None
+    salary_during: float
+    operator_positions: int
+    supervisor_positions: int
+
+    model_config = {"from_attributes": True}
+
+
+class PublicApplyOut(BaseModel):
+    id: int
+    token: str

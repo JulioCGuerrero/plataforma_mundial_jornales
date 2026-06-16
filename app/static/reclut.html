@@ -1,0 +1,1015 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Reclutamiento · Batia</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#060c18;--bg2:#080f1e;--surface:rgba(255,255,255,.04);--surface2:rgba(255,255,255,.07);
+  --border:rgba(255,255,255,.08);--border2:rgba(255,255,255,.13);
+  --text:#e8eaf0;--muted:rgba(232,234,240,.5);--muted2:rgba(232,234,240,.28);
+  --green:#2ecc71;--green-dim:rgba(46,204,113,.13);--green-border:rgba(46,204,113,.25);
+  --red:#e74c3c;--red-dim:rgba(231,76,60,.13);
+  --yellow:#f39c12;--yellow-dim:rgba(243,156,18,.13);
+  --blue:#5bb8f5;
+  --radius:14px;--radius-sm:10px;
+  --sidebar:340px;
+}
+body{background:var(--bg);color:var(--text);font-family:'Inter',system-ui,sans-serif;font-size:14px;min-height:100vh;-webkit-font-smoothing:antialiased}
+
+/* ════════════════════════════════
+   LOGIN
+════════════════════════════════ */
+#login-screen{
+  min-height:100vh;display:flex;align-items:center;justify-content:center;
+  background:linear-gradient(145deg,#060c18 0%,#071510 55%,#060c18 100%);
+  position:relative;overflow:hidden;
+}
+#login-screen::before{
+  content:'';position:absolute;width:600px;height:600px;top:-150px;left:50%;transform:translateX(-50%);
+  background:radial-gradient(circle,rgba(46,204,113,.08),transparent 70%);pointer-events:none;
+}
+.login-box{
+  width:380px;background:rgba(255,255,255,.03);border:1px solid var(--border2);
+  border-radius:24px;padding:44px 36px;text-align:center;position:relative;z-index:1;
+  box-shadow:0 32px 80px rgba(0,0,0,.4);
+}
+.login-logo{width:110px;margin-bottom:6px}
+.login-module{
+  font-family:'Barlow Condensed',sans-serif;font-size:28px;font-weight:800;
+  letter-spacing:3px;text-transform:uppercase;color:var(--green);margin-bottom:28px;
+  display:block;
+}
+.login-field{position:relative;margin-bottom:12px}
+.login-field input{
+  width:100%;background:rgba(255,255,255,.05);border:1.5px solid var(--border);
+  border-radius:var(--radius-sm);color:var(--text);font-size:14px;padding:13px 16px;
+  outline:none;transition:border-color .2s,background .2s;font-family:inherit;
+}
+.login-field input:focus{border-color:var(--green);background:rgba(46,204,113,.04)}
+.login-field input::placeholder{color:var(--muted2)}
+.btn-login{
+  width:100%;background:var(--green);color:#060c18;border:none;border-radius:var(--radius-sm);
+  font-size:14px;font-weight:700;padding:14px;cursor:pointer;margin-top:4px;
+  transition:opacity .2s,transform .1s;font-family:inherit;letter-spacing:.3px;
+}
+.btn-login:hover{opacity:.88}
+.btn-login:active{transform:scale(.98)}
+.login-error{color:var(--red);font-size:12px;margin-top:10px;display:none;font-weight:500}
+.login-back{
+  display:block;margin-top:20px;font-size:11px;font-weight:700;letter-spacing:1.2px;
+  text-transform:uppercase;color:var(--muted2);text-decoration:none;transition:color .2s;
+}
+.login-back:hover{color:var(--muted)}
+
+/* ════════════════════════════════
+   CLIENTS
+════════════════════════════════ */
+#clients-screen{
+  display:none;min-height:100vh;
+  background:linear-gradient(145deg,#060c18,#071510,#060c18);
+  padding:0;
+}
+.clients-top{
+  padding:40px 40px 0;text-align:center;
+}
+.clients-top img{height:32px;margin-bottom:16px}
+.clients-heading{
+  font-family:'Bebas Neue',sans-serif;font-size:44px;letter-spacing:2px;
+  color:var(--text);line-height:1;margin-bottom:6px;
+}
+.clients-sub{font-size:13px;color:var(--muted);margin-bottom:36px;font-family:'Barlow Condensed',sans-serif;font-size:16px;letter-spacing:.5px}
+.clients-grid{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));
+  gap:14px;max-width:900px;margin:0 auto;padding:0 40px 40px;
+}
+.cl-card{
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+  padding:28px 22px;text-align:center;cursor:pointer;
+  transition:border-color .2s,transform .18s,background .2s;position:relative;overflow:hidden;
+}
+.cl-card::after{
+  content:'→';position:absolute;bottom:14px;right:18px;font-size:16px;
+  color:var(--muted2);transition:color .2s,transform .2s;
+}
+.cl-card:hover{border-color:var(--green-border);transform:translateY(-3px);background:var(--green-dim)}
+.cl-card:hover::after{color:var(--green);transform:translateX(3px)}
+.cl-icon{font-size:28px;margin-bottom:12px}
+.cl-card h3{font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:700;letter-spacing:.5px;margin-bottom:3px}
+.cl-card p{font-size:12px;color:var(--muted)}
+.clients-footer{text-align:center;padding-bottom:32px}
+
+/* ════════════════════════════════
+   APP HEADER
+════════════════════════════════ */
+#app{display:none;min-height:100vh;flex-direction:column}
+.app-header{
+  display:flex;align-items:center;gap:16px;padding:0 28px;height:58px;
+  background:rgba(6,12,24,.97);border-bottom:1px solid var(--border);
+  position:sticky;top:0;z-index:200;backdrop-filter:blur(12px);flex-shrink:0;
+}
+.app-logo{height:24px}
+.header-divider{width:1px;height:20px;background:var(--border);flex-shrink:0}
+.header-badge{
+  font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;
+  letter-spacing:2px;text-transform:uppercase;color:var(--green);
+  background:var(--green-dim);border:1px solid var(--green-border);
+  padding:3px 10px;border-radius:999px;white-space:nowrap;
+}
+.header-client{
+  flex:1;font-family:'Barlow Condensed',sans-serif;font-size:18px;
+  font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--text);
+}
+.btn-hd{
+  background:transparent;border:1px solid var(--border);color:var(--muted);
+  border-radius:8px;padding:6px 14px;font-size:12px;cursor:pointer;
+  transition:border-color .2s,color .2s;font-family:inherit;white-space:nowrap;
+  text-decoration:none;display:inline-flex;align-items:center;gap:5px;
+}
+.btn-hd:hover{border-color:var(--green-border);color:var(--green)}
+
+/* ════════════════════════════════
+   TWO-COLUMN LAYOUT
+════════════════════════════════ */
+.app-body{display:flex;flex:1;min-height:0;overflow:hidden}
+
+/* LEFT SIDEBAR */
+.sidebar{
+  width:var(--sidebar);flex-shrink:0;border-right:1px solid var(--border);
+  display:flex;flex-direction:column;overflow:hidden;background:var(--bg2);
+}
+.sidebar-header{
+  padding:20px 20px 14px;border-bottom:1px solid var(--border);flex-shrink:0;
+  display:flex;align-items:center;gap:10px;
+}
+.sidebar-title{
+  font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;
+  letter-spacing:1px;text-transform:uppercase;color:var(--muted);flex:1;
+}
+.sidebar-scroll{flex:1;overflow-y:auto;padding:14px}
+.sidebar-scroll::-webkit-scrollbar{width:4px}
+.sidebar-scroll::-webkit-scrollbar-track{background:transparent}
+.sidebar-scroll::-webkit-scrollbar-thumb{background:var(--border2);border-radius:4px}
+
+/* NEW CONV FORM */
+.new-form{
+  background:rgba(46,204,113,.05);border:1px solid var(--green-border);
+  border-radius:var(--radius-sm);padding:16px;margin-bottom:14px;
+  display:none;animation:slideDown .2s ease;
+}
+@keyframes slideDown{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
+.form-row.full{grid-template-columns:1fr}
+.f-label{font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--muted);margin-bottom:4px;display:block}
+.f-input{
+  width:100%;background:rgba(255,255,255,.06);border:1px solid var(--border);
+  border-radius:7px;color:var(--text);font-size:13px;padding:8px 10px;
+  outline:none;transition:border-color .2s;font-family:inherit;
+}
+.f-input:focus{border-color:var(--green)}
+.f-input::placeholder{color:var(--muted2)}
+select.f-input option{background:#0d1b2a}
+textarea.f-input{resize:vertical;min-height:56px}
+.form-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:10px}
+
+/* EVENT CARDS (sidebar) */
+.ev-item{
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);
+  padding:14px 16px;margin-bottom:8px;cursor:pointer;transition:all .18s;position:relative;
+}
+.ev-item:hover{border-color:var(--green-border);background:var(--green-dim)}
+.ev-item.selected{border-color:var(--green);background:var(--green-dim)}
+.ev-item.selected::before{
+  content:'';position:absolute;left:0;top:0;bottom:0;width:3px;
+  background:var(--green);border-radius:3px 0 0 3px;
+}
+.ev-item-name{font-size:14px;font-weight:700;margin-bottom:4px;line-height:1.2}
+.ev-item-meta{font-size:11px;color:var(--muted);margin-bottom:10px}
+.ev-item-footer{display:flex;align-items:center;justify-content:space-between}
+.ev-item-count{
+  font-size:11px;font-weight:700;color:var(--muted);
+  display:flex;align-items:center;gap:5px;
+}
+.ev-item-count .dot{width:5px;height:5px;border-radius:50%;background:var(--muted2)}
+.ev-item-count.has-apps .dot{background:var(--green);box-shadow:0 0 6px var(--green)}
+.ev-item-count.has-apps{color:var(--green)}
+.ev-item-actions{display:flex;gap:5px}
+.wa-pill{
+  font-size:10px;font-weight:700;padding:2px 8px;border-radius:999px;
+  background:rgba(46,204,113,.1);color:var(--green);border:1px solid var(--green-border);
+}
+.wa-pill.none{background:rgba(255,255,255,.04);color:var(--muted2);border-color:var(--border)}
+
+/* RIGHT MAIN */
+.main{flex:1;overflow-y:auto;display:flex;flex-direction:column}
+.main::-webkit-scrollbar{width:4px}
+.main::-webkit-scrollbar-thumb{background:var(--border2);border-radius:4px}
+
+.main-empty{
+  flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:14px;color:var(--muted2);
+}
+.main-empty-icon{font-size:48px;opacity:.3}
+.main-empty h3{font-size:16px;font-weight:600;color:var(--muted)}
+.main-empty p{font-size:13px;text-align:center;max-width:280px;line-height:1.6}
+
+/* EVENT HEADER */
+.ev-header{
+  padding:20px 28px 0;border-bottom:1px solid var(--border);flex-shrink:0;
+  background:linear-gradient(180deg,rgba(46,204,113,.05),transparent);
+}
+.ev-header-top{display:flex;align-items:flex-start;gap:16px;margin-bottom:16px}
+.ev-header-info{flex:1}
+.ev-header-type{
+  font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;
+  color:var(--green);margin-bottom:5px;
+}
+.ev-header-name{
+  font-family:'Barlow Condensed',sans-serif;font-size:26px;font-weight:800;
+  letter-spacing:.5px;line-height:1;margin-bottom:4px;
+}
+.ev-header-meta{font-size:12px;color:var(--muted)}
+.ev-header-actions{display:flex;gap:8px;flex-shrink:0;flex-wrap:wrap}
+
+/* STATS STRIP */
+.stats-strip{
+  display:flex;border-bottom:1px solid var(--border);
+  background:rgba(255,255,255,.02);flex-shrink:0;
+}
+.stat-box{
+  flex:1;padding:14px 20px;border-right:1px solid var(--border);text-align:center;
+}
+.stat-box:last-child{border-right:none}
+.stat-num{
+  font-family:'Barlow Condensed',sans-serif;font-size:28px;font-weight:800;
+  line-height:1;margin-bottom:3px;
+}
+.stat-lbl{font-size:10px;font-weight:600;letter-spacing:.8px;text-transform:uppercase;color:var(--muted)}
+.stat-box.s-total .stat-num{color:var(--text)}
+.stat-box.s-pending .stat-num{color:var(--yellow)}
+.stat-box.s-approved .stat-num{color:var(--green)}
+.stat-box.s-rejected .stat-num{color:var(--red)}
+
+/* APPLICANTS */
+.apps-toolbar{
+  display:flex;align-items:center;gap:8px;padding:14px 20px;
+  border-bottom:1px solid var(--border);flex-shrink:0;flex-wrap:wrap;
+}
+.filt-pill{
+  border:1px solid var(--border);background:transparent;color:var(--muted);
+  border-radius:999px;padding:5px 14px;font-size:12px;font-weight:600;
+  cursor:pointer;transition:all .18s;font-family:inherit;white-space:nowrap;
+}
+.filt-pill.active{background:var(--green);border-color:var(--green);color:#060c18}
+.filt-pill:hover:not(.active){border-color:var(--border2);color:var(--text)}
+.toolbar-sep{flex:1}
+
+.apps-list{flex:1;padding:8px 12px}
+
+.app-row{
+  display:flex;align-items:center;gap:12px;padding:11px 14px;
+  border-radius:10px;border:1px solid transparent;transition:all .15s;
+}
+.app-row:hover{background:var(--surface);border-color:var(--border)}
+.app-av{
+  width:40px;height:40px;border-radius:50%;display:flex;align-items:center;
+  justify-content:center;font-size:13px;font-weight:800;flex-shrink:0;
+  font-family:'Barlow Condensed',sans-serif;letter-spacing:.5px;
+}
+.app-info{flex:1;min-width:0}
+.app-name{font-size:14px;font-weight:600;margin-bottom:2px}
+.app-detail{font-size:11px;color:var(--muted)}
+.app-ine{
+  font-size:10px;font-weight:700;padding:2px 7px;border-radius:5px;
+  background:rgba(91,184,245,.1);color:var(--blue);border:1px solid rgba(91,184,245,.2);
+  text-decoration:none;white-space:nowrap;
+}
+.status-pill{
+  font-size:10px;font-weight:700;padding:3px 10px;border-radius:999px;white-space:nowrap;
+}
+.status-pill.pending{background:var(--yellow-dim);color:var(--yellow)}
+.status-pill.approved{background:var(--green-dim);color:var(--green)}
+.status-pill.rejected{background:var(--red-dim);color:var(--red)}
+.app-actions{display:flex;gap:5px;flex-shrink:0}
+
+/* ════════════════════════════════
+   BUTTONS
+════════════════════════════════ */
+.btn{
+  display:inline-flex;align-items:center;gap:6px;border:none;border-radius:8px;
+  font-size:13px;font-weight:600;padding:8px 14px;cursor:pointer;
+  transition:opacity .18s,transform .1s;font-family:inherit;white-space:nowrap;
+}
+.btn:hover{opacity:.85}
+.btn:active{transform:scale(.97)}
+.btn-green{background:var(--green);color:#060c18}
+.btn-outline{background:transparent;border:1px solid var(--border);color:var(--text)}
+.btn-outline:hover{border-color:var(--green-border);color:var(--green)}
+.btn-danger{background:var(--red-dim);border:1px solid rgba(231,76,60,.25);color:var(--red)}
+.btn-sm{padding:6px 12px;font-size:12px}
+.btn-xs{padding:4px 9px;font-size:11px;border-radius:6px}
+
+/* ════════════════════════════════
+   MODAL WA
+════════════════════════════════ */
+.modal-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,.75);display:none;
+  align-items:center;justify-content:center;z-index:500;padding:20px;
+  backdrop-filter:blur(4px);
+}
+.modal-box{
+  background:#0b1627;border:1px solid var(--border2);border-radius:20px;
+  padding:32px;width:100%;max-width:480px;box-shadow:0 40px 100px rgba(0,0,0,.5);
+}
+.modal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+.modal-title{font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:800;letter-spacing:.5px}
+.modal-close{background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer;padding:0;line-height:1}
+.modal-close:hover{color:var(--text)}
+.modal-label{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:8px;display:block}
+.modal-preview{
+  background:rgba(46,204,113,.05);border:1px solid var(--green-border);
+  border-radius:10px;padding:14px 16px;font-size:13px;line-height:1.7;
+  margin-bottom:16px;
+}
+.modal-textarea{
+  width:100%;background:rgba(255,255,255,.05);border:1px solid var(--border);
+  border-radius:10px;color:var(--text);font-size:13px;padding:10px 14px;
+  outline:none;resize:vertical;min-height:80px;font-family:inherit;
+  transition:border-color .2s;margin-bottom:0;
+}
+.modal-textarea:focus{border-color:var(--green)}
+.modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:16px}
+
+/* ════════════════════════════════
+   TOAST
+════════════════════════════════ */
+#toast{
+  position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(16px);
+  background:#0f2035;border:1px solid var(--green-border);color:var(--text);
+  padding:10px 20px;border-radius:10px;font-size:13px;font-weight:500;
+  opacity:0;transition:opacity .3s,transform .3s;z-index:9999;
+  pointer-events:none;white-space:nowrap;
+}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+.empty-state{
+  padding:48px 20px;text-align:center;color:var(--muted2);font-size:13px;
+}
+
+/* demo */
+.btn-demo{
+  display:block;width:100%;background:transparent;border:1px dashed var(--border2);
+  color:var(--muted);border-radius:var(--radius-sm);font-size:13px;font-weight:600;
+  padding:11px;cursor:pointer;margin-top:10px;transition:border-color .2s,color .2s;
+  font-family:inherit;
+}
+.btn-demo:hover{border-color:rgba(91,184,245,.4);color:var(--blue)}
+.demo-banner{
+  background:rgba(91,184,245,.08);border-bottom:1px solid rgba(91,184,245,.18);
+  padding:6px 18px;font-size:11px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;
+  color:var(--blue);text-align:center;flex-shrink:0;
+}
+
+/* ════════════════════════════════
+   MOBILE
+════════════════════════════════ */
+@media(max-width:768px){
+  :root{--sidebar:100%}
+  .app-body{flex-direction:column;overflow:visible}
+  .sidebar{width:100%;border-right:none;border-bottom:1px solid var(--border);max-height:none;overflow:visible}
+  .sidebar-scroll{overflow:visible;max-height:none}
+  .main{overflow:visible}
+  .stats-strip{flex-wrap:wrap}
+  .stat-box{min-width:50%;border-bottom:1px solid var(--border)}
+  .ev-header-actions{flex-wrap:wrap}
+  .app-header{padding:0 16px;gap:10px}
+  .clients-grid{padding:0 20px 40px}
+  .clients-top{padding:32px 20px 0}
+}
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════
+     LOGIN
+══════════════════════════════ -->
+<div id="login-screen">
+  <div class="login-box">
+    <img src="/static/img/batia-logo-42f9b37669026fca5e82ece04481469a.png" class="login-logo" alt="Batia">
+    <span class="login-module">Reclutamiento</span>
+    <div class="login-field">
+      <input type="email" id="r-email" placeholder="Correo electrónico" autocomplete="email">
+    </div>
+    <div class="login-field">
+      <input type="password" id="r-pass" placeholder="Contraseña" autocomplete="current-password">
+    </div>
+    <button class="btn-login" onclick="doLogin()">Acceder al módulo</button>
+    <div class="login-error" id="r-err"></div>
+    <button class="btn-demo" onclick="enterDemoMode()">Vista previa demo →</button>
+    <a href="/" class="login-back">← Volver al portal</a>
+  </div>
+</div>
+
+<!-- ══════════════════════════════
+     CLIENTS
+══════════════════════════════ -->
+<div id="clients-screen">
+  <div class="clients-top">
+    <img src="/static/img/batia-logo-42f9b37669026fca5e82ece04481469a.png" alt="Batia">
+    <div class="clients-heading">Selecciona<br>un cliente</div>
+    <div class="clients-sub">Módulo de Reclutamiento y Convocatorias</div>
+  </div>
+  <div class="clients-grid" id="clients-grid"></div>
+  <div class="clients-footer">
+    <button class="btn btn-outline btn-sm" onclick="logout()">← Cerrar sesión</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════
+     APP
+══════════════════════════════ -->
+<div id="app">
+
+  <!-- HEADER -->
+  <header class="app-header">
+    <img src="/static/img/batia-logo-42f9b37669026fca5e82ece04481469a.png" class="app-logo">
+    <div class="header-divider"></div>
+    <span class="header-badge">Reclutamiento</span>
+    <span class="header-client" id="header-client"></span>
+    <button class="btn-hd" onclick="backToClients()">
+      <svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor"><path d="M6 1L1 5v6h3V8h4v3h3V5z" opacity=".7"/></svg>
+      Cambiar cliente
+    </button>
+    <a href="/" class="btn-hd">← Portal</a>
+    <button class="btn-hd" onclick="logout()">Salir</button>
+  </header>
+
+  <div class="demo-banner" id="demo-banner" style="display:none">Modo demo — datos de ejemplo, sin conexión a BD</div>
+
+  <!-- BODY -->
+  <div class="app-body">
+
+    <!-- ── SIDEBAR: CONVOCATORIAS ── -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <span class="sidebar-title">Convocatorias</span>
+        <button class="btn btn-green btn-sm" onclick="toggleForm()">+ Nueva</button>
+      </div>
+
+      <div class="sidebar-scroll">
+        <!-- FORM -->
+        <div id="conv-form" class="new-form">
+          <div class="form-row">
+            <div>
+              <span class="f-label">Nombre *</span>
+              <input class="f-input" type="text" id="f-nom" placeholder="Ej: Concierto Coldplay">
+            </div>
+            <div>
+              <span class="f-label">Fecha *</span>
+              <input class="f-input" type="date" id="f-fecha">
+            </div>
+          </div>
+          <div class="form-row">
+            <div>
+              <span class="f-label">Tipo</span>
+              <input class="f-input" type="text" id="f-tipo" placeholder="Concierto, Fútbol…">
+            </div>
+            <div>
+              <span class="f-label">Salario/turno $</span>
+              <input class="f-input" type="number" id="f-salario" placeholder="480">
+            </div>
+          </div>
+          <div class="form-row">
+            <div>
+              <span class="f-label">Vacantes op.</span>
+              <input class="f-input" type="number" id="f-vac-op" placeholder="0">
+            </div>
+            <div>
+              <span class="f-label">Vacantes sup.</span>
+              <input class="f-input" type="number" id="f-vac-sup" placeholder="0">
+            </div>
+          </div>
+          <div class="form-row full">
+            <div>
+              <span class="f-label">Descripción</span>
+              <textarea class="f-input" id="f-desc" placeholder="Detalles del evento…"></textarea>
+            </div>
+          </div>
+          <div class="form-actions">
+            <button class="btn btn-outline btn-sm" onclick="toggleForm()">Cancelar</button>
+            <button class="btn btn-green btn-sm" onclick="crearConvocatoria()">Guardar</button>
+          </div>
+        </div>
+
+        <!-- LIST -->
+        <div id="ev-list"></div>
+      </div>
+    </aside>
+
+    <!-- ── MAIN: POSTULANTES ── -->
+    <main class="main" id="main-panel">
+
+      <!-- empty state -->
+      <div class="main-empty" id="main-empty">
+        <div class="main-empty-icon">👥</div>
+        <h3>Selecciona una convocatoria</h3>
+        <p>Elige una convocatoria de la lista para ver y gestionar sus postulantes.</p>
+      </div>
+
+      <!-- selected event content -->
+      <div id="event-content" style="display:none;flex-direction:column;flex:1">
+
+        <!-- event header -->
+        <div class="ev-header">
+          <div class="ev-header-top">
+            <div class="ev-header-info">
+              <div class="ev-header-type" id="ev-hdr-type">Evento</div>
+              <div class="ev-header-name" id="ev-hdr-name">—</div>
+              <div class="ev-header-meta" id="ev-hdr-meta">—</div>
+            </div>
+            <div class="ev-header-actions">
+              <button class="btn btn-outline btn-sm" onclick="abrirWA()">📱 Enviar WA</button>
+              <button class="btn btn-outline btn-sm" onclick="copiarLink()">🔗 Link</button>
+              <button class="btn btn-green btn-sm" onclick="aprobarTodos()">✓ Aprobar todos</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- stats -->
+        <div class="stats-strip" id="stats-strip">
+          <div class="stat-box s-total"><div class="stat-num" id="st-total">0</div><div class="stat-lbl">Total</div></div>
+          <div class="stat-box s-pending"><div class="stat-num" id="st-pending">0</div><div class="stat-lbl">Pendientes</div></div>
+          <div class="stat-box s-approved"><div class="stat-num" id="st-approved">0</div><div class="stat-lbl">Aprobados</div></div>
+          <div class="stat-box s-rejected"><div class="stat-num" id="st-rejected">0</div><div class="stat-lbl">Rechazados</div></div>
+        </div>
+
+        <!-- toolbar -->
+        <div class="apps-toolbar">
+          <button class="filt-pill active" id="filt-todos" onclick="setFilter('todos',this)">Todos</button>
+          <button class="filt-pill" id="filt-pending" onclick="setFilter('pending',this)">Pendientes</button>
+          <button class="filt-pill" id="filt-approved" onclick="setFilter('approved',this)">Aprobados</button>
+          <button class="filt-pill" id="filt-rejected" onclick="setFilter('rejected',this)">Rechazados</button>
+          <div class="toolbar-sep"></div>
+          <button class="btn btn-outline btn-xs" onclick="seedDemo()">+ Demo</button>
+        </div>
+
+        <!-- list -->
+        <div class="apps-list" id="apps-list"></div>
+
+      </div><!-- /event-content -->
+    </main>
+
+  </div><!-- /app-body -->
+</div><!-- /app -->
+
+<!-- ══════════════════════════════
+     MODAL WA
+══════════════════════════════ -->
+<div class="modal-overlay" id="modal-wa" onclick="if(event.target===this)this.style.display='none'">
+  <div class="modal-box">
+    <div class="modal-header">
+      <span class="modal-title">📱 Simular envío WhatsApp</span>
+      <button class="modal-close" onclick="document.getElementById('modal-wa').style.display='none'">×</button>
+    </div>
+    <span class="modal-label">Vista previa del mensaje</span>
+    <div class="modal-preview" id="wa-preview"></div>
+    <span class="modal-label">Números de teléfono (uno por línea, opcional)</span>
+    <textarea class="modal-textarea" id="wa-phones" placeholder="5512345678&#10;5587654321" rows="3"></textarea>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="document.getElementById('modal-wa').style.display='none'">Cancelar</button>
+      <button class="btn btn-green" onclick="enviarWA()">Simular envío</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+(function(){
+'use strict';
+
+var token=localStorage.getItem('reclut_token')||'';
+var currentSlug='';
+var currentClientName='';
+var eventos=[];
+var selectedEventId=null;
+var applications=[];
+var appFilter='todos';
+var waLog={};
+var demoMode=false;
+
+/* ── DATOS DEMO ─────────────────────────────── */
+var DEMO_CLIENTS=[
+  {id:1,slug:'arena-cdmx',name:'Arena CDMX',subtitle:'Ciudad de México'},
+  {id:2,slug:'estadio-azul',name:'Estadio Azul',subtitle:'Ciudad de México'},
+  {id:3,slug:'ollamani',name:'Estadio Banorte',subtitle:'Culiacán, Sinaloa'},
+  {id:4,slug:'plaza-de-toros',name:'Plaza de Toros México',subtitle:'Ciudad de México'},
+  {id:5,slug:'parque-bicentenario',name:'Parque Bicentenario',subtitle:'Azcapotzalco, CDMX'},
+];
+var DEMO_EVENTS={
+  'arena-cdmx':[
+    {id:101,name:'Concierto Coldplay — Music of the Spheres',event_type:'Concierto',event_date:'2026-07-18',salary_during:580,operator_positions:320,supervisor_positions:28,description:'Producción internacional. Uniforme negro obligatorio.'},
+    {id:102,name:'Concierto Bad Bunny — Debí Tirar Más Fotos',event_type:'Concierto',event_date:'2026-08-02',salary_during:560,operator_positions:410,supervisor_positions:36,description:'Tour internacional de alta demanda.'},
+    {id:103,name:'Lucha Libre AAA — TripleMania XXXIV',event_type:'Lucha Libre',event_date:'2026-06-28',salary_during:420,operator_positions:180,supervisor_positions:15,description:'Disponibilidad 14:00–24:00 hrs.'},
+  ],
+  'estadio-azul':[
+    {id:104,name:'Clásico Nacional — América vs Chivas',event_type:'Fútbol',event_date:'2026-07-05',salary_during:480,operator_positions:240,supervisor_positions:20,description:'Partido de alta afluencia.'},
+    {id:105,name:'Copa MX — Semifinal',event_type:'Fútbol',event_date:'2026-07-22',salary_during:460,operator_positions:200,supervisor_positions:18,description:''},
+    {id:106,name:'Liga MX — Jornada 12',event_type:'Fútbol',event_date:'2026-08-09',salary_during:440,operator_positions:180,supervisor_positions:14,description:''},
+  ],
+  'ollamani':[
+    {id:107,name:'Gran Premio de México — F1 2026',event_type:'Automovilismo',event_date:'2026-10-25',salary_during:620,operator_positions:500,supervisor_positions:45,description:'Capacitación previa obligatoria.'},
+    {id:108,name:'Concierto Grupo Firme',event_type:'Concierto',event_date:'2026-07-12',salary_during:480,operator_positions:290,supervisor_positions:22,description:''},
+  ],
+  'plaza-de-toros':[
+    {id:109,name:'Corrida de Toros — Temporada Grande',event_type:'Toros',event_date:'2026-11-01',salary_during:400,operator_positions:120,supervisor_positions:10,description:''},
+    {id:110,name:'Concierto Luis Miguel',event_type:'Concierto',event_date:'2026-09-14',salary_during:520,operator_positions:350,supervisor_positions:30,description:''},
+  ],
+  'parque-bicentenario':[
+    {id:111,name:'Expo CDMX 2026',event_type:'Exposición',event_date:'2026-08-20',salary_during:380,operator_positions:150,supervisor_positions:12,description:''},
+    {id:112,name:'Festival Gastronómico',event_type:'Festival',event_date:'2026-07-26',salary_during:360,operator_positions:100,supervisor_positions:8,description:''},
+  ],
+};
+var DEMO_NAMES=['María García López','José Antonio Ramírez','Ana Martínez Torres','Carlos Rodríguez Sánchez','Laura Hernández Pérez','Pedro Soto Morales','Sofía Ramírez Cruz','Diego Torres Vega','Fernanda López Díaz','Miguel Ángel Reyes','Valeria Moreno Ruiz','Alejandro Jiménez Castillo','Daniela Flores Méndez','Roberto Álvarez Ortiz','Gabriela Muñoz Vargas','Luis Eduardo Peña','Mariana Delgado Ríos','Héctor Gutiérrez Luna','Paola Medina Aguilar','Andrés Castro Herrera','Lucía Navarro Ibáñez','Javier Fuentes Mora','Sandra Ramos Espinoza','Ernesto Vázquez Núñez','Claudia Paredes Salinas','Francisco Mendoza Trejo','Beatriz Orozco Cano','Salvador Lara Padilla'];
+var DEMO_AREAS=['Seguridad','Acomodadores','Limpieza','Taquillas','Logística','Estacionamiento','Control de acceso','Staff general'];
+var DEMO_PHONES=['55 1234 5678','55 8765 4321','56 1111 2222','55 9876 1234','56 3333 4444','55 5678 9012','56 6666 7777','55 2222 3333'];
+var DEMO_STATUSES=['pending','pending','pending','approved','approved','approved','rejected'];
+var _demoApps={};
+function _buildDemoApps(evId){
+  if(_demoApps[evId])return _demoApps[evId];
+  var r=[];var names=DEMO_NAMES.slice().sort(function(){return Math.random()-.5;});
+  var n=10+Math.floor(Math.random()*8);
+  for(var i=0;i<n;i++){
+    var st=DEMO_STATUSES[i%DEMO_STATUSES.length];
+    r.push({id:evId*100+i,event_id:evId,token:'demo'+evId+'_'+i,
+      full_name:names[i%names.length],phone:DEMO_PHONES[i%DEMO_PHONES.length],
+      area:DEMO_AREAS[i%DEMO_AREAS.length],status:st,
+      notes:null,ine_filename:null,ine_storage_path:null,
+      created_at:new Date(Date.now()-(i*86400000*2)).toISOString()});
+  }
+  _demoApps[evId]=r;return r;
+}
+function _demoApi(path,opts){
+  var method=(opts&&opts.method)||'GET';
+  return new Promise(function(resolve,reject){
+    setTimeout(function(){
+      /* GET /api/clients */
+      if(/\/api\/clients$/.test(path)&&method==='GET'){return resolve(DEMO_CLIENTS);}
+      /* GET /api/clients/:slug/events */
+      var mev=path.match(/\/api\/clients\/([^/]+)\/events$/);
+      if(mev&&method==='GET'){return resolve(DEMO_EVENTS[mev[1]]||[]);}
+      /* GET /api/clients/:slug/events/:id/applications */
+      var mapp=path.match(/\/api\/clients\/[^/]+\/events\/(\d+)\/applications$/);
+      if(mapp&&method==='GET'){return resolve(_buildDemoApps(Number(mapp[1])));}
+      /* POST events */
+      if(mev&&method==='POST'){
+        var body=JSON.parse(opts.body);
+        var newEv=Object.assign({id:Date.now()},body);
+        if(!DEMO_EVENTS[mev[1]])DEMO_EVENTS[mev[1]]=[];
+        DEMO_EVENTS[mev[1]].unshift(newEv);
+        return resolve(newEv);
+      }
+      /* PATCH status */
+      var mst=path.match(/\/api\/applications\/(\d+)\/status/);
+      if(mst&&method==='PATCH'){
+        var body=JSON.parse(opts.body);
+        Object.keys(_demoApps).forEach(function(evId){
+          _demoApps[evId].forEach(function(a){if(a.id===Number(mst[1]))a.status=body.status;});
+        });
+        return resolve({ok:true});
+      }
+      /* POST applications */
+      var mca=path.match(/\/api\/clients\/[^/]+\/events\/(\d+)\/applications$/);
+      if(mca&&method==='POST'){
+        var body=JSON.parse(opts.body);
+        var evId=Number(mca[1]);
+        if(!_demoApps[evId])_buildDemoApps(evId);
+        var newApp=Object.assign({id:Date.now(),event_id:evId,token:'demo_new_'+Date.now(),status:'pending',notes:null,ine_filename:null,ine_storage_path:null,created_at:new Date().toISOString()},body);
+        _demoApps[evId].push(newApp);
+        return resolve(newApp);
+      }
+      /* DELETE */
+      if(/\/api\/applications\/\d+$/.test(path)&&method==='DELETE'){return resolve(null);}
+      resolve({});
+    },180);
+  });
+}
+
+function enterDemoMode(){
+  demoMode=true;
+  $$('login-screen').style.display='none';
+  $$('demo-banner').style.display='block';
+  /* Rellenar clientes */
+  $$('clients-grid').innerHTML=DEMO_CLIENTS.map(function(c){
+    var icons={'arena-cdmx':'🎵','estadio-azul':'⚽','ollamani':'🏟️','plaza-de-toros':'🐂','parque-bicentenario':'🌳'};
+    var icon=icons[c.slug]||'🏢';
+    return '<div class="cl-card" onclick="enterClient(\''+c.slug+'\',\''+safeTxt(c.name)+'\')">'
+      +'<div class="cl-icon">'+icon+'</div>'
+      +'<h3>'+safeTxt(c.name)+'</h3>'
+      +(c.subtitle?'<p>'+safeTxt(c.subtitle)+'</p>':'')
+      +'</div>';
+  }).join('');
+  $$('clients-screen').style.display='block';
+}
+
+function $$(id){return document.getElementById(id);}
+function toast(msg){var el=$$('toast');el.textContent=msg;el.classList.add('show');clearTimeout(el._t);el._t=setTimeout(function(){el.classList.remove('show');},2800);}
+function safeTxt(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function fdate(d){if(!d)return '—';var p=d.toString().split('T')[0].split('-');return p.length<3?d:p[2]+'/'+p[1]+'/'+p[0];}
+function moneda(v){return '$'+Number(v||0).toLocaleString('es-MX');}
+
+function api(path,opts){
+  if(demoMode)return _demoApi(path,opts);
+  opts=opts||{};
+  var headers={'Content-Type':'application/json'};
+  if(token)headers['Authorization']='Bearer '+token;
+  return fetch(path,Object.assign({},opts,{headers:headers})).then(function(r){
+    if(r.status===204)return null;
+    return r.json().then(function(d){if(!r.ok)throw new Error(d.detail||'Error');return d;});
+  });
+}
+
+// ── AUTH ──
+function doLogin(){
+  var u=($$('r-email').value||'').trim();
+  var p=$$('r-pass').value;
+  var err=$$('r-err');
+  err.style.display='none';
+  api('/api/auth/login',{method:'POST',body:JSON.stringify({email:u,password:p})})
+    .then(function(d){
+      token=d.access_token;
+      localStorage.setItem('reclut_token',token);
+      showClients();
+    }).catch(function(e){
+      err.textContent=e.message||'Credenciales incorrectas';
+      err.style.display='block';
+      $$('r-pass').value='';
+    });
+}
+
+function logout(){
+  localStorage.removeItem('reclut_token');
+  token='';currentSlug='';eventos=[];selectedEventId=null;applications=[];
+  demoMode=false;
+  $$('app').style.display='none';
+  $$('clients-screen').style.display='none';
+  $$('demo-banner').style.display='none';
+  $$('login-screen').style.display='flex';
+}
+
+// ── CLIENTS ──
+var CLIENT_ICONS={'ollamani':'🏟️','parque':'🌳','plaza':'🏛️','estadioazul':'⚽','arenacdmx':'🎵'};
+function showClients(){
+  $$('login-screen').style.display='none';
+  $$('app').style.display='none';
+  api('/api/clients').then(function(clients){
+    $$('clients-grid').innerHTML=clients.map(function(c){
+      var icon=CLIENT_ICONS[c.slug]||'🏢';
+      return '<div class="cl-card" onclick="enterClient(\''+c.slug+'\',\''+safeTxt(c.name)+'\')">'
+        +'<div class="cl-icon">'+icon+'</div>'
+        +'<h3>'+safeTxt(c.name)+'</h3>'
+        +(c.subtitle?'<p>'+safeTxt(c.subtitle)+'</p>':'')
+        +'</div>';
+    }).join('');
+    $$('clients-screen').style.display='block';
+  }).catch(function(){logout();});
+}
+
+window.enterClient=function(slug,name){
+  currentSlug=slug;currentClientName=name;
+  $$('header-client').textContent=name.toUpperCase();
+  $$('clients-screen').style.display='none';
+  $$('app').style.display='flex';
+  selectedEventId=null;applications=[];
+  showMainEmpty();
+  loadEventos();
+};
+
+function backToClients(){$$('app').style.display='none';showClients();}
+
+function showMainEmpty(){
+  $$('main-empty').style.display='flex';
+  $$('event-content').style.display='none';
+}
+
+// ── EVENTS ──
+function loadEventos(){
+  api('/api/clients/'+currentSlug+'/events').then(function(data){
+    eventos=data||[];
+    renderEventos();
+  });
+}
+
+function renderEventos(){
+  var el=$$('ev-list');
+  if(!eventos.length){
+    el.innerHTML='<div class="empty-state">Sin convocatorias.<br>Crea la primera con el botón + Nueva.</div>';
+    return;
+  }
+  el.innerHTML=eventos.map(function(ev){
+    var wa=waLog[ev.id];
+    var sel=ev.id===selectedEventId;
+    return '<div class="ev-item'+(sel?' selected':'')+'" onclick="verPostulantes('+ev.id+')">'
+      +'<div class="ev-item-name">'+safeTxt(ev.name)+'</div>'
+      +'<div class="ev-item-meta">'+fdate(ev.event_date)+(ev.event_type?' · '+safeTxt(ev.event_type):'')+'</div>'
+      +'<div class="ev-item-footer">'
+      +'<span class="ev-item-count" id="ec-'+ev.id+'"><span class="dot"></span>0 postulantes</span>'
+      +(wa?'<span class="wa-pill">✓ WA</span>':'<span class="wa-pill none">Sin WA</span>')
+      +'</div>'
+      +'</div>';
+  }).join('');
+}
+
+function toggleForm(){
+  var f=$$('conv-form');
+  f.style.display=f.style.display==='none'?'block':'none';
+}
+
+function crearConvocatoria(){
+  var n=($$('f-nom').value||'').trim();
+  var f=($$('f-fecha').value||'').trim();
+  if(!n){toast('Ingresa el nombre del evento');return;}
+  if(!f){toast('Selecciona la fecha');return;}
+  var payload={
+    name:n,event_date:f,
+    event_type:($$('f-tipo').value||'Convocatoria').trim(),
+    description:($$('f-desc').value||'').trim(),
+    operator_positions:Number($$('f-vac-op').value||0),
+    supervisor_positions:Number($$('f-vac-sup').value||0),
+    salary_during:Number($$('f-salario').value||480)
+  };
+  api('/api/clients/'+currentSlug+'/events',{method:'POST',body:JSON.stringify(payload)})
+    .then(function(){
+      toast('✓ Convocatoria creada');
+      $$('conv-form').style.display='none';
+      ['f-nom','f-fecha','f-tipo','f-salario','f-vac-op','f-vac-sup','f-desc'].forEach(function(id){$$(id).value='';});
+      loadEventos();
+    }).catch(function(e){toast(e.message||'Error al crear');});
+}
+
+// ── APPLICANTS ──
+function verPostulantes(evId){
+  selectedEventId=evId;
+  var ev=eventos.find(function(e){return e.id===evId;});
+  if(!ev)return;
+  // update sidebar selection
+  document.querySelectorAll('.ev-item').forEach(function(el){el.classList.remove('selected');});
+  var item=document.querySelector('[onclick="verPostulantes('+evId+')"]');
+  if(item)item.classList.add('selected');
+  // fill header
+  $$('ev-hdr-type').textContent=ev.event_type||'Evento';
+  $$('ev-hdr-name').textContent=ev.name;
+  $$('ev-hdr-meta').textContent=fdate(ev.event_date)+' · '+moneda(ev.salary_during)+'/turno · '+ev.operator_positions+' op · '+ev.supervisor_positions+' sup';
+  // reset filter
+  appFilter='todos';
+  document.querySelectorAll('.filt-pill').forEach(function(b){b.classList.remove('active');});
+  $$('filt-todos').classList.add('active');
+  // show content
+  $$('main-empty').style.display='none';
+  $$('event-content').style.display='flex';
+  loadApplications();
+}
+
+function loadApplications(){
+  if(!selectedEventId)return;
+  api('/api/clients/'+currentSlug+'/events/'+selectedEventId+'/applications')
+    .then(function(data){
+      applications=data||[];
+      updateStats();
+      renderApplications();
+      // update sidebar count
+      var countEl=$$('ec-'+selectedEventId);
+      if(countEl){
+        var n=applications.length;
+        countEl.innerHTML='<span class="dot"></span>'+n+' postulante'+(n!==1?'s':'');
+        if(n>0)countEl.classList.add('has-apps');
+        else countEl.classList.remove('has-apps');
+      }
+    });
+}
+
+function updateStats(){
+  var total=applications.length;
+  var pending=applications.filter(function(a){return a.status==='pending';}).length;
+  var approved=applications.filter(function(a){return a.status==='approved';}).length;
+  var rejected=applications.filter(function(a){return a.status==='rejected';}).length;
+  $$('st-total').textContent=total;
+  $$('st-pending').textContent=pending;
+  $$('st-approved').textContent=approved;
+  $$('st-rejected').textContent=rejected;
+}
+
+function renderApplications(){
+  var el=$$('apps-list');
+  var filtered=appFilter==='todos'?applications:applications.filter(function(a){return a.status===appFilter;});
+  if(!filtered.length){
+    el.innerHTML='<div class="empty-state">'+(applications.length?'Sin postulantes con ese filtro.':'Sin postulantes aún.<br>Comparte el link o agrega demos.')+'</div>';
+    return;
+  }
+  var lbl={pending:'Pendiente',approved:'Aprobado',rejected:'Rechazado'};
+  var bg={pending:'rgba(243,156,18,.14)',approved:'rgba(46,204,113,.14)',rejected:'rgba(231,76,60,.14)'};
+  var fg={pending:'#f39c12',approved:'#2ecc71',rejected:'#e74c3c'};
+  el.innerHTML=filtered.map(function(a){
+    var ini=(a.full_name||'').split(' ').slice(0,2).map(function(w){return w[0]||'';}).join('').toUpperCase();
+    return '<div class="app-row">'
+      +'<div class="app-av" style="background:'+bg[a.status]+';color:'+fg[a.status]+'">'+safeTxt(ini)+'</div>'
+      +'<div class="app-info">'
+      +'<div class="app-name">'+safeTxt(a.full_name)+'</div>'
+      +'<div class="app-detail">'+safeTxt(a.phone)+(a.area?' · '+safeTxt(a.area):'')+' · '+fdate(a.created_at)+'</div>'
+      +'</div>'
+      +(a.ine_storage_path?'<a href="'+a.ine_storage_path+'" target="_blank" class="app-ine">🪪 INE</a>':'')
+      +'<span class="status-pill '+a.status+'">'+lbl[a.status]+'</span>'
+      +'<div class="app-actions">'
+      +(a.status!=='approved'?'<button class="btn btn-outline btn-xs" style="color:#2ecc71;border-color:rgba(46,204,113,.3)" onclick="setStatus('+a.id+',\'approved\')">✓</button>':'')
+      +(a.status!=='rejected'?'<button class="btn btn-danger btn-xs" onclick="setStatus('+a.id+',\'rejected\')">✗</button>':'')
+      +'</div>'
+      +'</div>';
+  }).join('');
+}
+
+function setStatus(appId,status){
+  api('/api/applications/'+appId+'/status',{method:'PATCH',body:JSON.stringify({status:status})})
+    .then(function(){loadApplications();toast(status==='approved'?'Aprobado ✓':'Rechazado');})
+    .catch(function(e){toast(e.message);});
+}
+
+function setFilter(f,btn){
+  appFilter=f;
+  document.querySelectorAll('.filt-pill').forEach(function(b){b.classList.remove('active');});
+  if(btn)btn.classList.add('active');
+  renderApplications();
+}
+
+function aprobarTodos(){
+  var pending=applications.filter(function(a){return a.status==='pending';});
+  if(!pending.length){toast('Sin postulantes pendientes');return;}
+  Promise.all(pending.map(function(a){
+    return api('/api/applications/'+a.id+'/status',{method:'PATCH',body:JSON.stringify({status:'approved'})});
+  })).then(function(){toast(pending.length+' aprobados ✓');loadApplications();});
+}
+
+function seedDemo(){
+  if(!selectedEventId){toast('Selecciona una convocatoria primero');return;}
+  var NAMES=['María García','José López','Ana Martínez','Carlos Rodríguez','Laura Hernández','Pedro Sánchez','Sofía Ramírez','Diego Torres'];
+  var AREAS=['Seguridad','Acomodadores','Limpieza','Taquillas','Logística','Estacionamiento'];
+  var list=[];
+  for(var i=0;i<5;i++){
+    list.push({
+      full_name:NAMES[Math.floor(Math.random()*NAMES.length)],
+      phone:'55 '+(1000+Math.floor(Math.random()*8999))+' '+(1000+Math.floor(Math.random()*8999)),
+      area:AREAS[i%AREAS.length]
+    });
+  }
+  Promise.all(list.map(function(p){
+    return api('/api/clients/'+currentSlug+'/events/'+selectedEventId+'/applications',{method:'POST',body:JSON.stringify(p)});
+  })).then(function(){toast('5 postulantes demo agregados');loadApplications();});
+}
+
+// ── WA ──
+function abrirWAEv(evId){selectedEventId=evId;abrirWA();}
+function abrirWA(){
+  var ev=selectedEventId?eventos.find(function(e){return e.id===selectedEventId;}):null;
+  if(!ev){toast('Selecciona una convocatoria primero');return;}
+  var applyLink=window.location.origin+'/apply/'+ev.id+(demoMode?'?demo=1':'');
+  $$('wa-preview').innerHTML='Hola <em>{nombre}</em>, te invitamos a trabajar con Batia en <strong>'+safeTxt(ev.name)+'</strong> el '+fdate(ev.event_date)+'.<br>Salario: '+moneda(ev.salary_during)+' por turno.<br>Aplica aquí 👉 <em>'+applyLink+'</em>';
+  $$('modal-wa').style.display='flex';
+}
+function enviarWA(){
+  var ev=selectedEventId?eventos.find(function(e){return e.id===selectedEventId;}):null;
+  if(!ev)return;
+  var raw=$$('wa-phones').value||'';
+  var phones=raw.split(/[\n,;]+/).map(function(p){return p.trim();}).filter(Boolean);
+  var count=phones.length||Math.floor(Math.random()*11)+5;
+  waLog[ev.id]={count:count,sentAt:new Date().toISOString().split('T')[0]};
+  $$('modal-wa').style.display='none';
+  $$('wa-phones').value='';
+  toast('✓ Simulado · '+count+' mensajes · (En prod: WA Business API)');
+  renderEventos();
+}
+function copiarLink(){
+  if(!selectedEventId){toast('Selecciona una convocatoria');return;}
+  var link=window.location.origin+'/apply/'+selectedEventId+(demoMode?'?demo=1':'');
+  if(navigator.clipboard){navigator.clipboard.writeText(link).then(function(){toast('Link copiado al portapapeles');});}
+  else{toast('Link: '+link);}
+}
+
+// ── EXPOSE ──
+window.doLogin=doLogin;window.logout=logout;window.backToClients=backToClients;window.enterDemoMode=enterDemoMode;
+window.toggleForm=toggleForm;window.crearConvocatoria=crearConvocatoria;
+window.verPostulantes=verPostulantes;window.abrirWA=abrirWA;window.abrirWAEv=abrirWAEv;
+window.enviarWA=enviarWA;window.copiarLink=copiarLink;window.setStatus=setStatus;
+window.setFilter=setFilter;window.aprobarTodos=aprobarTodos;window.seedDemo=seedDemo;
+
+['r-email','r-pass'].forEach(function(id){
+  $$(id).addEventListener('keydown',function(e){if(e.key==='Enter')doLogin();});
+});
+
+if(token){showClients();}
+})();
+</script>
+</body>
+</html>

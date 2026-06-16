@@ -11,7 +11,7 @@ from html.parser import HTMLParser
 from pathlib import Path
 from xml.etree import ElementTree
 
-from fastapi import Depends, FastAPI, HTTPException, Response, status
+from fastapi import Depends, FastAPI, File, Form, HTTPException, Response, UploadFile, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
@@ -21,8 +21,13 @@ from sqlalchemy.orm import Session, joinedload
 
 from app.config import get_settings
 from app.db import SessionLocal, get_db
-from app.models import Client, Event, PayrollPeriod, ShiftAssignment, User, Worker
+from app.models import Application, Client, Event, PayrollPeriod, ShiftAssignment, User, Worker
 from app.schemas import (
+    ApplicationIn,
+    ApplicationOut,
+    ApplicationStatusIn,
+    PublicApplyOut,
+    PublicEventOut,
     AssignmentIn,
     AssignmentOut,
     ClientOut,
@@ -92,6 +97,26 @@ def ensure_worker_columns() -> None:
         "ALTER TABLE workers ADD COLUMN IF NOT EXISTS veto_cleared_date DATE",
         "ALTER TABLE workers ADD COLUMN IF NOT EXISTS veto_cleared_reason TEXT",
         "ALTER TABLE workers ALTER COLUMN clabe TYPE VARCHAR(80)",
+        """
+        CREATE TABLE IF NOT EXISTS applications (
+            id SERIAL PRIMARY KEY,
+            event_id INTEGER NOT NULL REFERENCES events(id) ON DELETE CASCADE,
+            token VARCHAR(80) NOT NULL UNIQUE,
+            full_name VARCHAR(180) NOT NULL,
+            phone VARCHAR(40) NOT NULL,
+            email VARCHAR(255),
+            area VARCHAR(120),
+            status VARCHAR(20) NOT NULL DEFAULT 'pending',
+            notes TEXT,
+            created_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
+            updated_at TIMESTAMP WITH TIME ZONE DEFAULT now()
+        )
+        """,
+        "CREATE INDEX IF NOT EXISTS ix_applications_event_id ON applications (event_id)",
+        "CREATE INDEX IF NOT EXISTS ix_applications_token ON applications (token)",
+        "CREATE INDEX IF NOT EXISTS ix_applications_status ON applications (status)",
+        "ALTER TABLE applications ADD COLUMN IF NOT EXISTS ine_filename VARCHAR(255)",
+        "ALTER TABLE applications ADD COLUMN IF NOT EXISTS ine_storage_path VARCHAR(500)",
     ]
     with SessionLocal() as db:
         for statement in statements:
@@ -334,16 +359,82 @@ def normalize_worker_type(value: str) -> str:
     return "jornal"
 
 
-@app.get("/", include_in_schema=False)
-def index() -> FileResponse:
-    return FileResponse(
-        STATIC_DIR / "index.html",
-        headers={
-            "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0",
-            "Pragma": "no-cache",
-            "Expires": "0",
-        },
+NO_CACHE = {
+    "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0",
+    "Pragma": "no-cache",
+    "Expires": "0",
+}
+
+
+@app.get("/api/public/events/{event_id}", response_model=PublicEventOut)
+def public_event_info(event_id: int, db: Session = Depends(get_db)) -> Event:
+    event = db.query(Event).filter(Event.id == event_id).first()
+    if not event:
+        raise HTTPException(status_code=404, detail="Evento no encontrado")
+    return event
+
+
+@app.post("/api/public/events/{event_id}/apply", response_model=PublicApplyOut, status_code=201)
+async def public_apply(
+    event_id: int,
+    full_name: str = Form(...),
+    phone: str = Form(...),
+    email: str = Form(None),
+    area: str = Form(None),
+    ine: UploadFile = File(None),
+    db: Session = Depends(get_db),
+) -> Application:
+    import os
+    import secrets as _secrets
+    event = db.query(Event).filter(Event.id == event_id).first()
+    if not event:
+        raise HTTPException(status_code=404, detail="Evento no encontrado")
+    app_token = _secrets.token_urlsafe(20)
+    ine_filename = None
+    ine_storage_path = None
+    if ine and ine.filename:
+        ext = os.path.splitext(ine.filename)[1].lower() or ".jpg"
+        ine_filename = f"{app_token}{ext}"
+        upload_dir = STATIC_DIR / "uploads" / "ine"
+        upload_dir.mkdir(parents=True, exist_ok=True)
+        content = await ine.read()
+        with open(upload_dir / ine_filename, "wb") as f:
+            f.write(content)
+        ine_storage_path = f"/static/uploads/ine/{ine_filename}"
+    application = Application(
+        event_id=event_id,
+        token=app_token,
+        full_name=full_name.strip(),
+        phone=phone.strip(),
+        email=email.strip() if email else None,
+        area=area.strip() if area else None,
+        ine_filename=ine_filename,
+        ine_storage_path=ine_storage_path,
     )
+    db.add(application)
+    db.commit()
+    db.refresh(application)
+    return application
+
+
+@app.get("/apply/{event_id}", include_in_schema=False)
+def apply_page(event_id: int) -> FileResponse:
+    return FileResponse(STATIC_DIR / "apply.html", headers=NO_CACHE)
+
+
+@app.get("/", include_in_schema=False)
+def portal() -> FileResponse:
+    return FileResponse(STATIC_DIR / "portal.html", headers=NO_CACHE)
+
+
+@app.get("/operaciones", include_in_schema=False)
+def operaciones() -> FileResponse:
+    return FileResponse(STATIC_DIR / "index.html", headers=NO_CACHE)
+
+
+@app.get("/reclut", include_in_schema=False)
+def reclut() -> FileResponse:
+    return FileResponse(STATIC_DIR / "reclut.html", headers=NO_CACHE)
 
 
 @app.get("/healthz")
@@ -857,6 +948,78 @@ def delete_assignment(
     if not assignment:
         raise HTTPException(status_code=404, detail="Asignacion no encontrada")
     db.delete(assignment)
+    db.commit()
+    return Response(status_code=204)
+
+
+@app.get("/api/clients/{client_slug}/events/{event_id}/applications", response_model=list[ApplicationOut])
+def list_applications(
+    client_slug: str, event_id: int, _: User = Depends(current_user), db: Session = Depends(get_db)
+) -> list[Application]:
+    client = get_client_or_404(db, client_slug)
+    event = db.query(Event).filter(Event.id == event_id, Event.client_id == client.id).first()
+    if not event:
+        raise HTTPException(status_code=404, detail="Evento no encontrado")
+    return db.query(Application).filter(Application.event_id == event_id).order_by(Application.id.desc()).all()
+
+
+@app.post("/api/clients/{client_slug}/events/{event_id}/applications", response_model=ApplicationOut, status_code=201)
+def create_application(
+    client_slug: str,
+    event_id: int,
+    body: ApplicationIn,
+    db: Session = Depends(get_db),
+) -> Application:
+    import secrets
+    event = db.query(Event).join(Client).filter(Event.id == event_id, Client.slug == client_slug).first()
+    if not event:
+        raise HTTPException(status_code=404, detail="Evento no encontrado")
+    app_token = secrets.token_urlsafe(20)
+    application = Application(
+        event_id=event_id,
+        token=app_token,
+        full_name=body.full_name,
+        phone=body.phone,
+        email=body.email,
+        area=body.area,
+        notes=body.notes,
+    )
+    db.add(application)
+    db.commit()
+    db.refresh(application)
+    return application
+
+
+@app.patch("/api/applications/{application_id}/status", response_model=ApplicationOut)
+def update_application_status(
+    application_id: int,
+    body: ApplicationStatusIn,
+    _: User = Depends(current_user),
+    db: Session = Depends(get_db),
+) -> Application:
+    if body.status not in ("pending", "approved", "rejected"):
+        raise HTTPException(status_code=422, detail="Estado inválido")
+    application = db.query(Application).filter(Application.id == application_id).first()
+    if not application:
+        raise HTTPException(status_code=404, detail="Postulante no encontrado")
+    application.status = body.status
+    if body.notes is not None:
+        application.notes = body.notes
+    db.commit()
+    db.refresh(application)
+    return application
+
+
+@app.delete("/api/applications/{application_id}", status_code=204)
+def delete_application(
+    application_id: int,
+    _: User = Depends(current_user),
+    db: Session = Depends(get_db),
+) -> Response:
+    application = db.query(Application).filter(Application.id == application_id).first()
+    if not application:
+        raise HTTPException(status_code=404, detail="Postulante no encontrado")
+    db.delete(application)
     db.commit()
     return Response(status_code=204)
 

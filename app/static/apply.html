@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#060c18">
+<title>Postulación · Batia</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#060c18;--surface:#0d1b2a;--surface2:rgba(255,255,255,.04);
+  --border:rgba(255,255,255,.08);--border2:rgba(255,255,255,.12);
+  --text:#e8eaf0;--muted:rgba(232,234,240,.5);--muted2:rgba(232,234,240,.3);
+  --green:#2ecc71;--green-dim:rgba(46,204,113,.14);--green-border:rgba(46,204,113,.28);
+  --red:#e74c3c;--yellow:#f39c12;
+  --radius:14px;--radius-sm:10px;
+}
+body{background:var(--bg);color:var(--text);font-family:'Inter',system-ui,sans-serif;font-size:15px;min-height:100dvh;-webkit-font-smoothing:antialiased}
+
+/* ── LAYOUT ── */
+.shell{max-width:480px;margin:0 auto;min-height:100dvh;display:flex;flex-direction:column}
+
+/* ── HEADER ── */
+.top-bar{display:flex;align-items:center;justify-content:space-between;padding:18px 20px 0}
+.top-logo{height:24px;opacity:.9}
+.top-badge{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--green);background:var(--green-dim);border:1px solid var(--green-border);padding:3px 10px;border-radius:999px}
+
+/* ── EVENT CARD ── */
+.ev-card{margin:20px 20px 0;background:var(--surface);border:1px solid var(--border2);border-radius:var(--radius);padding:18px 20px;position:relative;overflow:hidden}
+.ev-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--green),rgba(46,204,113,.3))}
+.ev-pill{display:inline-flex;align-items:center;gap:5px;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+.ev-pill-dot{width:5px;height:5px;border-radius:50%;background:var(--green);animation:pulse 2s ease infinite}
+.ev-name{font-size:19px;font-weight:800;line-height:1.15;margin-bottom:10px}
+.ev-meta{display:flex;flex-wrap:wrap;gap:10px}
+.ev-tag{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--muted);background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:6px;padding:4px 10px}
+.ev-tag svg{opacity:.6}
+
+/* ── STEPS ── */
+.steps{display:flex;align-items:center;gap:0;padding:24px 20px 0}
+.step{display:flex;align-items:center;gap:8px;flex:1}
+.step-num{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;transition:all .3s;flex-shrink:0}
+.step-num.done{background:var(--green);color:#060c18}
+.step-num.active{background:var(--green-dim);border:2px solid var(--green);color:var(--green)}
+.step-num.pending{background:rgba(255,255,255,.05);border:1px solid var(--border);color:var(--muted2)}
+.step-label{font-size:11px;font-weight:600;transition:color .3s}
+.step-label.active{color:var(--text)}
+.step-label.done{color:var(--green)}
+.step-label.pending{color:var(--muted2)}
+.step-line{flex:1;height:1px;background:var(--border);margin:0 4px;flex-shrink:0}
+.step-line.done{background:var(--green)}
+
+/* ── FORM AREA ── */
+.form-area{flex:1;padding:24px 20px 32px;display:flex;flex-direction:column;gap:16px}
+
+.pane{display:none;flex-direction:column;gap:16px;animation:fadeIn .3s ease}
+.pane.active{display:flex}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+.field{display:flex;flex-direction:column;gap:6px}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+label{font-size:12px;font-weight:600;color:var(--muted);letter-spacing:.3px}
+label span{color:var(--red)}
+
+input,select{
+  width:100%;background:var(--surface2);border:1.5px solid var(--border);border-radius:var(--radius-sm);
+  color:var(--text);font-size:15px;font-family:inherit;padding:13px 14px;outline:none;
+  transition:border-color .2s,background .2s;-webkit-appearance:none;appearance:none
+}
+input:focus,select:focus{border-color:var(--green);background:rgba(46,204,113,.04)}
+input::placeholder{color:var(--muted2)}
+select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='rgba(232,234,240,0.4)' d='M6 8L1 3h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;padding-right:36px}
+select option{background:#0d1b2a;color:#e8eaf0}
+
+/* ── INE UPLOAD ── */
+.ine-hint{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px 16px;display:flex;gap:12px;align-items:flex-start}
+.ine-hint-icon{font-size:20px;flex-shrink:0;margin-top:1px}
+.ine-hint-text{font-size:13px;color:var(--muted);line-height:1.5}
+.ine-hint-text strong{color:var(--text)}
+
+.upload-zone{border:1.5px dashed var(--border2);border-radius:var(--radius);padding:28px 20px;text-align:center;cursor:pointer;transition:all .2s;position:relative;background:var(--surface2)}
+.upload-zone:hover,.upload-zone.drag{border-color:var(--green);background:var(--green-dim)}
+.upload-zone input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.upload-icon{font-size:36px;margin-bottom:10px;display:block}
+.upload-text{font-size:14px;font-weight:600;margin-bottom:4px}
+.upload-sub{font-size:12px;color:var(--muted)}
+.upload-cam-hint{display:inline-flex;align-items:center;gap:5px;margin-top:10px;font-size:11px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--green);background:var(--green-dim);padding:4px 12px;border-radius:999px}
+
+.ine-preview{display:none;position:relative;border-radius:var(--radius-sm);overflow:hidden;border:1.5px solid var(--green-border)}
+.ine-preview img{width:100%;display:block;max-height:220px;object-fit:cover}
+.ine-preview-bar{position:absolute;bottom:0;left:0;right:0;padding:10px 14px;background:linear-gradient(transparent,rgba(6,12,24,.9));display:flex;align-items:center;justify-content:space-between}
+.ine-preview-ok{font-size:12px;font-weight:600;color:var(--green);display:flex;align-items:center;gap:5px}
+.ine-change{font-size:11px;font-weight:700;color:var(--muted);cursor:pointer;text-transform:uppercase;letter-spacing:.5px;background:none;border:none;font-family:inherit}
+
+/* ── SUCCESS ── */
+.success-pane{flex:1;display:none;flex-direction:column;align-items:center;justify-content:center;padding:32px 20px;text-align:center;animation:fadeIn .4s ease}
+.success-pane.active{display:flex}
+.success-circle{width:80px;height:80px;border-radius:50%;background:var(--green-dim);border:2px solid var(--green-border);display:flex;align-items:center;justify-content:center;font-size:36px;margin-bottom:24px;animation:popIn .4s cubic-bezier(.17,.67,.21,1.3) both}
+@keyframes popIn{from{opacity:0;transform:scale(.6)}to{opacity:1;transform:scale(1)}}
+.success-title{font-size:24px;font-weight:800;margin-bottom:10px}
+.success-sub{font-size:14px;color:var(--muted);line-height:1.6;margin-bottom:24px}
+.folio-card{background:var(--surface);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:14px 20px;margin-bottom:8px;width:100%}
+.folio-label{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+.folio-value{font-size:15px;font-weight:700;font-family:monospace;color:var(--green);letter-spacing:1px}
+.success-note{font-size:12px;color:var(--muted2);line-height:1.6}
+
+/* ── BUTTONS ── */
+.btn-primary{width:100%;background:var(--green);color:#060c18;border:none;border-radius:var(--radius-sm);font-size:15px;font-weight:700;padding:15px;cursor:pointer;transition:opacity .2s,transform .1s;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px}
+.btn-primary:hover{opacity:.9}
+.btn-primary:active{transform:scale(.98)}
+.btn-primary:disabled{opacity:.4;cursor:not-allowed}
+.btn-secondary{width:100%;background:transparent;color:var(--muted);border:1.5px solid var(--border);border-radius:var(--radius-sm);font-size:14px;font-weight:600;padding:13px;cursor:pointer;transition:border-color .2s,color .2s;font-family:inherit}
+.btn-secondary:hover{border-color:var(--border2);color:var(--text)}
+.btn-row{display:flex;gap:10px}
+.btn-row .btn-secondary{flex:0 0 auto;width:auto;padding:13px 20px}
+
+.spinner{width:18px;height:18px;border:2.5px solid rgba(6,12,24,.3);border-top-color:#060c18;border-radius:50%;animation:spin .6s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+
+.error-msg{color:var(--red);font-size:12px;font-weight:600;display:none;padding:4px 0}
+
+/* ── FOOTER ── */
+.bottom{padding:0 20px 24px;font-size:11px;color:var(--muted2);text-align:center}
+
+/* ── LOADING ── */
+#loading{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:50;flex-direction:column;gap:16px}
+#loading img{height:32px;opacity:.7}
+.loading-dots{display:flex;gap:6px}
+.loading-dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:dotPulse 1.2s ease infinite}
+.loading-dot:nth-child(2){animation-delay:.2s}
+.loading-dot:nth-child(3){animation-delay:.4s}
+@keyframes dotPulse{0%,80%,100%{opacity:.2}40%{opacity:1}}
+
+/* ── NOT FOUND ── */
+#not-found{display:none;flex:1;align-items:center;justify-content:center;flex-direction:column;gap:12px;padding:40px 20px;text-align:center}
+#not-found .nf-icon{font-size:48px;opacity:.4}
+#not-found h2{font-size:18px;font-weight:700}
+#not-found p{font-size:13px;color:var(--muted)}
+</style>
+</head>
+<body>
+
+<div id="loading">
+  <img src="/static/img/batia-logo-42f9b37669026fca5e82ece04481469a.png" alt="Batia">
+  <div class="loading-dots">
+    <div class="loading-dot"></div>
+    <div class="loading-dot"></div>
+    <div class="loading-dot"></div>
+  </div>
+</div>
+
+<div class="shell" id="shell" style="display:none">
+
+  <!-- HEADER -->
+  <div class="top-bar">
+    <img src="/static/img/batia-logo-42f9b37669026fca5e82ece04481469a.png" class="top-logo" alt="Batia">
+    <span class="top-badge">Postulación</span>
+  </div>
+
+  <!-- EVENT INFO -->
+  <div class="ev-card" id="ev-card">
+    <div class="ev-pill"><span class="ev-pill-dot"></span><span id="ev-type">Evento</span></div>
+    <div class="ev-name" id="ev-name">—</div>
+    <div class="ev-meta" id="ev-meta"></div>
+  </div>
+
+  <!-- STEPS -->
+  <div class="steps" id="steps">
+    <div class="step">
+      <div class="step-num active" id="sn1">1</div>
+      <div class="step-label active" id="sl1">Tus datos</div>
+    </div>
+    <div class="step-line" id="line1"></div>
+    <div class="step">
+      <div class="step-num pending" id="sn2">2</div>
+      <div class="step-label pending" id="sl2">INE</div>
+    </div>
+    <div class="step-line" id="line2"></div>
+    <div class="step">
+      <div class="step-num pending" id="sn3">✓</div>
+      <div class="step-label pending" id="sl3">Enviado</div>
+    </div>
+  </div>
+
+  <!-- PANE 1: DATOS -->
+  <div class="form-area">
+    <div class="pane active" id="pane1">
+      <div class="field">
+        <label>Nombre completo <span>*</span></label>
+        <input type="text" id="f-name" placeholder="María García López" autocomplete="name" inputmode="text">
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label>Teléfono <span>*</span></label>
+          <input type="tel" id="f-phone" placeholder="55 1234 5678" autocomplete="tel" inputmode="tel">
+        </div>
+      </div>
+      <div class="field">
+        <label>Correo electrónico</label>
+        <input type="email" id="f-email" placeholder="tu@correo.com" autocomplete="email" inputmode="email">
+      </div>
+      <div class="error-msg" id="err1"></div>
+      <button class="btn-primary" onclick="goStep2()">Continuar <span>→</span></button>
+    </div>
+
+    <!-- PANE 2: INE -->
+    <div class="pane" id="pane2">
+      <div class="ine-hint">
+        <div class="ine-hint-icon">📋</div>
+        <div class="ine-hint-text">
+          <strong>Sube una foto de tu INE</strong><br>
+          Toma la foto por el frente, con buena iluminación y sin reflejos. Es necesaria para validar tu identidad.
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Foto del INE (frente)</label>
+        <div class="upload-zone" id="upload-zone">
+          <input type="file" id="f-ine" accept="image/*" capture="environment" onchange="onIneSelected(this)">
+          <span class="upload-icon">📷</span>
+          <div class="upload-text">Toma una foto o selecciona imagen</div>
+          <div class="upload-sub">JPG, PNG o HEIC · máx. 10 MB</div>
+          <span class="upload-cam-hint">📱 Toca para abrir cámara</span>
+        </div>
+        <div class="ine-preview" id="ine-preview">
+          <img id="ine-img" src="" alt="INE">
+          <div class="ine-preview-bar">
+            <span class="ine-preview-ok">✓ Imagen lista</span>
+            <button class="ine-change" onclick="cambiarIne()">Cambiar</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="error-msg" id="err2"></div>
+      <div class="btn-row">
+        <button class="btn-secondary" onclick="goStep1()">← Atrás</button>
+        <button class="btn-primary" id="btn-submit" onclick="enviar()" style="flex:1">
+          <span id="btn-txt">Enviar postulación</span>
+          <div class="spinner" id="spinner" style="display:none"></div>
+        </button>
+      </div>
+    </div>
+  </div><!-- /form-area -->
+
+  <!-- SUCCESS -->
+  <div class="success-pane" id="success">
+    <div class="success-circle">✓</div>
+    <div class="success-title">¡Postulación enviada!</div>
+    <div class="success-sub">Recibimos tu información correctamente.<br>Nos pondremos en contacto contigo si eres seleccionado.</div>
+    <div class="folio-card">
+      <div class="folio-label">Tu número de folio</div>
+      <div class="folio-value" id="folio">—</div>
+    </div>
+    <div class="success-note">Guarda este número por si necesitas dar seguimiento a tu postulación.</div>
+  </div>
+
+  <!-- NOT FOUND -->
+  <div id="not-found">
+    <div class="nf-icon">🔍</div>
+    <h2>Evento no encontrado</h2>
+    <p>El link de postulación no es válido o el evento ya no está disponible.</p>
+  </div>
+
+  <div class="bottom">Batia · Proceso de selección de personal</div>
+
+</div><!-- /shell -->
+
+<script>
+(function(){
+'use strict';
+
+var eventId = null;
+var ineFile = null;
+
+function fdate(d){
+  if(!d)return '—';
+  var p=String(d).split('T')[0].split('-');
+  return p.length<3?d:p[2]+'/'+p[1]+'/'+p[0];
+}
+function moneda(v){return '$'+Number(v||0).toLocaleString('es-MX');}
+
+// Read event_id from URL /apply/123
+var parts = window.location.pathname.split('/');
+eventId = parseInt(parts[parts.length-1], 10);
+
+var isDemo = new URLSearchParams(window.location.search).get('demo') === '1';
+
+function renderEvent(ev){
+  document.getElementById('ev-type').textContent = ev.event_type || 'Evento';
+  document.getElementById('ev-name').textContent = ev.name;
+  var metaEl = document.getElementById('ev-meta');
+  metaEl.innerHTML = [
+    '<div class="ev-tag"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><rect x="1" y="2" width="10" height="9" rx="1.5" stroke="currentColor" stroke-width="1.2"/><path d="M1 5h10" stroke="currentColor" stroke-width="1.2"/><path d="M4 1v2M8 1v2" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>'+fdate(ev.event_date)+'</div>',
+    ev.salary_during?'<div class="ev-tag"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="5" stroke="currentColor" stroke-width="1.2"/><path d="M6 3v6M4.5 4.5h2.25a.75.75 0 010 1.5H5.25a.75.75 0 000 1.5H7.5" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/></svg>'+moneda(ev.salary_during)+'/turno</div>':'',
+    ev.operator_positions?'<div class="ev-tag"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="4" r="2.5" stroke="currentColor" stroke-width="1.2"/><path d="M1 11c0-2.76 2.24-5 5-5s5 2.24 5 5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>'+ev.operator_positions+' vacantes</div>':'',
+  ].join('');
+  document.getElementById('loading').style.display='none';
+  document.getElementById('shell').style.display='flex';
+}
+
+if(isDemo){
+  // Demo: usar evento hardcodeado sin llamar a la API
+  renderEvent({
+    event_type:'Concierto',
+    name:'Concierto Coldplay — Music of the Spheres',
+    event_date:'2026-07-18',
+    salary_during:580,
+    operator_positions:320
+  });
+} else {
+  // Load event info from real API
+  fetch('/api/public/events/'+eventId)
+    .then(function(r){
+      if(!r.ok) throw new Error('not found');
+      return r.json();
+    })
+    .then(renderEvent)
+    .catch(function(){
+      document.getElementById('loading').style.display='none';
+      document.getElementById('shell').style.display='flex';
+      document.getElementById('ev-card').style.display='none';
+      document.getElementById('steps').style.display='none';
+      document.querySelector('.form-area').style.display='none';
+      document.getElementById('not-found').style.display='flex';
+    });
+}
+
+// ── STEPS ──
+function setStep(n){
+  for(var i=1;i<=3;i++){
+    var num=document.getElementById('sn'+i);
+    var lbl=document.getElementById('sl'+i);
+    if(i<n){num.className='step-num done';lbl.className='step-label done';}
+    else if(i===n){num.className='step-num active';lbl.className='step-label active';}
+    else{num.className='step-num pending';lbl.className='step-label pending';}
+    if(i<3){
+      var line=document.getElementById('line'+i);
+      line.className='step-line'+(i<n?' done':'');
+    }
+  }
+  document.querySelectorAll('.pane').forEach(function(p){p.classList.remove('active');});
+  if(n===1)document.getElementById('pane1').classList.add('active');
+  if(n===2)document.getElementById('pane2').classList.add('active');
+  if(n===3){
+    document.getElementById('steps').style.display='none';
+    document.getElementById('ev-card').style.display='none';
+    document.querySelector('.form-area').style.display='none';
+    document.getElementById('success').classList.add('active');
+  }
+  window.scrollTo(0,0);
+}
+
+function goStep1(){
+  document.getElementById('err2').style.display='none';
+  setStep(1);
+}
+
+window.goStep1=goStep1;
+
+window.goStep2=function(){
+  var name=(document.getElementById('f-name').value||'').trim();
+  var phone=(document.getElementById('f-phone').value||'').trim();
+  var err=document.getElementById('err1');
+  if(!name){err.textContent='Ingresa tu nombre completo';err.style.display='block';return;}
+  if(!phone){err.textContent='Ingresa tu número de teléfono';err.style.display='block';return;}
+  err.style.display='none';
+  setStep(2);
+};
+
+// ── INE ──
+window.onIneSelected=function(input){
+  var file=input.files[0];
+  if(!file)return;
+  if(file.size>10*1024*1024){
+    document.getElementById('err2').textContent='La imagen es muy grande (máx. 10 MB)';
+    document.getElementById('err2').style.display='block';
+    return;
+  }
+  ineFile=file;
+  var reader=new FileReader();
+  reader.onload=function(e){
+    document.getElementById('ine-img').src=e.target.result;
+    document.getElementById('upload-zone').style.display='none';
+    document.getElementById('ine-preview').style.display='block';
+    document.getElementById('err2').style.display='none';
+  };
+  reader.readAsDataURL(file);
+};
+
+window.cambiarIne=function(){
+  ineFile=null;
+  document.getElementById('f-ine').value='';
+  document.getElementById('ine-preview').style.display='none';
+  document.getElementById('upload-zone').style.display='block';
+};
+
+// Drag & drop
+var zone=document.getElementById('upload-zone');
+zone.addEventListener('dragover',function(e){e.preventDefault();zone.classList.add('drag');});
+zone.addEventListener('dragleave',function(){zone.classList.remove('drag');});
+zone.addEventListener('drop',function(e){
+  e.preventDefault();zone.classList.remove('drag');
+  var f=e.dataTransfer.files[0];
+  if(f&&f.type.startsWith('image/')){
+    var dt=new DataTransfer();dt.items.add(f);
+    document.getElementById('f-ine').files=dt.files;
+    window.onIneSelected(document.getElementById('f-ine'));
+  }
+});
+
+// ── SUBMIT ──
+window.enviar=function(){
+  var name=(document.getElementById('f-name').value||'').trim();
+  var phone=(document.getElementById('f-phone').value||'').trim();
+  var email=(document.getElementById('f-email').value||'').trim();
+  var err=document.getElementById('err2');
+
+  if(!ineFile){
+    err.textContent='Por favor sube una foto de tu INE';
+    err.style.display='block';
+    return;
+  }
+
+  var btn=document.getElementById('btn-submit');
+  var txt=document.getElementById('btn-txt');
+  var spin=document.getElementById('spinner');
+  btn.disabled=true;txt.style.display='none';spin.style.display='block';
+  err.style.display='none';
+
+  if(isDemo){
+    // En demo no enviamos nada, simulamos respuesta exitosa
+    setTimeout(function(){
+      document.getElementById('folio').textContent='DEMO'+Math.random().toString(36).substring(2,8).toUpperCase();
+      setStep(3);
+    },800);
+    return;
+  }
+
+  var fd=new FormData();
+  fd.append('full_name',name);
+  fd.append('phone',phone);
+  if(email)fd.append('email',email);
+  fd.append('ine',ineFile,ineFile.name);
+
+  fetch('/api/public/events/'+eventId+'/apply',{method:'POST',body:fd})
+    .then(function(r){return r.json().then(function(d){if(!r.ok)throw new Error(d.detail||'Error');return d;});})
+    .then(function(data){
+      var short=data.token?data.token.substring(0,12).toUpperCase():'—';
+      document.getElementById('folio').textContent=short;
+      setStep(3);
+    })
+    .catch(function(e){
+      err.textContent=e.message||'Ocurrió un error. Intenta de nuevo.';
+      err.style.display='block';
+      btn.disabled=false;txt.style.display='inline';spin.style.display='none';
+    });
+};
+
+})();
+</script>
+</body>
+</html>

@@ -110,6 +110,25 @@ class Event(TimestampMixin, Base):
 
     client: Mapped["Client"] = relationship(back_populates="events")
     assignments: Mapped[list["ShiftAssignment"]] = relationship(back_populates="event", cascade="all, delete-orphan")
+    applications: Mapped[list["Application"]] = relationship(back_populates="event", cascade="all, delete-orphan")
+
+
+class Application(TimestampMixin, Base):
+    __tablename__ = "applications"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    event_id: Mapped[int] = mapped_column(ForeignKey("events.id", ondelete="CASCADE"), index=True)
+    token: Mapped[str] = mapped_column(String(80), unique=True, index=True)
+    full_name: Mapped[str] = mapped_column(String(180))
+    phone: Mapped[str] = mapped_column(String(40))
+    email: Mapped[str | None] = mapped_column(String(255))
+    area: Mapped[str | None] = mapped_column(String(120))
+    status: Mapped[str] = mapped_column(String(20), default="pending", index=True)
+    notes: Mapped[str | None] = mapped_column(Text)
+    ine_filename: Mapped[str | None] = mapped_column(String(255))
+    ine_storage_path: Mapped[str | None] = mapped_column(String(500))
+
+    event: Mapped["Event"] = relationship(back_populates="applications")
 
 
 class PayrollPeriod(TimestampMixin, Base):

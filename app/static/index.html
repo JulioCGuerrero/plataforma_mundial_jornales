@@ -834,6 +834,77 @@ tbody tr:hover td{background:#FAFAFA}
 .landing-servicia-line{height:1px;width:60px;background:rgba(255,255,255,.15)}
 .landing-servicia-txt{font-size:9px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.4);font-family:'Barlow Condensed',sans-serif}
 .landing-servicia-txt span{color:var(--servicia-cyan)}
+
+/* ── MODE SCREEN ── */
+.mode-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:40px 24px 60px;position:relative;overflow:hidden;background:linear-gradient(145deg,#060c18 0%,#0a1428 50%,#060c18 100%)}
+.mode-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:24px;max-width:780px;width:100%;margin-top:36px}
+.mode-card-btn{border:none;border-radius:28px;padding:0;cursor:pointer;text-align:left;position:relative;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,.45),0 0 0 1px rgba(255,255,255,.06);transition:transform .18s cubic-bezier(.4,0,.2,1),box-shadow .18s cubic-bezier(.4,0,.2,1);animation:fadeUp .6s ease both;display:flex;flex-direction:column}
+.mode-card-btn:hover{transform:translateY(-8px) scale(1.015);box-shadow:0 40px 100px rgba(0,0,0,.55),0 0 0 1px rgba(255,255,255,.1)}
+.mode-card-btn.m-admin{background:linear-gradient(145deg,#0a0f1e 0%,#111e3a 42%,#0a2040 100%)}
+.mode-card-btn.m-reclut{background:linear-gradient(145deg,#0a1a0a 0%,#0e2e1a 42%,#0a3022 100%)}
+.mode-card-btn::before{content:'';position:absolute;top:0;left:24px;right:24px;height:2px;border-radius:0 0 4px 4px;z-index:2}
+.mode-card-btn.m-admin::before{background:linear-gradient(90deg,transparent,#5BB8F5,transparent)}
+.mode-card-btn.m-reclut::before{background:linear-gradient(90deg,transparent,#6ED49A,transparent)}
+.mode-card-inner{position:relative;z-index:1;padding:30px 28px 26px;display:flex;flex-direction:column}
+.mode-icon{width:58px;height:58px;border-radius:16px;display:flex;align-items:center;justify-content:center;margin-bottom:20px}
+.m-admin .mode-icon{background:rgba(91,184,245,.12);border:1px solid rgba(91,184,245,.2)}
+.m-reclut .mode-icon{background:rgba(110,212,154,.12);border:1px solid rgba(110,212,154,.2)}
+.mode-name{font-family:'Bebas Neue',sans-serif;font-size:25px;letter-spacing:2px;color:white;margin-bottom:8px;line-height:1.1}
+.mode-desc{font-size:13px;line-height:1.65;color:rgba(255,255,255,.45);font-weight:300}
+.mode-feats{margin-top:14px;display:flex;flex-direction:column;gap:6px}
+.mode-feat-item{font-size:12px;color:rgba(255,255,255,.5);display:flex;align-items:center;gap:8px}
+.mode-feat-dot{width:4px;height:4px;border-radius:50%;flex-shrink:0}
+.m-admin .mode-feat-dot{background:#5BB8F5}
+.m-reclut .mode-feat-dot{background:#6ED49A}
+.mode-footer-bar{margin-top:22px;padding-top:16px;border-top:1px solid rgba(255,255,255,.07);display:flex;align-items:center;justify-content:space-between}
+.mode-chip{font-size:9px;font-weight:800;letter-spacing:1px;text-transform:uppercase;padding:4px 11px;border-radius:999px;border:1px solid}
+.m-admin .mode-chip{background:rgba(91,184,245,.1);border-color:rgba(91,184,245,.25);color:rgba(160,220,255,.85)}
+.m-reclut .mode-chip{background:rgba(110,212,154,.1);border-color:rgba(110,212,154,.25);color:rgba(160,255,210,.85)}
+.mode-arr{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;transition:transform .18s ease}
+.m-admin .mode-arr{background:rgba(91,184,245,.1);border:1px solid rgba(91,184,245,.2);color:#5BB8F5}
+.m-reclut .mode-arr{background:rgba(110,212,154,.1);border:1px solid rgba(110,212,154,.2);color:#6ED49A}
+.mode-card-btn:hover .mode-arr{transform:translateX(3px)}
+
+/* ── RECLUTAMIENTO VIEW ── */
+.reclut-subnav{display:flex;gap:4px;margin-bottom:20px;border-bottom:2px solid rgba(0,0,0,.07);padding-bottom:0;flex-wrap:wrap}
+.reclut-tab{background:transparent;border:none;border-bottom:2px solid transparent;margin-bottom:-2px;cursor:pointer;padding:9px 18px;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:12px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);transition:color .15s,border-color .15s}
+.reclut-tab.active{color:var(--red);border-bottom-color:var(--red)}
+.reclut-tab:hover:not(.active){color:var(--text)}
+.reclut-pane{display:none;animation:fadeIn .2s ease both}
+.reclut-pane.active{display:block}
+.ev-rc-card{background:white;border-radius:18px;border:1px solid rgba(0,0,0,.06);overflow:hidden;box-shadow:var(--shadow-sm);margin-bottom:14px;transition:box-shadow var(--transition)}
+.ev-rc-card:hover{box-shadow:var(--shadow-md)}
+.ev-rc-head{display:flex;align-items:center;gap:12px;padding:13px 18px 11px;border-bottom:1px solid rgba(0,0,0,.05);flex-wrap:wrap}
+.ev-rc-name{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:1.2px;color:var(--text);line-height:1;flex:1}
+.ev-rc-meta{font-size:11px;color:var(--muted);margin-top:3px}
+.ev-rc-body{padding:12px 18px;display:flex;flex-wrap:wrap;gap:14px;align-items:center}
+.ev-rc-stat{text-align:center;min-width:52px}
+.ev-rc-stat strong{display:block;font-family:'Bebas Neue',sans-serif;font-size:26px;line-height:1;color:var(--red)}
+.ev-rc-stat span{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;font-weight:700}
+.ev-rc-sep{width:1px;height:38px;background:rgba(0,0,0,.07)}
+.ev-rc-actions{margin-left:auto;display:flex;gap:7px;flex-wrap:wrap}
+.app-row{display:flex;align-items:center;gap:11px;padding:10px 0;border-bottom:1px solid rgba(0,0,0,.04)}
+.app-row:last-child{border-bottom:none}
+.app-av{width:36px;height:36px;border-radius:50%;color:white;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;flex-shrink:0;font-family:'Barlow Condensed',sans-serif}
+.app-info{flex:1;min-width:0}
+.app-name{font-size:13px;font-weight:600;color:var(--text)}
+.app-detail{font-size:11px;color:var(--muted)}
+.app-status-badge{font-size:10px;font-weight:700;padding:3px 10px;border-radius:999px;text-transform:uppercase;letter-spacing:.3px;white-space:nowrap;flex-shrink:0}
+.app-status-badge.pending{background:#FFF8E8;color:#856404;border:1px solid rgba(133,100,4,.18)}
+.app-status-badge.approved{background:#EEF8EE;color:#1E7A3A;border:1px solid rgba(30,122,58,.18)}
+.app-status-badge.rejected{background:#FFF3F3;color:#CC0000;border:1px solid rgba(204,0,0,.18)}
+.app-actions{display:flex;gap:5px;flex-shrink:0}
+.conv-status{display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:999px;font-size:10px;font-weight:700;letter-spacing:.3px;text-transform:uppercase;white-space:nowrap}
+.conv-status.sent{background:#EEF8EE;color:#1E7A3A;border:1px solid rgba(30,122,58,.18)}
+.conv-status.none{background:#F5F5F5;color:#888;border:1px solid rgba(0,0,0,.08)}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:500;display:flex;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(4px);animation:fadeIn .2s ease both}
+.modal-box{background:white;border-radius:24px;padding:28px 30px;max-width:500px;width:100%;box-shadow:0 32px 80px rgba(0,0,0,.35);position:relative;animation:fadeUp .22s ease both}
+.modal-title{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px;color:var(--red);margin-bottom:4px}
+.modal-sub{font-size:13px;color:var(--muted);margin-bottom:18px}
+.modal-close{position:absolute;top:14px;right:16px;background:none;border:none;font-size:22px;cursor:pointer;color:var(--muted);line-height:1;padding:2px}
+.modal-close:hover{color:var(--text)}
+.wa-preview-box{background:#e3f8d8;border-radius:12px;padding:14px 16px;font-size:13px;line-height:1.75;color:#1a2e1a;margin-bottom:16px;border:1px solid rgba(0,0,0,.05)}
+.wa-preview-box strong{color:#075e54;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:8px}
 </style>
 </head>
 <body>
@@ -888,7 +959,81 @@ tbody tr:hover td{background:#FAFAFA}
       </div>
       <button class="login-btn" onclick="doLogin()">Acceder</button>
       <div class="login-footer">Grupo Batia · Control de Jornales · Acceso Restringido</div>
+      <a href="/" style="display:block;margin-top:16px;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,.22);text-decoration:none;transition:color .18s" onmouseover="this.style.color='rgba(255,255,255,.55)'" onmouseout="this.style.color='rgba(255,255,255,.22)'">← Portal</a>
     </div>
+  </div>
+</div>
+
+<!-- ══ SELECTOR DE MÓDULO ══ -->
+<div class="mode-screen" id="mode-screen" style="display:none;visibility:hidden;pointer-events:none">
+  <div class="landing-bg-orb o1" style="background:radial-gradient(circle,rgba(26,62,191,.2),transparent 70%)"></div>
+  <div class="landing-bg-orb o2" style="background:radial-gradient(circle,rgba(14,124,104,.15),transparent 70%)"></div>
+  <div class="landing-grid-lines"></div>
+  <div style="position:relative;z-index:1;width:100%;max-width:840px;margin:0 auto;text-align:center;padding:0 20px">
+    <div style="animation:fadeUp .5s ease both;margin-bottom:36px">
+      <div class="landing-kicker" style="margin:0 auto 16px">
+        <span class="landing-kicker-dot"></span>
+        Grupo Batia · Control de Jornales
+      </div>
+      <div class="landing-title" style="font-size:62px;line-height:.88;margin-bottom:10px">Selecciona <span>Módulo</span></div>
+      <div class="landing-copy">Elige el área de trabajo a la que deseas acceder.</div>
+    </div>
+    <div class="mode-cards">
+      <button class="mode-card-btn m-admin" onclick="enterMode('admin')">
+        <div class="mode-card-inner">
+          <div class="mode-icon">
+            <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+              <rect x="3" y="7" width="22" height="16" rx="2.5" stroke="#5BB8F5" stroke-width="1.8" fill="none"/>
+              <path d="M3 12h22" stroke="#5BB8F5" stroke-width="1.4"/>
+              <rect x="6" y="16" width="5" height="4" rx="1" fill="#5BB8F5" opacity=".5"/>
+              <rect x="14" y="16" width="8" height="1.5" rx=".75" fill="#5BB8F5" opacity=".4"/>
+              <rect x="14" y="20" width="5" height="1" rx=".5" fill="#5BB8F5" opacity=".3"/>
+              <path d="M9 4v3M19 4v3" stroke="#5BB8F5" stroke-width="1.8" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <div class="mode-name">Administración de Jornales</div>
+          <div class="mode-desc">Gestión de eventos, asignación por turnos, nóminas y reportes operativos.</div>
+          <div class="mode-feats">
+            <div class="mode-feat-item"><div class="mode-feat-dot"></div>Eventos y asignación por turno</div>
+            <div class="mode-feat-item"><div class="mode-feat-dot"></div>Base de datos de jornales</div>
+            <div class="mode-feat-item"><div class="mode-feat-dot"></div>Periodos de nómina y reportes</div>
+          </div>
+          <div class="mode-footer-bar">
+            <div class="mode-chip">Operaciones</div>
+            <div class="mode-arr">→</div>
+          </div>
+        </div>
+      </button>
+      <button class="mode-card-btn m-reclut" onclick="enterMode('reclut')">
+        <div class="mode-card-inner">
+          <div class="mode-icon">
+            <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+              <circle cx="10" cy="11" r="3.5" stroke="#6ED49A" stroke-width="1.8" fill="none"/>
+              <path d="M4 22c0-3 2.7-5.5 6-5.5" stroke="#6ED49A" stroke-width="1.8" stroke-linecap="round"/>
+              <circle cx="20" cy="11" r="3.5" stroke="#6ED49A" stroke-width="1.8" fill="none"/>
+              <path d="M20 16.5c3.3 0 6 2.5 6 5.5" stroke="#6ED49A" stroke-width="1.8" stroke-linecap="round"/>
+              <path d="M13 22h2" stroke="#6ED49A" stroke-width="1.8" stroke-linecap="round"/>
+              <path d="M14 16.5V22" stroke="#6ED49A" stroke-width="1.8" stroke-linecap="round"/>
+              <path d="M18 5l1.5 1.5L13 13l-2.5-2.5L12 9l.5.5z" fill="#6ED49A" opacity=".55"/>
+            </svg>
+          </div>
+          <div class="mode-name">Reclutamiento y Convocatorias</div>
+          <div class="mode-desc">Registra candidatos, crea convocatorias, envía invitaciones y gestiona postulantes.</div>
+          <div class="mode-feats">
+            <div class="mode-feat-item"><div class="mode-feat-dot"></div>Crear convocatorias por evento</div>
+            <div class="mode-feat-item"><div class="mode-feat-dot"></div>Simular envío por WhatsApp</div>
+            <div class="mode-feat-item"><div class="mode-feat-dot"></div>Dashboard de postulantes</div>
+          </div>
+          <div class="mode-footer-bar">
+            <div class="mode-chip">Reclutamiento</div>
+            <div class="mode-arr">→</div>
+          </div>
+        </div>
+      </button>
+    </div>
+    <button onclick="backToLogin()" style="margin-top:24px;background:none;border:none;cursor:pointer;font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,.22);font-family:'Barlow Condensed',sans-serif;display:inline-flex;align-items:center;gap:6px;transition:color .18s ease" onmouseover="this.style.color='rgba(255,255,255,.55)'" onmouseout="this.style.color='rgba(255,255,255,.22)'">
+      ← Cerrar sesión
+    </button>
   </div>
 </div>
 
@@ -1186,6 +1331,14 @@ tbody tr:hover td{background:#FAFAFA}
       <button class="nav-btn" onclick="gotoView('resumen',this)">
         <svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor"><rect x="1" y="7" width="2" height="4" opacity=".7"/><rect x="5" y="4" width="2" height="7" opacity=".7"/><rect x="9" y="1" width="2" height="10" opacity=".7"/></svg>
         Resumen
+      </button>
+      <a href="/" class="nav-btn" style="text-decoration:none;opacity:.55">
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor"><path d="M6 1L1 5v6h4V8h2v3h4V5L6 1z" opacity=".7"/></svg>
+        Portal
+      </a>
+      <button class="nav-btn" id="nav-reclut" onclick="gotoView('reclut',this);renderReclutEventos()" style="display:none">
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor"><circle cx="4" cy="4.5" r="2" opacity=".7"/><path d="M1 10c0-1.7 1.3-3 3-3" opacity=".7" stroke="currentColor" stroke-width=".5" fill="none"/><circle cx="9" cy="4.5" r="2" opacity=".7"/><path d="M9 7c1.7 0 3 1.3 3 3" opacity=".7" stroke="currentColor" stroke-width=".5" fill="none"/><path d="M6 10h1M6.5 7v3" opacity=".6" stroke="currentColor" stroke-width="1" fill="none"/></svg>
+        Reclutamiento
       </button>
     </nav>
   </div>
@@ -1532,8 +1685,110 @@ tbody tr:hover td{background:#FAFAFA}
     </div>
   </div>
 
+  <!-- VIEW: RECLUTAMIENTO -->
+  <div class="view" id="view-reclut">
+    <div class="sec-head" style="flex-wrap:wrap;gap:10px">
+      <h2>RECLUTAMIENTO</h2>
+      <button class="btn btn-red" style="margin-left:auto" onclick="toggleNuevaConvForm()">
+        <svg width="13" height="13" viewBox="0 0 13 13" fill="currentColor"><path d="M6 1v11M1 6h11"/></svg>
+        Nueva Convocatoria
+      </button>
+    </div>
+
+    <div class="card" id="form-nueva-conv" style="display:none">
+      <div class="card-title">NUEVA CONVOCATORIA</div>
+      <div class="form-row">
+        <div class="fg"><label>Nombre del Evento</label><input id="rc-ev-nom" placeholder="Ej: Concierto · Apertura temporada 2026"></div>
+        <div class="fg" style="max-width:185px"><label>Fecha</label><input id="rc-ev-fecha" type="date"></div>
+        <div class="fg" style="max-width:200px"><label>Tipo</label>
+          <select id="rc-ev-tipo"><option>Concierto</option><option>Festival</option><option>Corporativo</option><option>Evento Deportivo</option><option>Privado</option><option>Otro</option></select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="fg" style="max-width:160px"><label>Vacantes Jornales</label><input id="rc-vacantes-op" type="number" value="20" min="0"></div>
+        <div class="fg" style="max-width:160px"><label>Vacantes Supervisores</label><input id="rc-vacantes-sup" type="number" value="4" min="0"></div>
+        <div class="fg" style="max-width:160px"><label>Pago principal ($)</label><input id="rc-salario" type="number" value="480" min="1"></div>
+      </div>
+      <div class="form-row">
+        <div class="fg"><label>Descripción para postulantes</label><input id="rc-ev-desc" placeholder="Lugar, requisitos, uniforme, qué deben traer..."></div>
+      </div>
+      <div style="display:flex;gap:10px">
+        <button class="btn btn-red" onclick="crearConvocatoriaEvento()">Crear Convocatoria</button>
+        <button class="btn btn-outline" onclick="toggleNuevaConvForm()">Cancelar</button>
+      </div>
+    </div>
+
+    <div class="reclut-subnav">
+      <button class="reclut-tab active" onclick="switchReclutTab('eventos',this)">Convocatorias</button>
+      <button class="reclut-tab" onclick="switchReclutTab('postulantes',this)">Postulantes <span id="reclut-app-count" style="display:none;background:var(--red);color:white;font-size:9px;padding:1px 8px;border-radius:999px;margin-left:4px;vertical-align:middle"></span></button>
+    </div>
+
+    <!-- TAB: CONVOCATORIAS -->
+    <div class="reclut-pane active" id="rpane-eventos">
+      <div id="reclut-ev-list">
+        <p style="color:var(--muted);font-size:14px;opacity:.6;padding:20px 0">Selecciona un cliente para ver los eventos.</p>
+      </div>
+    </div>
+
+    <!-- TAB: POSTULANTES -->
+    <div class="reclut-pane" id="rpane-postulantes">
+      <div id="reclut-ev-sel-info" class="card" style="display:none;margin-bottom:18px">
+        <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap">
+          <div style="flex:1;min-width:200px">
+            <div style="font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:1.5px;color:var(--red)" id="reclut-sel-ev-name">—</div>
+            <div style="font-size:12px;color:var(--muted);margin-top:2px" id="reclut-sel-ev-date">—</div>
+          </div>
+          <div id="reclut-conv-status" class="conv-status none">Sin envío WA</div>
+          <button class="btn btn-red btn-sm" onclick="abrirModalWA()">
+            <svg width="13" height="13" viewBox="0 0 20 20" fill="currentColor"><path d="M10 0C4.5 0 0 4.5 0 10c0 1.8.5 3.5 1.4 4.9L0 20l5.2-1.4C6.6 19.5 8.3 20 10 20c5.5 0 10-4.5 10-10S15.5 0 10 0zm5.2 14.1c-.2.6-1.2 1.1-1.7 1.2-.4.1-.9.1-2.9-.6-2.4-.9-4-3.3-4.1-3.4-.1-.2-1-1.3-1-2.5s.6-1.8.9-2c.2-.3.5-.3.7-.3h.5c.2 0 .4 0 .5.4.2.5.7 1.8.8 1.9.1.1.1.3 0 .5l-.3.4-.3.3c-.1.2-.2.3-.1.5.2.4.7 1.2 1.5 1.9.7.6 1.5 1 1.9 1.1.2.1.4 0 .5-.1l.8-1c.2-.2.3-.2.5-.1l1.6.8c.2.1.3.2.4.3.1.3 0 .9-.2 1.5z"/></svg>
+            Simular WA
+          </button>
+          <button class="btn btn-outline btn-sm" onclick="copiarLinkPostulacion()">
+            <svg width="11" height="11" viewBox="0 0 11 11" fill="none"><path d="M7 1H10V4M10 1L5 6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><path d="M2 4H1V10H7V9" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Copiar link
+          </button>
+        </div>
+      </div>
+      <p id="reclut-no-ev-msg" style="color:var(--muted);font-size:14px;padding:20px 0;opacity:.7">Selecciona un evento desde la pestaña <strong>Convocatorias</strong> para ver sus postulantes.</p>
+      <div id="reclut-apps-card" class="card" style="display:none">
+        <div style="display:flex;gap:7px;margin-bottom:14px;flex-wrap:wrap;align-items:center">
+          <button class="btn btn-sm" id="rfilt-todos" style="background:var(--red);color:white" onclick="filtrarApps('todos',this)">Todos</button>
+          <button class="btn btn-outline btn-sm" id="rfilt-pending" onclick="filtrarApps('pending',this)">Pendientes</button>
+          <button class="btn btn-outline btn-sm" id="rfilt-approved" onclick="filtrarApps('approved',this)">Aprobados</button>
+          <button class="btn btn-outline btn-sm" id="rfilt-rejected" onclick="filtrarApps('rejected',this)">Rechazados</button>
+          <button class="btn btn-outline btn-sm" style="margin-left:auto" onclick="aprobarTodosPendientes()">✓ Aprobar todos pendientes</button>
+        </div>
+        <div id="reclut-apps-list"></div>
+      </div>
+    </div>
+  </div>
+
 </div>
 <div class="toast" id="toast"></div>
+
+<!-- MODAL WA -->
+<div class="modal-overlay" id="modal-wa" style="display:none" onclick="if(event.target===this)this.style.display='none'">
+  <div class="modal-box">
+    <button class="modal-close" onclick="document.getElementById('modal-wa').style.display='none'">×</button>
+    <div class="modal-title">SIMULAR CONVOCATORIA WA</div>
+    <div class="modal-sub">Vista previa de la plantilla que se enviaría por WhatsApp Business API</div>
+    <div class="wa-preview-box">
+      <strong>📱 WhatsApp Business · Plantilla: convocatoria_evento</strong>
+      <span id="modal-wa-preview">Hola <em>{nombre}</em>, te invitamos a trabajar en <strong>{evento}</strong>. Aplica aquí: <em>{link}</em></span>
+    </div>
+    <div class="form-row">
+      <div class="fg">
+        <label>Teléfonos a enviar (uno por línea o separados por comas)</label>
+        <textarea id="wa-phone-list" style="width:100%;border:1.5px solid #E8E8E8;border-radius:10px;padding:10px 14px;font-family:'Barlow',sans-serif;font-size:13px;min-height:88px;resize:vertical;outline:none;transition:border-color .18s" placeholder="5512345678&#10;5598765432&#10;5511223344" onfocus="this.style.borderColor='var(--red)'" onblur="this.style.borderColor='#E8E8E8'"></textarea>
+        <div style="font-size:11px;color:var(--muted);margin-top:4px">Deja vacío para simular 5-15 envíos aleatorios</div>
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:6px">
+      <button class="btn btn-outline btn-sm" onclick="document.getElementById('modal-wa').style.display='none'">Cancelar</button>
+      <button class="btn btn-red" onclick="enviarConvocatoriaSimulada()">Simular Envío</button>
+    </div>
+  </div>
+</div>
 
 <script>
 var emps=[
@@ -1558,6 +1813,235 @@ var TURNOS=[
   {key:'durante',lbl:'Horario 2',ico:'▶',sub:'Segundo bloque',cls:'t-durante'},
   {key:'despues',lbl:'Horario 3',ico:'◀',sub:'Tercer bloque',cls:'t-despues'},
 ];
+
+// ── RECLUTAMIENTO globals ──
+var currentMode='admin';
+var reclutData={apps:[],convs:[],nextId:1,selectedEventId:null,appFilter:'todos'};
+
+function enterMode(mode){
+  currentMode=mode;
+  document.getElementById('mode-screen').style.display='none';
+  document.getElementById('landing-screen').style.display='flex';
+}
+function backToMode(){
+  var ms=document.getElementById('mode-screen');
+  var ls=document.getElementById('landing-screen');
+  var mh=document.getElementById('main-header');
+  var w=document.querySelector('.wrap');
+  var banner=document.getElementById('client-banner');
+  if(ls)ls.style.display='none';
+  if(mh)mh.style.display='none';
+  if(w)w.style.display='none';
+  if(banner){banner.className='client-banner';banner.innerHTML='';banner.style.display='none';}
+  document.querySelector('.mascots-bar').style.display='none';
+  document.body.className='';
+  currentClientKey=null;
+  currentMode='admin';
+  if(ms)ms.style.display='flex';
+}
+function backToLogin(){
+  localStorage.removeItem('cj_token');
+  var ms=document.getElementById('mode-screen');
+  if(ms)ms.style.display='none';
+  document.getElementById('login-screen').style.display='flex';
+}
+function toggleNuevaConvForm(){
+  var f=document.getElementById('form-nueva-conv');
+  if(f)f.style.display=f.style.display==='none'?'block':'none';
+}
+function switchReclutTab(tab,btn){
+  document.querySelectorAll('.reclut-tab').forEach(function(b){b.classList.remove('active');});
+  document.querySelectorAll('.reclut-pane').forEach(function(p){p.classList.remove('active');});
+  if(btn)btn.classList.add('active');
+  var pane=document.getElementById('rpane-'+tab);
+  if(pane)pane.classList.add('active');
+  if(tab==='postulantes')renderReclutPostulantes();
+}
+function filtrarApps(filter,btn){
+  reclutData.appFilter=filter;
+  ['rfilt-todos','rfilt-pending','rfilt-approved','rfilt-rejected'].forEach(function(id){
+    var b=document.getElementById(id);
+    if(!b)return;
+    b.style.background='';b.style.color='';
+  });
+  if(btn){btn.style.background='var(--red)';btn.style.color='white';}
+  renderReclutPostulantes();
+}
+function renderReclutEventos(){
+  var container=document.getElementById('reclut-ev-list');
+  if(!container)return;
+  if(!eventos||!eventos.length){
+    container.innerHTML='<p style="color:var(--muted);font-size:14px;opacity:.6;padding:20px 0">Sin eventos. Crea una convocatoria o agrega un evento desde Administración.</p>';
+    return;
+  }
+  container.innerHTML=eventos.map(function(ev){
+    var apps=reclutData.apps.filter(function(a){return a.eventId===ev.id;});
+    var conv=reclutData.convs.find(function(c){return c.eventId===ev.id;});
+    var pending=apps.filter(function(a){return a.status==='pending';}).length;
+    var approved=apps.filter(function(a){return a.status==='approved';}).length;
+    var rejected=apps.filter(function(a){return a.status==='rejected';}).length;
+    var convHtml=conv
+      ?'<span class="conv-status sent">✓ WA enviado · '+conv.count+' personas</span>'
+      :'<span class="conv-status none">Sin envío WA</span>';
+    var vacOp=ev.posiciones?ev.posiciones.operario:(ev.operator_positions||0);
+    var vacSup=ev.posiciones?ev.posiciones.supervision:(ev.supervisor_positions||0);
+    return '<div class="ev-rc-card">'
+      +'<div class="ev-rc-head">'
+      +'<div style="flex:1;min-width:0">'
+      +'<div class="ev-rc-name">'+safeTxt(ev.nombre||ev.name||'')+'</div>'
+      +'<div class="ev-rc-meta">'+fdate(ev.fecha||ev.event_date)+' · '+safeTxt(ev.tipo||ev.event_type||'')+'</div>'
+      +'</div>'
+      +convHtml
+      +'</div>'
+      +'<div class="ev-rc-body">'
+      +'<div class="ev-rc-stat"><strong>'+apps.length+'</strong><span>Postulantes</span></div>'
+      +'<div class="ev-rc-sep"></div>'
+      +'<div class="ev-rc-stat"><strong style="color:#856404">'+pending+'</strong><span>Pendientes</span></div>'
+      +'<div class="ev-rc-stat"><strong style="color:#1E7A3A">'+approved+'</strong><span>Aprobados</span></div>'
+      +'<div class="ev-rc-stat"><strong style="color:#CC0000">'+rejected+'</strong><span>Rechazados</span></div>'
+      +'<div class="ev-rc-sep"></div>'
+      +'<div class="ev-rc-stat"><strong>'+vacOp+'</strong><span>Vcnts J</span></div>'
+      +'<div class="ev-rc-stat"><strong>'+vacSup+'</strong><span>Vcnts S</span></div>'
+      +'<div class="ev-rc-actions">'
+      +'<button class="btn btn-outline btn-sm" onclick="verPostulantesEv('+ev.id+')">Ver postulantes</button>'
+      +'<button class="btn btn-red btn-sm" onclick="openWAForEvent('+ev.id+')">📱 WA</button>'
+      +'</div>'
+      +'</div>'
+      +'</div>';
+  }).join('');
+}
+function renderReclutPostulantes(){
+  var ev=reclutData.selectedEventId?eventos.find(function(e){return e.id===reclutData.selectedEventId;}):null;
+  var selInfo=document.getElementById('reclut-ev-sel-info');
+  var noMsg=document.getElementById('reclut-no-ev-msg');
+  var appsCard=document.getElementById('reclut-apps-card');
+  if(!ev){
+    if(selInfo)selInfo.style.display='none';
+    if(noMsg)noMsg.style.display='block';
+    if(appsCard)appsCard.style.display='none';
+    return;
+  }
+  if(selInfo)selInfo.style.display='block';
+  if(noMsg)noMsg.style.display='none';
+  if(appsCard)appsCard.style.display='block';
+  var selName=document.getElementById('reclut-sel-ev-name');
+  var selDate=document.getElementById('reclut-sel-ev-date');
+  if(selName)selName.textContent=(ev.nombre||ev.name||'').toUpperCase();
+  if(selDate)selDate.textContent=fdate(ev.fecha||ev.event_date)+' · '+(ev.tipo||ev.event_type||'');
+  var conv=reclutData.convs.find(function(c){return c.eventId===ev.id;});
+  var statusEl=document.getElementById('reclut-conv-status');
+  if(statusEl){
+    if(conv){statusEl.textContent='✓ WA enviado · '+conv.count+' personas';statusEl.className='conv-status sent';}
+    else{statusEl.textContent='Sin envío WA';statusEl.className='conv-status none';}
+  }
+  var filter=reclutData.appFilter;
+  var apps=reclutData.apps.filter(function(a){
+    return a.eventId===ev.id&&(filter==='todos'||a.status===filter);
+  });
+  var countEl=document.getElementById('reclut-app-count');
+  var total=reclutData.apps.filter(function(a){return a.eventId===ev.id;}).length;
+  if(countEl){countEl.textContent=total;countEl.style.display=total?'inline-block':'none';}
+  var listEl=document.getElementById('reclut-apps-list');
+  if(!listEl)return;
+  var statusLabels={pending:'Pendiente',approved:'Aprobado',rejected:'Rechazado'};
+  if(!apps.length){
+    listEl.innerHTML='<p style="color:var(--muted);font-size:13px;padding:12px 0;opacity:.7">Sin postulantes'+(filter!=='todos'?' con este filtro':' aún')+'.</p>';
+    return;
+  }
+  listEl.innerHTML=apps.map(function(app){
+    var initials=(app.nombre||'').split(' ').slice(0,2).map(function(w){return w[0]||'';}).join('').toUpperCase();
+    var bgC={pending:'rgba(133,100,4,.12)',approved:'rgba(30,122,58,.12)',rejected:'rgba(204,0,0,.12)'};
+    var txC={pending:'#856404',approved:'#1E7A3A',rejected:'#CC0000'};
+    return '<div class="app-row">'
+      +'<div class="app-av" style="background:'+bgC[app.status]+';color:'+txC[app.status]+'">'+safeTxt(initials)+'</div>'
+      +'<div class="app-info">'
+      +'<div class="app-name">'+safeTxt(app.nombre)+'</div>'
+      +'<div class="app-detail">'+safeTxt(app.telefono)+' · '+safeTxt(app.area)+' · '+app.fecha+'</div>'
+      +'</div>'
+      +'<span class="app-status-badge '+app.status+'">'+statusLabels[app.status]+'</span>'
+      +'<div class="app-actions">'
+      +(app.status!=='approved'?'<button class="btn btn-outline btn-xs" style="color:#1E7A3A;border-color:rgba(30,122,58,.3)" onclick="setAppStatus('+app.id+',\'approved\')">✓ Aprobar</button>':'')
+      +(app.status!=='rejected'?'<button class="btn-danger btn-xs" onclick="setAppStatus('+app.id+',\'rejected\')">✗</button>':'')
+      +'</div>'
+      +'</div>';
+  }).join('');
+}
+function setAppStatus(appId,status){
+  var app=reclutData.apps.find(function(a){return a.id===appId;});
+  if(!app)return;
+  app.status=status;
+  renderReclutPostulantes();
+  renderReclutEventos();
+  toast(status==='approved'?'Postulante aprobado':'Postulante rechazado');
+}
+function aprobarTodosPendientes(){
+  var evId=reclutData.selectedEventId;
+  if(!evId)return;
+  var pendientes=reclutData.apps.filter(function(a){return a.eventId===evId&&a.status==='pending';});
+  pendientes.forEach(function(a){a.status='approved';});
+  renderReclutPostulantes();renderReclutEventos();
+  toast(pendientes.length+' postulantes aprobados');
+}
+function verPostulantesEv(evId){
+  reclutData.selectedEventId=evId;
+  var tabs=document.querySelectorAll('.reclut-tab');
+  switchReclutTab('postulantes',tabs[1]);
+}
+function openWAForEvent(evId){
+  reclutData.selectedEventId=evId;
+  abrirModalWA();
+}
+function abrirModalWA(){
+  var ev=reclutData.selectedEventId?eventos.find(function(e){return e.id===reclutData.selectedEventId;}):null;
+  if(!ev){toast('Selecciona un evento primero');return;}
+  var preview=document.getElementById('modal-wa-preview');
+  if(preview){
+    var nombre=ev.nombre||ev.name||'';
+    var fecha=fdate(ev.fecha||ev.event_date);
+    var pago=Number(ev.pago||ev.salary_during||0).toLocaleString('es-MX');
+    preview.innerHTML='Hola <em>{nombre}</em>, te invitamos a trabajar en <strong>'+safeTxt(nombre)+'</strong> el '+fecha+'. Pago: $'+pago+'/turno. Aplica aquí: <em>https://jornales.batia.mx/apply/'+ev.id+'</em>';
+  }
+  document.getElementById('modal-wa').style.display='flex';
+}
+function enviarConvocatoriaSimulada(){
+  var ev=reclutData.selectedEventId?eventos.find(function(e){return e.id===reclutData.selectedEventId;}):null;
+  if(!ev)return;
+  var raw=document.getElementById('wa-phone-list').value||'';
+  var phones=raw.split(/[\n,;]+/).map(function(p){return p.trim();}).filter(Boolean);
+  var count=phones.length||Math.floor(Math.random()*11)+5;
+  var existing=reclutData.convs.find(function(c){return c.eventId===ev.id;});
+  var now=new Date().toISOString().split('T')[0];
+  if(existing){existing.sentAt=now;existing.count=(existing.count||0)+count;}
+  else{reclutData.convs.push({eventId:ev.id,sentAt:now,count:count});}
+  document.getElementById('modal-wa').style.display='none';
+  document.getElementById('wa-phone-list').value='';
+  toast('✓ Convocatoria simulada · '+count+' mensajes · En producción: WA Business API');
+  renderReclutPostulantes();renderReclutEventos();
+}
+function copiarLinkPostulacion(){
+  var ev=reclutData.selectedEventId?eventos.find(function(e){return e.id===reclutData.selectedEventId;}):null;
+  if(!ev)return;
+  var link='https://jornales.batia.mx/apply/'+ev.id;
+  if(navigator.clipboard){navigator.clipboard.writeText(link).then(function(){toast('Link copiado al portapapeles');});}
+  else{toast('Link: '+link);}
+}
+function seedAppsForEvent(eventId,vacantes){
+  var count=Math.min(Math.floor((vacantes||10)*0.6)+Math.floor(Math.random()*3),10);
+  var NAMES=['María García','José López','Ana Martínez','Carlos Rodríguez','Laura Hernández','Pedro Sánchez','Sofía Ramírez','Diego Torres','Carmen Flores','Rubén Méndez'];
+  var AREAS=['Seguridad','Acomodadores','Limpieza','Taquillas','Logística','Estacionamiento'];
+  var STATUSES=['pending','pending','pending','approved','rejected'];
+  for(var i=0;i<count;i++){
+    reclutData.apps.push({
+      id:reclutData.nextId++,
+      eventId:eventId,
+      nombre:NAMES[i%NAMES.length],
+      telefono:'55 '+(1000+Math.floor(Math.random()*8999))+' '+(1000+Math.floor(Math.random()*8999)),
+      area:AREAS[i%AREAS.length],
+      status:STATUSES[i%STATUSES.length],
+      fecha:new Date(Date.now()-Math.random()*5*864e5).toISOString().split('T')[0]
+    });
+  }
+}
 
 function doLogin(){
   var u=document.getElementById('login-user').value.trim();
@@ -2666,7 +3150,50 @@ window.importJornalesExcel=function(input){
     originalEnterClient(key);
     emps=[];eventos=[];allEventos=[];selEv=null;
     renderEventos();renderEmps();
-    loadClientData();
+    loadClientData().then(function(){
+      if(currentMode==='reclut'){
+        gotoView('reclut',document.getElementById('nav-reclut'));
+        renderReclutEventos();
+      }
+    });
+  };
+
+  window.crearConvocatoriaEvento=function(){
+    var n=document.getElementById('rc-ev-nom').value.trim();
+    var f=document.getElementById('rc-ev-fecha').value;
+    var tipo=document.getElementById('rc-ev-tipo').value.trim();
+    if(!n){toast('Ingresa el nombre de la convocatoria');return;}
+    if(!f){toast('Selecciona la fecha');return;}
+    var vacOp=Number(document.getElementById('rc-vacantes-op').value||0);
+    var vacSup=Number(document.getElementById('rc-vacantes-sup').value||0);
+    var sal=Number(document.getElementById('rc-salario').value||0);
+    var desc=document.getElementById('rc-ev-desc').value.trim();
+    var payload={
+      name:n,
+      event_date:f,
+      event_type:tipo||'Convocatoria',
+      description:desc,
+      operator_positions:vacOp,
+      supervisor_positions:vacSup,
+      salary_during:sal||480
+    };
+    api('/api/clients/'+slug()+'/events',{method:'POST',body:JSON.stringify(payload)})
+      .then(function(data){
+        toast('Convocatoria creada');
+        document.getElementById('form-nueva-conv').style.display='none';
+        document.getElementById('rc-ev-nom').value='';
+        document.getElementById('rc-ev-fecha').value='';
+        document.getElementById('rc-ev-tipo').value='';
+        document.getElementById('rc-vacantes-op').value='';
+        document.getElementById('rc-vacantes-sup').value='';
+        document.getElementById('rc-salario').value='';
+        document.getElementById('rc-ev-desc').value='';
+        return loadClientData().then(function(){
+          var evId=data&&data.id?data.id:(eventos.length?eventos[eventos.length-1].id:null);
+          if(evId)seedAppsForEvent(evId,vacOp+vacSup||10);
+          renderReclutEventos();
+        });
+      }).catch(function(e){toast(e.message||'Error al crear convocatoria');});
   };
 
   window.backToLanding=(function(original){

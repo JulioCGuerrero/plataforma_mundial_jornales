@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Batia · Plataforma de Jornales</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#060c18;--border:rgba(255,255,255,.08);--text:#e8eaf0;--muted:rgba(232,234,240,.45);
+  --blue:#5BB8F5;--blue-dim:rgba(91,184,245,.12);
+  --green:#6ED49A;--green-dim:rgba(110,212,154,.12);
+  --red:#CC2936;
+}
+body{background:var(--bg);color:var(--text);font-family:'Inter',system-ui,sans-serif;min-height:100vh;overflow-x:hidden}
+
+/* background */
+.bg{position:fixed;inset:0;pointer-events:none;z-index:0}
+.orb{position:absolute;border-radius:50%;filter:blur(120px)}
+.o1{width:700px;height:700px;top:-200px;left:-200px;background:radial-gradient(circle,rgba(26,62,191,.18),transparent 70%)}
+.o2{width:600px;height:600px;bottom:-150px;right:-150px;background:radial-gradient(circle,rgba(14,124,104,.14),transparent 70%)}
+.grid-lines{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px);background-size:60px 60px}
+
+/* layout */
+.page{position:relative;z-index:1;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:48px 24px 60px}
+
+/* header */
+.top{text-align:center;margin-bottom:56px;animation:fadeUp .5s ease both}
+.logo{height:40px;margin-bottom:20px}
+.kicker{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:999px;padding:6px 16px;font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:18px}
+.kicker-dot{width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green);animation:pulse 2s ease infinite}
+.title{font-family:'Bebas Neue',sans-serif;font-size:clamp(52px,8vw,80px);line-height:.88;letter-spacing:1px;margin-bottom:12px}
+.title span{color:var(--red)}
+.subtitle{font-size:15px;color:var(--muted);font-family:'Barlow Condensed',sans-serif;font-size:18px;letter-spacing:.5px}
+
+/* cards */
+.cards{display:grid;grid-template-columns:1fr 1fr;gap:20px;width:100%;max-width:760px;animation:fadeUp .55s .1s ease both}
+
+.card{position:relative;background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:20px;padding:36px 32px 32px;text-decoration:none;color:inherit;cursor:pointer;transition:transform .2s ease,border-color .2s ease,background .2s ease;overflow:hidden;display:block}
+.card::before{content:'';position:absolute;inset:0;border-radius:20px;opacity:0;transition:opacity .2s}
+.card:hover{transform:translateY(-4px)}
+
+.card-op::before{background:radial-gradient(circle at 30% 30%,rgba(91,184,245,.08),transparent 70%)}
+.card-op:hover{border-color:rgba(91,184,245,.4);background:rgba(91,184,245,.04)}
+.card-op:hover::before{opacity:1}
+
+.card-rc::before{background:radial-gradient(circle at 30% 30%,rgba(110,212,154,.08),transparent 70%)}
+.card-rc:hover{border-color:rgba(110,212,154,.4);background:rgba(110,212,154,.04)}
+.card-rc:hover::before{opacity:1}
+
+.card-shine{position:absolute;top:-60%;left:-60%;width:220%;height:220%;background:radial-gradient(circle at 30% 30%,rgba(255,255,255,.06),transparent 50%);opacity:0;transition:opacity .3s;pointer-events:none;border-radius:50%}
+.card:hover .card-shine{opacity:1}
+
+.card-icon{width:52px;height:52px;border-radius:14px;display:flex;align-items:center;justify-content:center;margin-bottom:20px}
+.card-op .card-icon{background:var(--blue-dim);border:1px solid rgba(91,184,245,.18)}
+.card-rc .card-icon{background:var(--green-dim);border:1px solid rgba(110,212,154,.18)}
+
+.card-name{font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:800;letter-spacing:.5px;margin-bottom:8px}
+.card-desc{font-size:13px;color:var(--muted);line-height:1.55;margin-bottom:24px}
+
+.feats{display:flex;flex-direction:column;gap:7px;margin-bottom:28px}
+.feat{display:flex;align-items:center;gap:9px;font-size:12px;color:rgba(232,234,240,.6)}
+.feat-dot{width:5px;height:5px;border-radius:50%;flex-shrink:0}
+.card-op .feat-dot{background:var(--blue)}
+.card-rc .feat-dot{background:var(--green)}
+
+.card-footer{display:flex;align-items:center;justify-content:space-between;border-top:1px solid var(--border);padding-top:20px}
+.chip{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;padding:4px 12px;border-radius:999px}
+.card-op .chip{background:var(--blue-dim);color:var(--blue)}
+.card-rc .chip{background:var(--green-dim);color:var(--green)}
+.arr{font-size:18px;opacity:.4;transition:opacity .2s,transform .2s}
+.card:hover .arr{opacity:1;transform:translateX(4px)}
+
+/* footer */
+.footer{margin-top:48px;text-align:center;font-size:11px;color:rgba(255,255,255,.16);font-family:'Barlow Condensed',sans-serif;letter-spacing:.5px;animation:fadeUp .6s .2s ease both}
+
+/* animations */
+@keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+
+@media(max-width:600px){
+  .cards{grid-template-columns:1fr}
+  .title{font-size:52px}
+}
+</style>
+</head>
+<body>
+
+<div class="bg">
+  <div class="orb o1"></div>
+  <div class="orb o2"></div>
+  <div class="grid-lines"></div>
+</div>
+
+<div class="page">
+
+  <div class="top">
+    <img src="/static/img/batia-logo-42f9b37669026fca5e82ece04481469a.png" class="logo" alt="Batia">
+    <div class="kicker"><span class="kicker-dot"></span>Grupo Batia · Plataforma de Jornales</div>
+    <div class="title">Selecciona<br><span>Módulo</span></div>
+    <div class="subtitle">Elige el área de trabajo a la que deseas acceder</div>
+  </div>
+
+  <div class="cards">
+
+    <!-- OPERACIONES -->
+    <a class="card card-op" href="/operaciones">
+      <div class="card-shine"></div>
+      <div class="card-icon">
+        <svg width="26" height="26" viewBox="0 0 26 26" fill="none">
+          <rect x="2" y="6" width="22" height="15" rx="2.5" stroke="#5BB8F5" stroke-width="1.8" fill="none"/>
+          <path d="M2 11h22" stroke="#5BB8F5" stroke-width="1.4"/>
+          <rect x="5" y="15" width="5" height="3.5" rx="1" fill="#5BB8F5" opacity=".5"/>
+          <rect x="13" y="15" width="8" height="1.4" rx=".7" fill="#5BB8F5" opacity=".4"/>
+          <rect x="13" y="18.5" width="5" height="1" rx=".5" fill="#5BB8F5" opacity=".3"/>
+          <path d="M8.5 3v3M17.5 3v3" stroke="#5BB8F5" stroke-width="1.8" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div class="card-name">Administración de Jornales</div>
+      <div class="card-desc">Gestión de eventos, asignación de personal por turno, base de datos de jornales y periodos de nómina.</div>
+      <div class="feats">
+        <div class="feat"><div class="feat-dot"></div>Eventos y asignación por turno</div>
+        <div class="feat"><div class="feat-dot"></div>Base de datos de jornales</div>
+        <div class="feat"><div class="feat-dot"></div>Periodos de nómina y reportes</div>
+      </div>
+      <div class="card-footer">
+        <span class="chip">Operaciones</span>
+        <span class="arr">→</span>
+      </div>
+    </a>
+
+    <!-- RECLUTAMIENTO -->
+    <a class="card card-rc" href="/reclut">
+      <div class="card-shine"></div>
+      <div class="card-icon">
+        <svg width="26" height="26" viewBox="0 0 26 26" fill="none">
+          <circle cx="9" cy="10" r="3.5" stroke="#6ED49A" stroke-width="1.8" fill="none"/>
+          <path d="M3 21c0-3 2.7-5.5 6-5.5" stroke="#6ED49A" stroke-width="1.8" stroke-linecap="round"/>
+          <circle cx="19" cy="10" r="3.5" stroke="#6ED49A" stroke-width="1.8" fill="none"/>
+          <path d="M19 15.5c3.3 0 6 2.5 6 5.5" stroke="#6ED49A" stroke-width="1.8" stroke-linecap="round"/>
+          <path d="M12 21h2M13 15.5V21" stroke="#6ED49A" stroke-width="1.8" stroke-linecap="round"/>
+          <path d="M17 4.5l1.5 1.5L12 12l-2.5-2.5L11 8l.5.5z" fill="#6ED49A" opacity=".5"/>
+        </svg>
+      </div>
+      <div class="card-name">Reclutamiento y Convocatorias</div>
+      <div class="card-desc">Crea convocatorias por evento, gestiona candidatos, envía invitaciones por WhatsApp y monitorea postulaciones.</div>
+      <div class="feats">
+        <div class="feat"><div class="feat-dot"></div>Crear convocatorias por evento</div>
+        <div class="feat"><div class="feat-dot"></div>Dashboard de postulantes</div>
+        <div class="feat"><div class="feat-dot"></div>Envío de convocatorias por WA</div>
+      </div>
+      <div class="card-footer">
+        <span class="chip">Reclutamiento</span>
+        <span class="arr">→</span>
+      </div>
+    </a>
+
+  </div>
+
+  <div class="footer">Desarrollado por &lt;servicia_ui&gt; · Grupo Batia</div>
+
+</div>
+</body>
+</html>
