@@ -2586,6 +2586,11 @@ function csv(filename,rows){
   a.href='data:text/csv;charset=utf-8,\uFEFF'+encodeURIComponent(c);
   a.download=filename;a.click();
 }
+function xlsText(val){
+  /* Fuerza a Excel a tratar el valor como texto, evitando notaci\u00F3n cient\u00EDfica en CLABE/Cuenta */
+  if(!val)return '';
+  return '="'+String(val).replace(/"/g,'""')+'"';
+}
 function dlTurno(evId,turno){
   var ev=eventos.find(function(e){return e.id===evId;});
   var lbl={antes:'Horario 1',durante:'Horario 2',despues:'Horario 3'}[turno];
@@ -2615,7 +2620,7 @@ function dlResumen(){
       if(ev.turnos.durante.find(function(x){return x.id===e.id;})){d++;p+=salarioTurno(ev,'durante');}
       if(ev.turnos.despues.find(function(x){return x.id===e.id;})){ds++;p+=salarioTurno(ev,'despues');}
     });
-    if(a+d+ds>0)rows.push([e.nombre,e.area,e.num,e.banco||'',e.clabe||'',e.ine&&e.ine.name?e.ine.name:'',a,d,ds,a+d+ds,moneda(p)]);
+    if(a+d+ds>0)rows.push([e.nombre,e.area,e.num,e.banco||'',xlsText(e.clabe),e.ine&&e.ine.name?e.ine.name:'',a,d,ds,a+d+ds,moneda(p)]);
   });
   var prefix=currentClientKey?CLIENTS[currentClientKey].slug:'demo';
   csv(prefix+'_resumen_'+new Date().toISOString().slice(0,10)+'.csv',rows);
@@ -3607,7 +3612,7 @@ window.importJornalesExcel=function(input){
     var ev=eventos.find(function(e){return e.id===evId;});
     var lbl={antes:'Horario 1',durante:'Horario 2',despues:'Horario 3'}[turno];
     var rows=[['#','N°','Nombre','Área','Tipo','Origen','Horario','Evento','Fecha','Banco','Cuenta','Pago']];
-    (ev.turnos[turno]||[]).forEach(function(e,i){rows.push([i+1,e.num,e.nombre,e.area,roleLabel(e.rol||e.workerType||'jornal'),originLabel(e),lbl,ev.nombre,ev.fecha,e.banco||'',e.cuenta||'',moneda(e.pago||payForRole(ev,turno,e.rol||'jornal'))]);});
+    (ev.turnos[turno]||[]).forEach(function(e,i){rows.push([i+1,e.num,e.nombre,e.area,roleLabel(e.rol||e.workerType||'jornal'),originLabel(e),lbl,ev.nombre,ev.fecha,e.banco||'',xlsText(e.cuenta),moneda(e.pago||payForRole(ev,turno,e.rol||'jornal'))]);});
     var prefix=currentClientKey?CLIENTS[currentClientKey].slug:'demo';
     csv(prefix+'_lista_'+lbl+'_'+ev.nombre.replace(/\s+/g,'_')+'.csv',rows);
     toast('Lista '+lbl+' descargada');
@@ -3618,7 +3623,7 @@ window.importJornalesExcel=function(input){
     var ev=selEv,rows=[['#','N°','Nombre','Área','Tipo','Origen','Horario','Banco','Cuenta','Pago']],i=1;
     ['antes','durante','despues'].forEach(function(t){
       var lbl={antes:'Horario 1',durante:'Horario 2',despues:'Horario 3'}[t];
-      (ev.turnos[t]||[]).forEach(function(e){rows.push([i++,e.num,e.nombre,e.area,roleLabel(e.rol||e.workerType||'jornal'),originLabel(e),lbl,e.banco||'',e.cuenta||'',moneda(e.pago||payForRole(ev,t,e.rol||'jornal'))]);});
+      (ev.turnos[t]||[]).forEach(function(e){rows.push([i++,e.num,e.nombre,e.area,roleLabel(e.rol||e.workerType||'jornal'),originLabel(e),lbl,e.banco||'',xlsText(e.cuenta),moneda(e.pago||payForRole(ev,t,e.rol||'jornal'))]);});
     });
     var prefix=currentClientKey?CLIENTS[currentClientKey].slug:'demo';
     csv(prefix+'_evento_'+ev.nombre.replace(/\s+/g,'_')+'.csv',rows);
@@ -3643,7 +3648,7 @@ window.importJornalesExcel=function(input){
           });
         });
       });
-      if(a+d+ds>0)rows.push([e.nombre,e.area,e.num,roleLabel(e.workerType||'jornal'),originLabel(e),e.banco||'',e.cuenta||'',e.clabe||'',e.ine&&e.ine.name?e.ine.name:'',a,d,ds,sup,a+d+ds,moneda(p)]);
+      if(a+d+ds>0)rows.push([e.nombre,e.area,e.num,roleLabel(e.workerType||'jornal'),originLabel(e),e.banco||'',xlsText(e.cuenta),xlsText(e.clabe),e.ine&&e.ine.name?e.ine.name:'',a,d,ds,sup,a+d+ds,moneda(p)]);
     });
     var prefix=currentClientKey?CLIENTS[currentClientKey].slug:'demo';
     csv(prefix+'_resumen_'+new Date().toISOString().slice(0,10)+'.csv',rows);
@@ -3655,7 +3660,7 @@ window.importJornalesExcel=function(input){
     dashboardEvents().forEach(function(ev){
       ['antes','durante','despues'].forEach(function(t){
         var lbl={antes:'Horario 1',durante:'Horario 2',despues:'Horario 3'}[t];
-        (ev.turnos[t]||[]).forEach(function(e){rows.push([ev.nombre,ev.tipo,ev.fecha,lbl,roleLabel(e.rol||e.workerType||'jornal'),originLabel(e),e.num,e.nombre,e.area,e.banco||'',e.cuenta||'',e.clabe||'',e.ine&&e.ine.name?e.ine.name:'',moneda(e.pago||payForRole(ev,t,e.rol||'jornal'))]);});
+        (ev.turnos[t]||[]).forEach(function(e){rows.push([ev.nombre,ev.tipo,ev.fecha,lbl,roleLabel(e.rol||e.workerType||'jornal'),originLabel(e),e.num,e.nombre,e.area,e.banco||'',xlsText(e.cuenta),xlsText(e.clabe),e.ine&&e.ine.name?e.ine.name:'',moneda(e.pago||payForRole(ev,t,e.rol||'jornal'))]);});
       });
     });
     var prefix=currentClientKey?CLIENTS[currentClientKey].slug:'demo';

@@ -520,17 +520,23 @@ def delete_payroll_period(
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
+def _xls_text(val: str | None) -> str:
+    """Wrap a string value so Excel displays it as text and doesn't convert to scientific notation."""
+    if not val:
+        return ""
+    return f'="{val}"'
+
+
 @app.get("/api/reports/payroll-final.csv")
 def payroll_final_report(
     period_id: int | None = None, _: User = Depends(current_user), db: Session = Depends(get_db)
 ) -> Response:
     period = get_period_or_404(db, period_id) if period_id else None
+
+    # Consolidated: one row per worker with total pay summed across all shifts/events
     query = (
         db.query(
             Client.name.label("client_name"),
-            Event.name.label("event_name"),
-            Event.event_date,
-            Event.event_type,
             Worker.employee_number,
             Worker.display_code,
             Worker.full_name,
@@ -540,15 +546,27 @@ def payroll_final_report(
             Worker.bank,
             Worker.account_number,
             Worker.clabe,
-            ShiftAssignment.shift,
-            ShiftAssignment.worker_role,
-            ShiftAssignment.pay_amount,
+            func.count(ShiftAssignment.id).label("shift_count"),
+            func.coalesce(func.sum(ShiftAssignment.pay_amount), 0).label("total_pay"),
         )
         .join(Event, Event.id == ShiftAssignment.event_id)
         .join(Client, Client.id == Event.client_id)
         .join(Worker, Worker.id == ShiftAssignment.worker_id)
         .filter(Client.active.is_(True))
-        .order_by(Client.name, Event.event_date, Event.name, Worker.full_name)
+        .group_by(
+            Client.name,
+            Worker.id,
+            Worker.employee_number,
+            Worker.display_code,
+            Worker.full_name,
+            Worker.area,
+            Worker.worker_type,
+            Worker.source,
+            Worker.bank,
+            Worker.account_number,
+            Worker.clabe,
+        )
+        .order_by(Client.name, Worker.full_name)
     )
     if period:
         query = query.filter(Event.event_date >= period.start_date, Event.event_date <= period.end_date)
@@ -561,22 +579,18 @@ def payroll_final_report(
             "Fecha inicio",
             "Fecha fin",
             "Cliente",
-            "Evento",
-            "Fecha evento",
-            "Tipo evento",
             "Numero",
             "Nombre",
             "Area",
-            "Tipo persona",
+            "Tipo",
             "Origen",
             "Banco",
             "Cuenta",
             "CLABE",
-            "Horario",
-            "Pago",
+            "Num. turnos",
+            "Total a pagar",
         ]
     )
-    shift_labels = {"before": "Horario 1", "during": "Horario 2", "after": "Horario 3"}
     for row in query.all():
         writer.writerow(
             [
@@ -584,19 +598,16 @@ def payroll_final_report(
                 period.start_date.isoformat() if period else "",
                 period.end_date.isoformat() if period else "",
                 row.client_name,
-                row.event_name,
-                row.event_date.isoformat(),
-                row.event_type,
                 row.display_code or row.employee_number,
                 row.full_name,
                 row.area,
-                "Supervisor" if row.worker_role == "supervisor" else "Jornal",
+                "Supervisor" if row.worker_type == "supervisor" else "Jornal",
                 row.source,
                 row.bank or "",
-                row.account_number or "",
-                row.clabe or "",
-                shift_labels.get(row.shift, row.shift),
-                f"{Decimal(row.pay_amount or 0):.2f}",
+                _xls_text(row.account_number),
+                _xls_text(row.clabe),
+                row.shift_count,
+                f"{Decimal(row.total_pay or 0):.2f}",
             ]
         )
     filename_period = f"periodo_{period.id}" if period else "todos"
