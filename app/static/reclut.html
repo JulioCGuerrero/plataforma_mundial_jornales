@@ -776,7 +776,15 @@ function showClients(){
         +'</div>';
     }).join('');
     $$('clients-screen').style.display='block';
-  }).catch(function(){logout();});
+  }).catch(function(e){
+    var msg=(e&&e.message)||'Error de conexión';
+    var isAuth=msg.indexOf('autorizado')!==-1||msg.indexOf('401')!==-1||msg.indexOf('No autorizado')!==-1;
+    if(isAuth){localStorage.removeItem('reclut_token');token='';}
+    $$('login-screen').style.display='flex';
+    var err=$$('r-err');
+    err.textContent=isAuth?'Sesión expirada, inicia sesión de nuevo':'Error al conectar con el servidor: '+msg;
+    err.style.display='block';
+  });
 }
 
 window.enterClient=function(slug,name){

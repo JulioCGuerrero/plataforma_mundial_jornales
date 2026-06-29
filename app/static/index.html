@@ -3345,7 +3345,17 @@ window.importJornalesExcel=function(input){
     document.getElementById('ev-count').textContent=allEventos.length&&allEventos.length!==eventos.length?eventos.length+'/'+allEventos.length:eventos.length;
     var g=document.getElementById('ev-grid');
     var period=currentPayrollPeriod();
-    if(!eventos.length){g.innerHTML='<p style="color:var(--muted);font-size:14px;grid-column:1/-1;padding:12px 0;opacity:.6">'+(period?'Sin eventos dentro de '+safeTxt(periodLabel(period))+'.':'Sin eventos registrados. Crea el primero.')+'</p>';return;}
+    if(!eventos.length){
+      var msg;
+      if(period&&allEventos.length){
+        msg='Sin eventos en el periodo seleccionado. Tienes '+allEventos.length+' evento'+(allEventos.length!==1?'s':'')+' en otros periodos — '
+          +'<a href="#" style="color:var(--red);text-decoration:underline" onclick="event.preventDefault();setPayrollPeriod(\'\')">ver todos</a>.';
+      } else {
+        msg=period?'Sin eventos dentro de '+safeTxt(periodLabel(period))+'.':'Sin eventos registrados. Crea el primero.';
+      }
+      g.innerHTML='<p style="color:var(--muted);font-size:14px;grid-column:1/-1;padding:12px 0;opacity:.8">'+msg+'</p>';
+      return;
+    }
     g.innerHTML=eventos.map(function(ev){
       var tot=(ev.turnos.antes||[]).length+(ev.turnos.durante||[]).length+(ev.turnos.despues||[]).length;
       var s=selEv&&selEv.id===ev.id;
@@ -3970,6 +3980,29 @@ window.importJornalesExcel=function(input){
     if(el)el.classList.toggle('t-collapsed');
   };
 
+  function reloadEventAssignments(evId){
+    return api('/api/clients/'+slug()+'/events/'+evId+'/assignments').then(function(assignments){
+      var idx=-1;
+      for(var i=0;i<allEventos.length;i++){if(allEventos[i].id===evId){idx=i;break;}}
+      if(idx<0)return;
+      var ev=allEventos[idx];
+      ev.turnos={antes:[],durante:[],despues:[]};
+      (assignments||[]).forEach(function(a){
+        var t=shiftFromApi[a.shift];
+        if(!t)return;
+        var w=toEmp(a.worker);
+        w._assignmentId=a.id;w.rol=a.worker_role||'jornal';w.pago=Number(a.pay_amount||0);
+        ev.turnos[t].push(w);
+      });
+      applyPayrollPeriodFilter();
+      if(selEv&&selEv.id===evId){
+        selEv=eventos.find(function(e){return e.id===evId;})||ev;
+        renderTurnos();
+      }
+      renderEventos();
+    });
+  }
+
   window.addEmp=function(evId,turno,role){
     role=role||'jornal';
     var val=parseInt(document.getElementById('sel-'+turno).value,10);
@@ -3979,8 +4012,8 @@ window.importJornalesExcel=function(input){
       method:'POST',
       body:JSON.stringify({worker_id:val,shift:shiftToApi[turno],worker_role:role})
     }).then(function(){
-      toast(role==='supervisor'?'Supervisor agregado al turno':'Jornal agregado al turno');
-      return loadClientData();
+      toast(role==='supervisor'?'Supervisor agregado':'Jornal agregado');
+      return reloadEventAssignments(evId);
     }).catch(function(e){toast('Error API: '+e.message);});
   };
 
@@ -3989,7 +4022,7 @@ window.importJornalesExcel=function(input){
     var item=ev&&ev.turnos[turno].find(function(e){return e.id===empId;});
     if(!item||!item._assignmentId){toast('Asignacion no encontrada');return;}
     api('/api/clients/'+slug()+'/assignments/'+item._assignmentId,{method:'DELETE'})
-      .then(function(){toast('Jornal removido del turno');return loadClientData();})
+      .then(function(){toast('Jornal removido');return reloadEventAssignments(evId);})
       .catch(function(e){toast('Error API: '+e.message);});
   };
 
