@@ -2992,7 +2992,6 @@ window.importJornalesExcel=function(input){
       applyPayrollPeriodFilter();
       renderPeriodos();
       renderEventos();
-      updateDashboardEventFilter();
       if(document.getElementById('view-resumen').classList.contains('active'))renderResumen();
       if(selEv)renderTurnos();
     });
@@ -3010,12 +3009,6 @@ window.importJornalesExcel=function(input){
     }else{
       document.getElementById('turnos-sec').style.display='none';
     }
-    // Lazy-load assignments for events newly visible in this period
-    loadVisibleAssignments().then(function(){
-      applyPayrollPeriodFilter();
-      renderEventos();
-      if(selEv)renderTurnos();
-    });
   };
   window.setPayrollType=function(value){
     selectedPayrollType=normalizePayrollType(value);
@@ -3098,28 +3091,9 @@ window.importJornalesExcel=function(input){
       veto_cleared_reason:document.getElementById('emp-veto-off-motivo').value.trim()||null
     };
   }
-  function loadVisibleAssignments(s){
-    if(!s)s=slug();
-    var toFetch=eventos.filter(function(ev){return !_loadedAssignmentIds[ev.id];});
-    if(!toFetch.length)return Promise.resolve();
-    return Promise.all(toFetch.map(function(ev){
-      return api('/api/clients/'+s+'/events/'+ev.id+'/assignments').then(function(assignments){
-        var raw=_rawEventsById[ev.id];
-        if(raw){
-          var updated=toEvent(raw,assignments);
-          for(var i=0;i<allEventos.length;i++){
-            if(allEventos[i].id===ev.id){allEventos[i]=updated;break;}
-          }
-        }
-        _loadedAssignmentIds[ev.id]=true;
-      }).catch(function(){_loadedAssignmentIds[ev.id]=true;});
-    }));
-  }
   function loadClientData(){
     var s=slug();
     if(!s)return Promise.resolve();
-    _rawEventsById={};
-    _loadedAssignmentIds={};
     return Promise.all([
       api('/api/clients/'+s+'/workers'),
       api('/api/clients/'+s+'/events'),
@@ -3127,18 +3101,29 @@ window.importJornalesExcel=function(input){
     ]).then(function(results){
       emps=results[0].map(toEmp);
       payrollPeriods=results[2]||[];
-      results[1].forEach(function(ev){_rawEventsById[ev.id]=ev;});
-      // Build skeleton events first (no assignments) so period filter can run immediately
-      allEventos=results[1].map(function(ev){return toEvent(ev,[]);});
-      applyPayrollPeriodFilter();
-      // Only fetch assignments for events visible in the current period (avoids N parallel DB calls)
-      return loadVisibleAssignments(s);
-    }).then(function(){
+      var rawEvents=results[1];
+      // Load assignments in sequential batches of 5 to avoid saturating Cloud SQL connections
+      var BATCH=5,mapped=[],chain=Promise.resolve();
+      for(var i=0;i<rawEvents.length;i+=BATCH){
+        (function(batch){
+          chain=chain.then(function(){
+            return Promise.all(batch.map(function(ev){
+              return api('/api/clients/'+s+'/events/'+ev.id+'/assignments').then(function(a){
+                mapped.push(toEvent(ev,a));
+              }).catch(function(){mapped.push(toEvent(ev,[]));});
+            }));
+          });
+        })(rawEvents.slice(i,i+BATCH));
+      }
+      return chain.then(function(){return mapped;});
+    }).then(function(mappedEvents){
+      allEventos=mappedEvents;
       applyPayrollPeriodFilter();
       selEv=selEv?eventos.find(function(ev){return ev.id===selEv.id;}):null;
       renderEventos();
       renderEmps();
       renderPeriodos();
+      if(document.getElementById('view-resumen').classList.contains('active'))renderResumen();
       if(selEv){
         document.getElementById('turnos-sec').style.display='block';
         document.getElementById('t-ev-title').textContent=selEv.nombre.toUpperCase();
@@ -4020,7 +4005,6 @@ window.importJornalesExcel=function(input){
         w._assignmentId=a.id;w.rol=a.worker_role||'jornal';w.pago=Number(a.pay_amount||0);
         ev.turnos[t].push(w);
       });
-      _loadedAssignmentIds[evId]=true;
       applyPayrollPeriodFilter();
       if(selEv&&selEv.id===evId){
         selEv=eventos.find(function(e){return e.id===evId;})||ev;
